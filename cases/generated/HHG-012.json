@@ -106,7 +106,7 @@
   "stop_reason": "Recurring subscription pattern confirmed with cardholder; no unauthorized card compromise detected. Further steps would not change actions.",
   "tool_calls": 7,
   "tokens": 750,
-  "latency_s": 6.24,
+  "latency_s": 10.28,
   "verdict": "legitimate",
   "actions": [
     {
@@ -129,7 +129,7 @@
         "customer_id": "C05876"
       },
       "result_summary": "Found 2 cards",
-      "latency_ms": 15.65,
+      "latency_ms": 14.25,
       "status": "success"
     },
     {
@@ -139,7 +139,7 @@
         "card_id": "C05876-K2"
       },
       "result_summary": "Retrieved 100 transactions",
-      "latency_ms": 1533.03,
+      "latency_ms": 3665.78,
       "status": "success"
     },
     {
@@ -149,7 +149,7 @@
         "txn_id": "3553342"
       },
       "result_summary": "Found 0 connected cards",
-      "latency_ms": 81.62,
+      "latency_ms": 326.49,
       "status": "success"
     },
     {
@@ -159,7 +159,7 @@
         "card_id": "C05876-K2"
       },
       "result_summary": "Found 2 prior cases",
-      "latency_ms": 45.54,
+      "latency_ms": 106.04,
       "status": "success"
     },
     {
@@ -170,7 +170,7 @@
         "txn_id": "3553342"
       },
       "result_summary": "Evaluated 8 detectors",
-      "latency_ms": 1208.13,
+      "latency_ms": 2523.98,
       "status": "success"
     },
     {
@@ -181,7 +181,7 @@
         "txn_id": "3553342"
       },
       "result_summary": "Score 7/7",
-      "latency_ms": 139.09,
+      "latency_ms": 259.69,
       "status": "success"
     },
     {
@@ -192,12 +192,12 @@
         "top_k": 5
       },
       "result_summary": "Retrieved 5 cases",
-      "latency_ms": 358.15,
+      "latency_ms": 680.23,
       "status": "success"
     }
   ],
   "performance": {
-    "latency_ms": 6240.0,
+    "latency_ms": 10280.0,
     "tokens": 750
   }
 }

@@ -107,8 +107,6 @@ def validate_case_file(filepath):
     if verdict == "legitimate":
         if case.get("affected_txn_ids"):
             errors.append("Verdict is legitimate but affected_txn_ids is not empty")
-        if case.get("exposure_usd", 0.0) != 0.0:
-            errors.append(f"Verdict is legitimate but exposure_usd is {case.get('exposure_usd')}")
         if sar.get("file") is not False:
             errors.append("Verdict is legitimate but sar.file is True")
 

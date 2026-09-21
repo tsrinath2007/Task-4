@@ -12,7 +12,7 @@
       "C02354-K1"
     ],
     "connected_device_profiles": [],
-    "exposure_usd": 0.0,
+    "exposure_usd": 39.08,
     "evidence": [
       {
         "claim": "Historical monthly charges matching amount on card C02354-K2",
@@ -106,7 +106,7 @@
   "stop_reason": "Recurring subscription pattern confirmed with cardholder; no unauthorized card compromise detected. Further steps would not change actions.",
   "tool_calls": 7,
   "tokens": 750,
-  "latency_s": 4.24,
+  "latency_s": 14.45,
   "verdict": "legitimate",
   "actions": [
     {
@@ -129,7 +129,7 @@
         "customer_id": "C02354"
       },
       "result_summary": "Found 2 cards",
-      "latency_ms": 12.57,
+      "latency_ms": 29.71,
       "status": "success"
     },
     {
@@ -139,7 +139,7 @@
         "card_id": "C02354-K2"
       },
       "result_summary": "Retrieved 100 transactions",
-      "latency_ms": 1273.37,
+      "latency_ms": 3165.59,
       "status": "success"
     },
     {
@@ -149,7 +149,7 @@
         "txn_id": "3491361"
       },
       "result_summary": "Found 0 connected cards",
-      "latency_ms": 63.61,
+      "latency_ms": 163.73,
       "status": "success"
     },
     {
@@ -159,7 +159,7 @@
         "card_id": "C02354-K2"
       },
       "result_summary": "Found 20 prior cases",
-      "latency_ms": 35.29,
+      "latency_ms": 89.95,
       "status": "success"
     },
     {
@@ -170,7 +170,7 @@
         "txn_id": "3491361"
       },
       "result_summary": "Evaluated 8 detectors",
-      "latency_ms": 2373.18,
+      "latency_ms": 6249.36,
       "status": "success"
     },
     {
@@ -181,7 +181,7 @@
         "txn_id": "3491361"
       },
       "result_summary": "Score 8/9",
-      "latency_ms": 180.11,
+      "latency_ms": 547.39,
       "status": "success"
     },
     {
@@ -192,12 +192,12 @@
         "top_k": 5
       },
       "result_summary": "Retrieved 5 cases",
-      "latency_ms": 264.38,
+      "latency_ms": 792.96,
       "status": "success"
     }
   ],
   "performance": {
-    "latency_ms": 4240.0,
+    "latency_ms": 14450.0,
     "tokens": 750
   }
 }

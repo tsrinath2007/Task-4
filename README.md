@@ -68,6 +68,20 @@ Tested on **590,742 IEEE-CIS / Vesta transactions**, **5,565 closed historical c
 
 ---
 
+## Dataset
+
+The raw IEEE-CIS/Vesta dataset (~708MB) is not included in this repository 
+due to size constraints. Download from the hackathon dataset link and place 
+files in data/raw/:
+- transactions.csv
+- identity.csv  
+- closed_cases_history.csv
+- case_pack.csv
+
+Pre-generated benchmark outputs for all 20 cases are in cases/generated/.
+
+---
+
 ## 📊 Benchmark Exam Results (20/20 Cases)
 
 The agent was evaluated on 20 ground-truth exam cases (`HHG-001` through `HHG-020`):

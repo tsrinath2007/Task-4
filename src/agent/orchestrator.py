@@ -394,6 +394,10 @@ def run_case(
     else:
         status = "escalated" if any(a["action"] == "ESCALATE_TO_ANALYST" for a in ctx.final_actions) else "open"
 
+    # Ensure exposure_usd always uses the flagged transaction amount from case_row, never 0.0 unless actual txn amount is 0
+    if (ctx.exposure_usd == 0.0 or ctx.verdict == "legitimate") and flagged_amount > 0:
+        ctx.exposure_usd = flagged_amount
+
     # TigerGraph Case writing
     ctx.graph_case_id = f"CASE-{case_id}"
     case_tg_payload = {
