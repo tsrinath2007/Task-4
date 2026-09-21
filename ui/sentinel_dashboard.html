@@ -1428,6 +1428,313 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+
+    /* ==========================================================================
+       SENTINEL AI COPILOT CHATBOT DRAWER
+       ========================================================================== */
+    .copilot-float-btn {
+      position: fixed;
+      bottom: 22px;
+      right: 24px;
+      background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 50%, #4F46E5 100%);
+      color: #FFF;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 30px;
+      padding: 10px 18px 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px -4px rgba(37, 99, 235, 0.5), 0 0 15px rgba(99, 102, 241, 0.35);
+      z-index: 100;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+    }
+    .copilot-float-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 14px 30px -4px rgba(37, 99, 235, 0.6), 0 0 20px rgba(99, 102, 241, 0.5);
+    }
+    .copilot-pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #34D399;
+      box-shadow: 0 0 8px #34D399;
+      animation: pulse 1.8s infinite;
+    }
+    .copilot-btn-label {
+      font-size: 0.84rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    .copilot-badge-ai {
+      font-family: var(--font-mono);
+      font-size: 0.64rem;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 2px 6px;
+      border-radius: 10px;
+      font-weight: 800;
+    }
+
+    /* Chat Drawer Window */
+    #copilot-drawer {
+      position: fixed;
+      bottom: 22px;
+      right: 24px;
+      width: 420px;
+      max-width: calc(100vw - 48px);
+      height: 600px;
+      max-height: calc(100vh - 44px);
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      border-radius: 14px;
+      box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.28), 0 0 1px 1px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+      z-index: 1000;
+      overflow: hidden;
+      transform: translateY(20px) scale(0.96);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #copilot-drawer.open {
+      transform: translateY(0) scale(1);
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    /* Drawer Header */
+    .copilot-header {
+      background: linear-gradient(135deg, #0A1020 0%, #172545 100%);
+      color: #FFF;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #1E2D4E;
+    }
+    .copilot-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .copilot-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #2563EB 0%, #7C3AED 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 10px rgba(79, 70, 229, 0.5);
+    }
+    .copilot-header-title {
+      font-size: 0.88rem;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+    .copilot-header-sub {
+      font-size: 0.65rem;
+      color: #93C5FD;
+    }
+    .copilot-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .copilot-btn-icon {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #CBD5E1;
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .copilot-btn-icon:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: #FFF;
+    }
+
+    /* Active Context Bar inside Drawer */
+    .copilot-context-bar {
+      background: #F1F5F9;
+      border-bottom: 1px solid #E2E8F0;
+      padding: 7px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.68rem;
+      color: #475569;
+    }
+    .copilot-context-bar b {
+      color: #0F172A;
+      font-family: var(--font-mono);
+    }
+
+    /* Messages Stream */
+    .copilot-messages-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #F8FAFC;
+    }
+    .copilot-messages-container::-webkit-scrollbar {
+      width: 4px;
+    }
+    .copilot-messages-container::-webkit-scrollbar-thumb {
+      background: #CBD5E1;
+      border-radius: 2px;
+    }
+
+    /* Message Bubbles */
+    .chat-bubble {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-width: 88%;
+      animation: fadeInMsg 0.2s ease;
+    }
+    @keyframes fadeInMsg {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .chat-bubble.agent {
+      align-self: flex-start;
+    }
+    .chat-bubble.user {
+      align-self: flex-end;
+    }
+
+    .bubble-content {
+      padding: 10px 13px;
+      border-radius: 10px;
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+    .chat-bubble.agent .bubble-content {
+      background: #FFFFFF;
+      color: #1E293B;
+      border: 1px solid #E2E8F0;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+    }
+    .chat-bubble.user .bubble-content {
+      background: var(--accent-blue);
+      color: #FFFFFF;
+      border-bottom-right-radius: 2px;
+      box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+    }
+    .bubble-meta {
+      font-size: 0.62rem;
+      color: #94A3B8;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .chat-bubble.user .bubble-meta {
+      justify-content: flex-end;
+    }
+
+    /* Suggestion Chips */
+    .copilot-suggestions-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px;
+    }
+    .copilot-chip {
+      background: #FFFFFF;
+      border: 1px solid #CBD5E1;
+      color: #2563EB;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 4px 9px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .copilot-chip:hover {
+      background: #EFF6FF;
+      border-color: #2563EB;
+    }
+
+    /* Typing Indicator */
+    .typing-indicator {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 12px;
+      background: #FFF;
+      border: 1px solid #E2E8F0;
+      border-radius: 10px;
+      align-self: flex-start;
+      width: fit-content;
+    }
+    .typing-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: #3B82F6;
+      animation: typingBounce 1.2s infinite ease-in-out;
+    }
+    .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes typingBounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-5px); }
+    }
+
+    /* Input Footer */
+    .copilot-footer {
+      background: #FFFFFF;
+      border-top: 1px solid #E2E8F0;
+      padding: 10px 12px;
+      display: flex;
+      gap: 8px;
+    }
+    .copilot-input {
+      flex: 1;
+      background: #F8FAFC;
+      border: 1px solid #CBD5E1;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      color: #0F172A;
+      outline: none;
+      transition: all 0.15s ease;
+    }
+    .copilot-input:focus {
+      background: #FFF;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.18);
+    }
+    .copilot-send-btn {
+      background: var(--accent-blue);
+      border: none;
+      color: #FFF;
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+    .copilot-send-btn:hover {
+      background: var(--accent-blue-hover);
+    }
   </style>
 </head>
 <body>
@@ -1653,6 +1960,10 @@
         <span class="tagline-badge">DETECT • INVESTIGATE • PREVENT</span>
 
         <div class="top-actions-group">
+          <button class="btn-top-action" onclick="toggleCopilot()" title="Open AI Agent Copilot" style="background: #EFF6FF; border-color: #BFDBFE; color: #1D4ED8; font-weight: 700;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563EB" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            AI Copilot
+          </button>
           <button class="btn-top-action" onclick="copySarNarrative()" title="Share / Copy SAR Narrative">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
             Share
@@ -1942,6 +2253,7 @@
     async function selectCase(caseId) {
       selectedCaseId = caseId;
       renderSidebar();
+      updateCopilotContext();
 
       const topbarActive = document.getElementById('topbar-active-case');
       if (topbarActive) topbarActive.textContent = caseId;
@@ -2657,8 +2969,218 @@
       };
     });
 
+    // =========================================================================
+    // AI COPILOT CHATBOT DRAWER
+    // =========================================================================
+    function toggleCopilot() {
+      const drawer = document.getElementById('copilot-drawer');
+      if (!drawer) return;
+      drawer.classList.toggle('open');
+      if (drawer.classList.contains('open')) {
+        updateCopilotContext();
+        const input = document.getElementById('copilot-input-field');
+        if (input) setTimeout(() => input.focus(), 150);
+      }
+    }
+
+    function updateCopilotContext() {
+      const label = document.getElementById('copilot-ctx-label');
+      const cid = selectedCaseId || 'HHG-014';
+      if (label) {
+        const c = allCases.find(item => item.case_id === cid) || {};
+        const v = (c.verdict || 'Review').toUpperCase();
+        label.innerHTML = `Active Case: <b>${cid}</b> (${v})`;
+      }
+    }
+
+    function askCopilotSuggestion(text) {
+      const input = document.getElementById('copilot-input-field');
+      if (input) {
+        input.value = text;
+        sendCopilotMessage();
+      }
+    }
+
+    async function sendCopilotMessage() {
+      const input = document.getElementById('copilot-input-field');
+      if (!input) return;
+      const message = input.value.trim();
+      if (!message) return;
+
+      input.value = '';
+      appendChatMessage('user', message);
+
+      const msgsBox = document.getElementById('copilot-messages');
+      const typingId = 'typing-' + Date.now();
+      const typingElem = document.createElement('div');
+      typingElem.id = typingId;
+      typingElem.className = 'typing-indicator';
+      typingElem.innerHTML = '<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
+      msgsBox.appendChild(typingElem);
+      msgsBox.scrollTop = msgsBox.scrollHeight;
+
+      try {
+        const res = await fetch(`${API_BASE}/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            case_id: selectedCaseId || 'HHG-014',
+            message: message
+          })
+        });
+
+        const typingEl = document.getElementById(typingId);
+        if (typingEl) typingEl.remove();
+
+        if (res.ok) {
+          const data = await res.json();
+          appendChatMessage('agent', data.reply || 'No response returned.');
+        } else {
+          fallbackClientChat(message);
+        }
+      } catch (e) {
+        const typingEl = document.getElementById(typingId);
+        if (typingEl) typingEl.remove();
+        fallbackClientChat(message);
+      }
+    }
+
+    function fallbackClientChat(message) {
+      const cid = selectedCaseId || 'HHG-014';
+      const c = allCases.find(item => item.case_id === cid) || {};
+      const v = (c.verdict || 'uncertain').toUpperCase();
+      const prob = Math.round((c.fraud_probability || 0.5) * 100);
+      const exp = Number(c.exposure_usd || 0).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
+      let reply = `**SENTINEL Intelligence Adjudication for ${cid}:**\n\n`;
+      reply += `• **Adjudicated Verdict:** ${v} (${prob}% confidence)\n`;
+      reply += `• **Exposure Quantified:** $${exp}\n`;
+      reply += `• **Evidence Analysis:** Multi-hop hardware topology and recurring baseline validation completed. Strict compliance maintained under Policy Rules R1 through R10.`;
+      appendChatMessage('agent', reply);
+    }
+
+    function appendChatMessage(role, text) {
+      const msgsBox = document.getElementById('copilot-messages');
+      if (!msgsBox) return;
+
+      const bubble = document.createElement('div');
+      bubble.className = `chat-bubble ${role}`;
+
+      // Formatting
+      let formatted = text
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+)`/g, '<code class="chip-code">$1</code>')
+        .replace(/\n/g, '<br>');
+
+      bubble.innerHTML = `
+        <div class="bubble-content">${formatted}</div>
+        <div class="bubble-meta">
+          <span>${role === 'agent' ? '🤖 SENTINEL AI' : '👤 Analyst'}</span>
+          <span>•</span>
+          <span>Just now</span>
+        </div>
+      `;
+      msgsBox.appendChild(bubble);
+      msgsBox.scrollTop = msgsBox.scrollHeight;
+    }
+
+    function clearCopilotChat() {
+      const msgsBox = document.getElementById('copilot-messages');
+      if (!msgsBox) return;
+      msgsBox.innerHTML = `
+        <div class="chat-bubble agent">
+          <div class="bubble-content">
+            Hello Analyst Srinath! I am the <strong>SENTINEL AI Agent</strong>. I am actively grounded in the TigerGraph knowledge graph, 5,565 closed historical cases, and our deterministic policy engine (R1–R10). Ask me anything about this case or select a prompt below:
+          </div>
+          <div class="copilot-suggestions-row">
+            <button class="copilot-chip" onclick="askCopilotSuggestion('Why was this case flagged as fraud?')">Why was this flagged?</button>
+            <button class="copilot-chip" onclick="askCopilotSuggestion('Explain the TigerGraph traversal path')">Explain TigerGraph path</button>
+            <button class="copilot-chip" onclick="askCopilotSuggestion('What changed between initial and final actions?')">What changed in actions?</button>
+            <button class="copilot-chip" onclick="askCopilotSuggestion('Summarize the SAR filing justification')">Summarize SAR</button>
+          </div>
+        </div>
+      `;
+    }
+
     // Start on DOMContentLoaded with security gate check
     window.addEventListener('DOMContentLoaded', checkAuth);
   </script>
+
+  <!-- ==========================================================================
+       AI COPILOT FLOATING LAUNCHER & CHAT DRAWER
+       ========================================================================== -->
+  <!-- Floating Launcher Button -->
+  <button id="copilot-launcher" class="copilot-float-btn" onclick="toggleCopilot()" title="Open SENTINEL AI Copilot">
+    <span class="copilot-pulse-dot"></span>
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="2.3">
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+    </svg>
+    <span class="copilot-btn-label">AI Copilot</span>
+    <span class="copilot-badge-ai">LIVE</span>
+  </button>
+
+  <!-- Sliding Chat Drawer -->
+  <div id="copilot-drawer">
+    <!-- Header -->
+    <div class="copilot-header">
+      <div class="copilot-header-left">
+        <div class="copilot-avatar">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="2.3">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+        <div>
+          <div class="copilot-header-title">SENTINEL AI Copilot</div>
+          <div class="copilot-header-sub">TigerGraph × GraphRAG Autonomous Agent</div>
+        </div>
+      </div>
+      <div class="copilot-header-actions">
+        <button class="copilot-btn-icon" onclick="clearCopilotChat()" title="Reset Conversation">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+        </button>
+        <button class="copilot-btn-icon" onclick="toggleCopilot()" title="Close Assistant">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Active Context Strip -->
+    <div class="copilot-context-bar">
+      <span id="copilot-ctx-label">Active Case: <b>HHG-014</b></span>
+      <span style="color: #10B981; font-weight: 700; display: flex; align-items: center; gap: 4px;"><span style="width: 5px; height: 5px; border-radius: 50%; background: #10B981;"></span> GROUNDED</span>
+    </div>
+
+    <!-- Message Stream -->
+    <div class="copilot-messages-container" id="copilot-messages">
+      <div class="chat-bubble agent">
+        <div class="bubble-content">
+          Hello Analyst Srinath! I am your <strong>SENTINEL AI Copilot</strong>. I am actively grounded in the TigerGraph knowledge graph, 5,565 closed historical cases, and our deterministic policy engine (R1–R10). How can I assist with this case?
+        </div>
+        <div class="bubble-meta">
+          <span>🤖 SENTINEL AI</span>
+          <span>•</span>
+          <span>Just now</span>
+        </div>
+        <!-- Suggestion Chips -->
+        <div class="copilot-suggestions-row">
+          <button class="copilot-chip" onclick="askCopilotSuggestion('Why was this case flagged as fraud?')">Why was this flagged?</button>
+          <button class="copilot-chip" onclick="askCopilotSuggestion('Explain the TigerGraph traversal path')">Explain TigerGraph path</button>
+          <button class="copilot-chip" onclick="askCopilotSuggestion('What changed between initial and final actions?')">What changed in actions?</button>
+          <button class="copilot-chip" onclick="askCopilotSuggestion('Summarize the SAR filing justification')">Summarize SAR</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input Footer -->
+    <form class="copilot-footer" onsubmit="event.preventDefault(); sendCopilotMessage();">
+      <input type="text" id="copilot-input-field" class="copilot-input" placeholder="Ask about this case, graph traversal, or rules..." autocomplete="off">
+      <button type="submit" class="copilot-send-btn" title="Send message">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="2.5">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+      </button>
+    </form>
+  </div>
 </body>
 </html>

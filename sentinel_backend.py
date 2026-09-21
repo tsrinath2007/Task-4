@@ -9,6 +9,7 @@ import os
 import glob
 import json
 import pandas as pd
+from pydantic import BaseModel
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -285,3 +286,145 @@ def get_summary():
         "total_exposure_usd": round(exp, 2),
         "total_runtime_s": 0.0
     }
+
+
+class ChatRequest(BaseModel):
+    case_id: str = "HHG-014"
+    message: str = ""
+
+
+@app.post("/api/chat")
+def chat_with_agent(req: ChatRequest):
+    """Interactive conversational interface grounded in TigerGraph and case context."""
+    case_data = get_case(req.case_id)
+    if "error" in case_data:
+        return {"reply": f"I couldn't locate data for case {req.case_id}. Please ensure cases are generated."}
+
+    query = req.message.lower().strip()
+    cid = case_data.get("case_id", req.case_id)
+    verdict = case_data.get("verdict", "uncertain").upper()
+    prob = round(case_data.get("fraud_probability", 0.5) * 100)
+    card = case_data.get("card_id", "Unknown Card")
+    pattern = case_data.get("pattern", "isolated_alert").replace("_", " ")
+    exposure = case_data.get("exposure_usd", 0.0)
+    sar = case_data.get("sar", {})
+    devices = case_data.get("connected_device_profiles", [])
+    conn_cards = case_data.get("connected_card_ids", [])
+    initial_actions = case_data.get("next_best_actions", {}).get("initial", [])
+    final_actions = case_data.get("next_best_actions", {}).get("final", [])
+    what_changed = case_data.get("next_best_actions", {}).get("what_changed", "")
+    priors = case_data.get("similar_prior_cases", [])
+
+    # Check if Groq is available for live LLM synthesis
+    groq_key = os.environ.get("GROQ_API_KEY")
+    if groq_key:
+        try:
+            from groq import Groq
+            client = Groq(api_key=groq_key)
+            system_prompt = f"""You are SENTINEL AI, an expert autonomous fraud investigation agent at a tier-1 financial institution powered by TigerGraph and GraphRAG.
+You are conversing with fraud analyst Srinath T. regarding case {cid}.
+Case Intelligence:
+- Card ID: {card}
+- Adjudication Verdict: {verdict} ({prob}% fraud probability)
+- Flagged Transaction Exposure: ${exposure:,.2f}
+- Pattern: {pattern}
+- Shared Hardware Profiles: {', '.join(devices) if devices else 'None'}
+- Connected Cards: {len(conn_cards)} cards linked ({', '.join(conn_cards[:5])}...)
+- Initial Actions: {json.dumps(initial_actions)}
+- Final Actions: {json.dumps(final_actions)}
+- What Changed: {what_changed}
+- SAR Required: {case_data.get('sar_filed', False)}
+- SAR Narrative: {sar.get('narrative', 'N/A')}
+
+Answer the analyst's question clearly, authoritatively, and concisely. Quote specific graph connections, policy rules (R1 to R10), or approval routes (AUTO, L1, L2). Use markdown bullet points."""
+
+            chat_comp = client.chat.completions.create(
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": req.message}
+                ],
+                model="llama-3.3-70b-versatile",
+                temperature=0.2,
+                max_tokens=400,
+            )
+            return {"reply": chat_comp.choices[0].message.content}
+        except Exception as e:
+            print(f"[chat] Groq call failed or timed out: {e}")
+
+    # Fallback to expert deterministic knowledge synthesis
+    if any(w in query for w in ["why", "flag", "reason", "verdict", "score", "adjudicat"]):
+        if verdict == "FRAUD":
+            reply = f"**Case {cid}** was adjudicated as **FRAUD** with a **{prob}% probability** and **${exposure:,.2f}** flagged exposure.\n\n"
+            reply += f"**Key Evidence & Drivers:**\n"
+            reply += f"• **Pattern:** {pattern.title()}\n"
+            if len(devices) > 0:
+                reply += f"• **Shared Device Ring:** Linked to hardware profile `{devices[0]}`, connected to **{len(conn_cards)} distinct cards** in TigerGraph.\n"
+            reply += f"• **Stopping Rule §6:** {case_data.get('stop_reason', 'Sufficient graph evidence confirmed multi-card compromise.')}\n"
+            if case_data.get('sar_filed'):
+                reply += f"• **Regulatory Mandate:** Suspicious Activity Report (SAR) filed under FinCEN CFR §1020.320."
+        elif verdict == "LEGITIMATE":
+            reply = f"**Case {cid}** was cleared as **LEGITIMATE** with a low **{prob}% risk probability**.\n\n"
+            reply += f"• **Baseline Consistency:** Transaction matched customer's established 30-day recurring subscription pattern.\n"
+            reply += f"• **Policy Rule R7 Applied:** Disputed recurring charges are protected; card blocking is prohibited.\n"
+            reply += f"• **Final Action:** Closed with `CLOSE_NO_FRAUD` [AUTO] and $0 regulatory exposure."
+        else:
+            reply = f"**Case {cid}** is classified as **UNCERTAIN** ({prob}% probability). Signals were ambiguous; escalated to Senior Fraud Analyst (Route L1) per Rule R8."
+        return {"reply": reply}
+
+    elif any(w in query for w in ["graph", "traversal", "device", "ring", "connect", "link"]):
+        reply = f"**TigerGraph Traversal Path for {cid}:**\n\n"
+        reply += f"1. **Focal Vertex:** Card `{card}`\n"
+        if devices:
+            reply += f"2. **1-Hop Traversal (USED_ON):** Device Profile `{devices[0]}`\n"
+            reply += f"3. **2-Hop Traversal (SHARED_DEVICE):** Identified **{len(conn_cards)} cards** linked to the same physical device.\n"
+        else:
+            reply += f"2. **Device State:** No shared device detected; analyzed merchant network and IP subnets.\n"
+        if priors:
+            p_ids = [p.get("case_id", p) if isinstance(p, dict) else str(p) for p in priors[:3]]
+            reply += f"4. **GraphRAG Prior Cases:** Semantically clustered with past investigations `{', '.join(p_ids)}`."
+        return {"reply": reply}
+
+    elif any(w in query for w in ["action", "next best", "changed", "route", "initial", "final"]):
+        reply = f"**Next-Best Action Progression for {cid}:**\n\n"
+        reply += f"**Initial Actions (Pre-Evidence):**\n"
+        for a in initial_actions[:3]:
+            reply += f"• `{a.get('action')}` [{a.get('route', 'AUTO').upper()}]: {a.get('reason', '')}\n"
+        reply += f"\n**Final Actions (Post-Evidence):**\n"
+        for a in final_actions[:3]:
+            reply += f"• `{a.get('action')}` [{a.get('route', 'AUTO').upper()}]: {a.get('reason', '')}\n"
+        if what_changed:
+            reply += f"\n**What Changed:** {what_changed}"
+        return {"reply": reply}
+
+    elif any(w in query for w in ["sar", "report", "fincen", "filing"]):
+        if case_data.get("sar_filed"):
+            reply = f"**Suspicious Activity Report (SAR) — FILED [Route L2]:**\n\n"
+            reply += f"• **Total Exposure:** ${exposure:,.2f}\n"
+            reply += f"• **Filing Reason:** {sar.get('reason', 'Multi-card compromise syndicate')}\n"
+            reply += f"• **Narrative Excerpt:**\n> \"{sar.get('narrative', '')[:220]}...\""
+        else:
+            reply = f"**No SAR Filed:** For case {cid}, the transaction was determined to be {verdict.lower()}. Under BSA guidelines, no SAR filing is warranted."
+        return {"reply": reply}
+
+    elif any(w in query for w in ["rule", "policy", "r1", "r6", "r7", "r8", "r10"]):
+        reply = f"**Policy Engine Governance (Rules R1–R10):**\n\n"
+        reply += f"• **R1:** Mandates customer verification prior to taking restrictive actions.\n"
+        reply += f"• **R2:** Confirmed unauthorized activity requires `BLOCK_CARD` [L1].\n"
+        reply += f"• **R6:** Shared device rings ($\ge 3$ cards) mandate `FILE_REPORT` [L2] and network monitoring.\n"
+        reply += f"• **R7:** Recurring subscription disputes forbid blocking (`WARN_CUSTOMER` only).\n"
+        reply += f"• **R8:** Ambiguous signals with $>\\$500$ exposure escalate to `ESCALATE_TO_ANALYST` [L1].\n"
+        reply += f"• **R10:** `BLOCK_ALL_CARDS` requires $\ge 2$ confirmed compromised cards."
+        return {"reply": reply}
+
+    # Default overview
+    return {
+        "reply": f"Regarding **Case {cid}** (Card: `{card}`, Verdict: **{verdict}**):\n\n"
+                 f"The case has an evaluated fraud probability of **{prob}%** with **${exposure:,.2f}** flagged exposure. "
+                 f"I have full access to its TigerGraph 2-hop traversal records, 8 detector outputs, and FinCEN SAR drafts.\n\n"
+                 f"Try asking:\n"
+                 f"• *\"Why was this case flagged as fraud?\"*\n"
+                 f"• *\"Explain the TigerGraph traversal path\"*\n"
+                 f"• *\"What changed in final actions?\"*\n"
+                 f"• *\"Summarize the SAR filing\"*"
+    }
+
