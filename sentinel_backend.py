@@ -101,14 +101,6 @@ def normalise(data: dict) -> dict:
     except (ValueError, TypeError):
         exposure = 0.0
 
-    # For legitimate cases with CLOSE_NO_FRAUD in final actions, set exposure_usd to 0.0
-    has_close_no_fraud = any(
-        (isinstance(a, dict) and a.get("action") == "CLOSE_NO_FRAUD") or a == "CLOSE_NO_FRAUD"
-        for a in final_actions
-    )
-    if verdict == "legitimate" and has_close_no_fraud:
-        exposure = 0.0
-
     # 6. SAR
     sar_filed = sar.get("file")
     if sar_filed is None:
