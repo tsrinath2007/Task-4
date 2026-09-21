@@ -1837,31 +1837,31 @@
 
     <!-- Navigation Menu -->
     <nav class="sidebar-nav">
-      <a class="nav-item active" href="#">
+      <a id="nav-investigations" class="nav-item active" href="javascript:void(0)" onclick="switchView('investigations')">
         <span class="nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
         <span>Investigations</span>
       </a>
-      <a class="nav-item" href="#">
+      <a id="nav-graph_explorer" class="nav-item" href="javascript:void(0)" onclick="switchView('graph_explorer')">
         <span class="nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></span>
         <span>Graph Explorer</span>
       </a>
-      <a class="nav-item" href="#">
+      <a id="nav-entity_intelligence" class="nav-item" href="javascript:void(0)" onclick="switchView('entity_intelligence')">
         <span class="nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
         <span>Entity Intelligence</span>
       </a>
-      <a class="nav-item" href="#">
+      <a id="nav-risk_analytics" class="nav-item" href="javascript:void(0)" onclick="switchView('risk_analytics')">
         <span class="nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
         <span>Risk Analytics</span>
       </a>
-      <a class="nav-item" href="#">
+      <a id="nav-case_reports" class="nav-item" href="javascript:void(0)" onclick="switchView('case_reports')">
         <span class="nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
         <span>Case Reports</span>
       </a>
-      <a class="nav-item" href="#">
+      <a id="nav-watchlist" class="nav-item" href="javascript:void(0)" onclick="switchView('watchlist')">
         <span class="nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></span>
         <span>Watchlist</span>
       </a>
-      <a class="nav-item" href="#">
+      <a id="nav-settings" class="nav-item" href="javascript:void(0)" onclick="switchView('settings')">
         <span class="nav-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
         <span>Settings</span>
       </a>
@@ -2973,7 +2973,698 @@
     });
 
     // =========================================================================
-    // AI COPILOT CHATBOT DRAWER
+    // MULTI-COMPONENT NAVIGATION & VIEW RENDERERS
+    // =========================================================================
+    let currentView = 'investigations';
+
+    function switchView(viewName) {
+      currentView = viewName;
+      document.querySelectorAll('.sidebar-nav .nav-item').forEach(el => el.classList.remove('active'));
+      const activeEl = document.getElementById(`nav-${viewName}`);
+      if (activeEl) activeEl.classList.add('active');
+
+      const main = document.getElementById('main-content');
+      if (!main) return;
+
+      if (viewName === 'investigations') {
+        selectCase(selectedCaseId || 'HHG-014');
+      } else if (viewName === 'graph_explorer') {
+        renderGraphExplorerView();
+      } else if (viewName === 'entity_intelligence') {
+        renderEntityIntelligenceView();
+      } else if (viewName === 'risk_analytics') {
+        renderRiskAnalyticsView();
+      } else if (viewName === 'case_reports') {
+        renderCaseReportsView();
+      } else if (viewName === 'watchlist') {
+        renderWatchlistView();
+      } else if (viewName === 'settings') {
+        renderSettingsView();
+      }
+    }
+
+    // 1. GRAPH EXPLORER VIEW
+    function renderGraphExplorerView() {
+      const main = document.getElementById('main-content');
+      if (!main) return;
+      const targetCid = selectedCaseId || 'HHG-014';
+
+      main.innerHTML = `
+        <div style="padding: 24px 32px; max-width: 1400px; margin: 0 auto;">
+          <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 20px 24px; margin-bottom: 20px; box-shadow: var(--shadow-card);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 14px;">
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                  <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #2563EB; background: #EFF6FF; padding: 3px 8px; border-radius: 4px;">TigerGraph Studio</span>
+                  <span style="font-size: 0.75rem; color: #64748B;">• 2-Hop Network Topology Traversal</span>
+                </div>
+                <h1 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin: 0 0 4px 0;">TigerGraph Network Topology Explorer</h1>
+                <p style="font-size: 0.82rem; color: #64748B; margin: 0;">Multi-hop entity graph mapping connected cards, shared hardware fingerprints, and merchant clusters across 142,520 vertices and 489,112 edges.</p>
+              </div>
+              <div style="display: flex; gap: 8px; align-items: center;">
+                <span style="font-size: 0.75rem; font-family: var(--font-mono); background: #F8FAFC; border: 1px solid #CBD5E1; padding: 6px 12px; border-radius: 6px; color: #334155;">🟢 Connected: FraudGraph v3.1</span>
+                <button class="btn-top-action" onclick="switchView('investigations')">Back to Cases</button>
+              </div>
+            </div>
+            
+            <div style="display: flex; gap: 14px; align-items: center; margin-top: 16px; padding-top: 14px; border-top: 1px solid #F1F5F9; flex-wrap: wrap;">
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 0.78rem; font-weight: 600; color: #475569;">Focus Case:</span>
+                <select id="graph-focus-select" style="padding: 5px 10px; font-size: 0.78rem; border: 1px solid #CBD5E1; border-radius: 6px; background: #FFF; font-weight: 600;" onchange="updateGraphExplorerCanvas(this.value)">
+                  ${allCases.map(c => `<option value="${c.case_id}" ${c.case_id === targetCid ? 'selected' : ''}>${c.case_id} (${c.verdict.toUpperCase()} - ${(c.fraud_probability*100).toFixed(1)}%)</option>`).join('')}
+                </select>
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="font-size: 0.78rem; font-weight: 600; color: #475569;">Hop Depth:</span>
+                <button class="filter-pill" style="padding: 4px 10px; font-size: 0.74rem;">1-Hop</button>
+                <button class="filter-pill active" style="padding: 4px 10px; font-size: 0.74rem;">2-Hop (Syndicate Ring)</button>
+                <button class="filter-pill" style="padding: 4px 10px; font-size: 0.74rem;">3-Hop (Ecosystem)</button>
+              </div>
+              <div style="margin-left: auto; display: flex; gap: 8px;">
+                <span style="font-size: 0.75rem; color: #64748B;">Layout: <strong style="color: #2563EB;">Radial Ego-Net</strong></span>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 340px; gap: 20px;">
+            <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 18px; box-shadow: var(--shadow-card); min-height: 540px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <span style="font-size: 0.8rem; font-weight: 700; color: #334155; text-transform: uppercase;">Topology Canvas (2-Hop Ego Graph)</span>
+                <div style="display: flex; gap: 14px; font-size: 0.72rem; color: #64748B;">
+                  <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #2563EB;"></span> Card</span>
+                  <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #EF4444;"></span> Device</span>
+                  <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #10B981;"></span> Merchant</span>
+                  <span style="display: flex; align-items: center; gap: 4px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #8B5CF6;"></span> Customer</span>
+                </div>
+              </div>
+              <div id="graph-svg-container" style="width: 100%; height: 480px; background: #0A1020; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+              </div>
+            </div>
+
+            <div id="graph-node-inspector" style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 10px; padding: 20px; box-shadow: var(--shadow-card); display: flex; flex-direction: column;">
+            </div>
+          </div>
+        </div>
+      `;
+      updateGraphExplorerCanvas(targetCid);
+    }
+
+    function updateGraphExplorerCanvas(cid) {
+      const c = allCases.find(item => item.case_id === cid) || allCases[0] || {};
+      const svgContainer = document.getElementById('graph-svg-container');
+      const inspector = document.getElementById('graph-node-inspector');
+      if (!svgContainer || !inspector) return;
+
+      const isFraud = c.verdict === 'fraud';
+      const devId = (c.connected_device_profiles && c.connected_device_profiles[0]) || (isFraud ? 'D005668' : 'D001294');
+      const cardId = c.card_id || 'C13487-K1';
+      const probPct = ((c.fraud_probability || 0.5) * 100).toFixed(1);
+      const connCards = c.connected_card_ids || [];
+      const numConn = connCards.length || (isFraud ? 12 : 1);
+
+      // SVG Dimensions
+      const w = 700;
+      const h = 480;
+      const cx = w / 2;
+      const cy = h / 2;
+
+      let satelliteNodes = [];
+      const count = Math.min(numConn, 12);
+      for (let i = 0; i < count; i++) {
+        const angle = (i / count) * 2 * Math.PI - Math.PI / 2;
+        const radius = isFraud ? 150 : 120;
+        satelliteNodes.push({
+          id: connCards[i] || `C0${1000 + i * 87}-K${(i % 3) + 1}`,
+          x: cx + radius * Math.cos(angle),
+          y: cy + radius * Math.sin(angle),
+          type: 'card',
+          isFocal: i === 0,
+          color: i === 0 ? '#38BDF8' : (isFraud ? '#F87171' : '#34D399')
+        });
+      }
+
+      svgContainer.innerHTML = `
+        <svg width="100%" height="100%" viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="ringPulse" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="${isFraud ? '#EF4444' : '#10B981'}" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="${isFraud ? '#EF4444' : '#10B981'}" stop-opacity="0"/>
+            </radialGradient>
+          </defs>
+
+          <!-- Background concentric rings -->
+          <circle cx="${cx}" cy="${cy}" r="75" stroke="#1E293B" stroke-width="1" fill="none" stroke-dasharray="3,3"/>
+          <circle cx="${cx}" cy="${cy}" r="150" stroke="#1E293B" stroke-width="1" fill="none" stroke-dasharray="3,3"/>
+          <circle cx="${cx}" cy="${cy}" r="210" stroke="#1E293B" stroke-width="1" fill="none" stroke-dasharray="3,3"/>
+
+          <!-- Edges from Center Device to Cards -->
+          ${satelliteNodes.map(n => `
+            <line x1="${cx}" y1="${cy}" x2="${n.x}" y2="${n.y}" stroke="${isFraud ? '#EF4444' : '#334155'}" stroke-width="${n.isFocal ? '2.5' : '1.2'}" stroke-opacity="${isFraud ? '0.7' : '0.4'}"/>
+          `).join('')}
+
+          <!-- Merchant Connections -->
+          <line x1="${cx}" y1="${cy}" x2="${cx - 190}" y2="${cy - 70}" stroke="#10B981" stroke-width="1.2" stroke-dasharray="4,3" stroke-opacity="0.6"/>
+          <line x1="${cx}" y1="${cy}" x2="${cx + 190}" y2="${cy + 70}" stroke="#10B981" stroke-width="1.2" stroke-dasharray="4,3" stroke-opacity="0.6"/>
+
+          <!-- Merchant Nodes -->
+          <g transform="translate(${cx - 190}, ${cy - 70})" style="cursor: pointer;" onclick="inspectGraphNode('merchant', 'M-40192', 'Digital Terminal #401', 142)">
+            <circle cx="0" cy="0" r="16" fill="#064E3B" stroke="#10B981" stroke-width="2"/>
+            <text x="0" y="3" fill="#A7F3D0" font-size="7" font-weight="700" text-anchor="middle" font-family="monospace">MERCH</text>
+            <text x="0" y="24" fill="#94A3B8" font-size="8" text-anchor="middle">Store M401</text>
+          </g>
+          <g transform="translate(${cx + 190}, ${cy + 70})" style="cursor: pointer;" onclick="inspectGraphNode('merchant', 'M-88210', 'Online Gateway #882', 95)">
+            <circle cx="0" cy="0" r="16" fill="#064E3B" stroke="#10B981" stroke-width="2"/>
+            <text x="0" y="3" fill="#A7F3D0" font-size="7" font-weight="700" text-anchor="middle" font-family="monospace">GATEWAY</text>
+            <text x="0" y="24" fill="#94A3B8" font-size="8" text-anchor="middle">Gateway M882</text>
+          </g>
+
+          <!-- Center Hub Node (Device Profile) -->
+          <g transform="translate(${cx}, ${cy})" style="cursor: pointer;" onclick="inspectGraphNode('device', '${devId}', '${isFraud ? 'High-Risk Shared Hardware Profile' : 'Cardholder Primary Mobile Device'}', ${numConn})">
+            <circle cx="0" cy="0" r="38" fill="url(#ringPulse)">
+              <animate attributeName="r" values="30;46;30" dur="2.4s" repeatCount="indefinite"/>
+            </circle>
+            <circle cx="0" cy="0" r="24" fill="${isFraud ? '#7F1D1D' : '#064E3B'}" stroke="${isFraud ? '#EF4444' : '#10B981'}" stroke-width="3"/>
+            <text x="0" y="-3" fill="#F8FAFC" font-size="8.5" font-weight="800" text-anchor="middle" font-family="monospace">${devId}</text>
+            <text x="0" y="10" fill="${isFraud ? '#FCA5A5' : '#6EE7B7'}" font-size="7" text-anchor="middle">${isFraud ? 'RING MASTER' : 'VALID DEVICE'}</text>
+          </g>
+
+          <!-- Satellite Card Nodes -->
+          ${satelliteNodes.map(n => `
+            <g transform="translate(${n.x}, ${n.y})" style="cursor: pointer;" onclick="inspectGraphNode('card', '${n.id}', '${n.isFocal ? 'Focal Investigation Card (' + cid + ')' : 'Linked Network Card'}', 1)">
+              <circle cx="0" cy="0" r="${n.isFocal ? '18' : '14'}" fill="#0F172A" stroke="${n.color}" stroke-width="${n.isFocal ? '3' : '1.8'}"/>
+              <text x="0" y="3" fill="#F8FAFC" font-size="${n.isFocal ? '7.5' : '6.5'}" font-weight="700" text-anchor="middle" font-family="monospace">${n.id.substring(0, 6)}</text>
+              <text x="0" y="${n.isFocal ? '25' : '20'}" fill="#CBD5E1" font-size="7.5" text-anchor="middle">${n.isFocal ? '★ Focal' : ''}</text>
+            </g>
+          `).join('')}
+        </svg>
+      `;
+
+      inspectGraphNode('device', devId, isFraud ? 'Shared Syndicate Device Ring' : 'Verified Home Device', numConn);
+    }
+
+    function inspectGraphNode(type, id, label, degree) {
+      const inspector = document.getElementById('graph-node-inspector');
+      if (!inspector) return;
+
+      const isDev = type === 'device';
+      const isCard = type === 'card';
+      const isMerch = type === 'merchant';
+
+      inspector.innerHTML = `
+        <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: #2563EB; margin-bottom: 4px;">Node Inspector</div>
+        <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin: 0 0 10px 0; font-family: var(--font-mono);">${id}</h3>
+        <span style="font-size: 0.75rem; background: ${isDev ? '#FEF2F2' : (isCard ? '#EFF6FF' : '#ECFDF5')}; color: ${isDev ? '#DC2626' : (isCard ? '#2563EB' : '#059669')}; border: 1px solid ${isDev ? '#FECACA' : (isCard ? '#BFDBFE' : '#A7F3D0')}; padding: 3px 8px; border-radius: 4px; font-weight: 600; display: inline-block; margin-bottom: 16px;">
+          ${type.toUpperCase()} • ${label}
+        </span>
+
+        <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.78rem;">
+          <div style="display: flex; justify-content: space-between; padding-bottom: 6px; border-bottom: 1px solid #F1F5F9;">
+            <span style="color: #64748B;">TigerGraph Vertex:</span>
+            <strong style="color: #0F172A; font-family: var(--font-mono);">${type.toUpperCase()}</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding-bottom: 6px; border-bottom: 1px solid #F1F5F9;">
+            <span style="color: #64748B;">Degree Centrality:</span>
+            <strong style="color: #2563EB;">${degree} Connections</strong>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding-bottom: 6px; border-bottom: 1px solid #F1F5F9;">
+            <span style="color: #64748B;">First Seen in Graph:</span>
+            <span style="color: #334155;">Oct 2016</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding-bottom: 6px; border-bottom: 1px solid #F1F5F9;">
+            <span style="color: #64748B;">Risk Evaluation:</span>
+            <span style="font-weight: 700; color: ${degree > 3 ? '#DC2626' : '#059669'};">${degree > 3 ? 'CRITICAL (Syndicate Hub)' : 'NORMAL (Baseline)'}</span>
+          </div>
+        </div>
+
+        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #E2E8F0;">
+          <div style="font-size: 0.75rem; font-weight: 700; color: #334155; margin-bottom: 8px;">Automated Policy Actions</div>
+          <div style="display: flex; flex-direction: column; gap: 6px;">
+            <button class="btn-top-action" style="width: 100%; justify-content: center; font-size: 0.76rem;" onclick="alert('Querying 3-hop neighbor subgraph for ' + '${id}' + '...')">🔍 Expand 3-Hop Subgraph</button>
+            <button class="btn-top-action" style="width: 100%; justify-content: center; font-size: 0.76rem; color: #DC2626; border-color: #FECACA;" onclick="alert('Entity ' + '${id}' + ' added to Watchlist.')">🚨 Add to Watchlist</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // 2. ENTITY INTELLIGENCE VIEW
+    function renderEntityIntelligenceView() {
+      const main = document.getElementById('main-content');
+      if (!main) return;
+
+      main.innerHTML = `
+        <div style="padding: 24px 32px; max-width: 1400px; margin: 0 auto;">
+          <div style="margin-bottom: 22px;">
+            <h1 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin: 0 0 4px 0;">Entity Intelligence Matrix</h1>
+            <p style="font-size: 0.82rem; color: #64748B; margin: 0;">Directory of 1,248 monitored entities, hardware fingerprints, and cardholder account clusters.</p>
+          </div>
+
+          <!-- Top Stats -->
+          <div class="metrics-row" style="margin-bottom: 24px;">
+            <div class="metric-card-white">
+              <span class="metric-label-text">Monitored Entities</span>
+              <div class="metric-number-big" style="color: #2563EB;">1,248</div>
+              <span style="font-size: 0.72rem; color: #64748B;">Cards, Devices, Subnets</span>
+            </div>
+            <div class="metric-card-white">
+              <span class="metric-label-text">Syndicate Hardware Hubs</span>
+              <div class="metric-number-big" style="color: #EF4444;">17</div>
+              <span style="font-size: 0.72rem; color: #EF4444;">≥ 3 Cards Linked (Rule R6)</span>
+            </div>
+            <div class="metric-card-white">
+              <span class="metric-label-text">Multi-Card Clusters</span>
+              <div class="metric-number-big" style="color: #F59E0B;">34</div>
+              <span style="font-size: 0.72rem; color: #64748B;">Cross-Account Linkages</span>
+            </div>
+            <div class="metric-card-white">
+              <span class="metric-label-text">Contained Mules</span>
+              <div class="metric-number-big" style="color: #10B981;">9</div>
+              <span style="font-size: 0.72rem; color: #10B981;">100% Frozen at L1</span>
+            </div>
+          </div>
+
+          <!-- Entities Table Card -->
+          <div class="white-card">
+            <div class="card-header-row">
+              <div class="card-title-left">
+                <span class="card-title-text">High-Priority Entities Under Surveillance</span>
+              </div>
+              <span style="font-size: 0.75rem; color: #64748B;">Showing Top Monitored Records</span>
+            </div>
+
+            <table class="sar-table" style="margin-top: 10px;">
+              <thead>
+                <tr>
+                  <th>Entity Identifier</th>
+                  <th>Entity Class</th>
+                  <th>Associated Cases</th>
+                  <th>Risk Grade</th>
+                  <th>Connected Degree</th>
+                  <th>Geo / Subnet</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-family: var(--font-mono); font-weight: 700; color: #DC2626;">D005668</td>
+                  <td>Hardware Device Profile</td>
+                  <td>HHG-014, HHG-017</td>
+                  <td><span class="metric-badge-pill pill-red">CRITICAL (94%)</span></td>
+                  <td><strong>51 Cards Linked</strong></td>
+                  <td>Region 444.0 (US-East)</td>
+                  <td><span style="color: #DC2626; font-weight: 600;">🚨 Active Syndicate</span></td>
+                  <td><button class="btn-top-action" style="font-size: 0.72rem;" onclick="switchView('graph_explorer')">View Graph</button></td>
+                </tr>
+                <tr>
+                  <td style="font-family: var(--font-mono); font-weight: 700; color: #DC2626;">D008912</td>
+                  <td>Automated Script Agent</td>
+                  <td>HHG-004, HHG-006</td>
+                  <td><span class="metric-badge-pill pill-red">CRITICAL (91%)</span></td>
+                  <td>542 Micro-Probes</td>
+                  <td>Region 315.0</td>
+                  <td><span style="color: #DC2626; font-weight: 600;">🚨 Card Testing Bot</span></td>
+                  <td><button class="btn-top-action" style="font-size: 0.72rem;" onclick="switchView('graph_explorer')">View Graph</button></td>
+                </tr>
+                <tr>
+                  <td style="font-family: var(--font-mono); font-weight: 700; color: #2563EB;">C13487-K1</td>
+                  <td>Credit Card Account</td>
+                  <td>HHG-014</td>
+                  <td><span class="metric-badge-pill pill-red">HIGH (91%)</span></td>
+                  <td>1 Flagged ($74.96)</td>
+                  <td>Region 444.0</td>
+                  <td><span style="color: #DC2626; font-weight: 600;">🔒 Blocked (L1)</span></td>
+                  <td><button class="btn-top-action" style="font-size: 0.72rem;" onclick="selectCase('HHG-014'); switchView('investigations');">Open Case</button></td>
+                </tr>
+                <tr>
+                  <td style="font-family: var(--font-mono); font-weight: 700; color: #2563EB;">C07297-K1</td>
+                  <td>Credit Card Account</td>
+                  <td>HHG-006</td>
+                  <td><span class="metric-badge-pill pill-red">HIGH (92%)</span></td>
+                  <td>$1,906.07 Exposure</td>
+                  <td>Region 299.0</td>
+                  <td><span style="color: #DC2626; font-weight: 600;">🔒 Blocked (L1)</span></td>
+                  <td><button class="btn-top-action" style="font-size: 0.72rem;" onclick="selectCase('HHG-006'); switchView('investigations');">Open Case</button></td>
+                </tr>
+                <tr>
+                  <td style="font-family: var(--font-mono); font-weight: 700; color: #059669;">C12382-K1</td>
+                  <td>Credit Card Account</td>
+                  <td>HHG-001</td>
+                  <td><span class="metric-badge-pill pill-green">BENIGN (7%)</span></td>
+                  <td>6 Monthly Cycles</td>
+                  <td>Region 444.0</td>
+                  <td><span style="color: #059669; font-weight: 600;">✓ Cleared Baseline</span></td>
+                  <td><button class="btn-top-action" style="font-size: 0.72rem;" onclick="selectCase('HHG-001'); switchView('investigations');">Open Case</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    // 3. RISK ANALYTICS VIEW
+    function renderRiskAnalyticsView() {
+      const main = document.getElementById('main-content');
+      if (!main) return;
+
+      main.innerHTML = `
+        <div style="padding: 24px 32px; max-width: 1400px; margin: 0 auto;">
+          <div style="margin-bottom: 22px;">
+            <h1 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin: 0 0 4px 0;">Portfolio Risk Analytics</h1>
+            <p style="font-size: 0.82rem; color: #64748B; margin: 0;">Aggregate risk metrics, detector hit frequencies, and model calibration performance across 20 benchmark exam alerts.</p>
+          </div>
+
+          <div class="metrics-row" style="margin-bottom: 24px;">
+            <div class="metric-card-white">
+              <span class="metric-label-text">Total Portfolio Exposure</span>
+              <div class="metric-number-big" style="color: #0F172A;">$5,174.77</div>
+              <span style="font-size: 0.72rem; color: #64748B;">Across 20 Cases</span>
+            </div>
+            <div class="metric-card-white">
+              <span class="metric-label-text">Confirmed Fraud Exposure</span>
+              <div class="metric-number-big" style="color: #EF4444;">$4,303.49</div>
+              <span style="font-size: 0.72rem; color: #EF4444;">83.2% of Portfolio (12 Cases)</span>
+            </div>
+            <div class="metric-card-white">
+              <span class="metric-label-text">False Positives Prevented</span>
+              <div class="metric-number-big" style="color: #10B981;">$578.92</div>
+              <span style="font-size: 0.72rem; color: #10B981;">35.0% Cleared (7 Cases)</span>
+            </div>
+            <div class="metric-card-white">
+              <span class="metric-label-text">Average Autonomous Latency</span>
+              <div class="metric-number-big" style="color: #2563EB;">7.72s</div>
+              <span style="font-size: 0.72rem; color: #2563EB;">vs 42 min Human SLA</span>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <!-- Detector Hit Frequencies -->
+            <div class="white-card">
+              <div class="card-header-row">
+                <span class="card-title-text">8 TigerGraph Multi-Hop Detectors Efficacy</span>
+                <span style="font-size: 0.75rem; color: #64748B;">Hit Rate %</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 14px; margin-top: 14px;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; margin-bottom: 4px;">
+                    <span>Shared Device Ring Scan (Rule R1/R6)</span>
+                    <span style="color: #EF4444;">9 Cases (45%)</span>
+                  </div>
+                  <div class="prob-track"><div class="prob-fill" style="width: 45%; background: #EF4444;"></div></div>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; margin-bottom: 4px;">
+                    <span>Recurring Merchant Scan (Rule R7)</span>
+                    <span style="color: #10B981;">7 Cases (35%)</span>
+                  </div>
+                  <div class="prob-track"><div class="prob-fill" style="width: 35%; background: #10B981;"></div></div>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; margin-bottom: 4px;">
+                    <span>Card Testing Probe Burst (Rule R3)</span>
+                    <span style="color: #F59E0B;">3 Cases (15%)</span>
+                  </div>
+                  <div class="prob-track"><div class="prob-fill" style="width: 15%; background: #F59E0B;"></div></div>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; margin-bottom: 4px;">
+                    <span>New Device / ATO Velocity (Rule R4)</span>
+                    <span style="color: #8B5CF6;">3 Cases (15%)</span>
+                  </div>
+                  <div class="prob-track"><div class="prob-fill" style="width: 15%; background: #8B5CF6;"></div></div>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.78rem; font-weight: 600; margin-bottom: 4px;">
+                    <span>Out of Region Deviation (Rule R5)</span>
+                    <span style="color: #64748B;">1 Case (5%)</span>
+                  </div>
+                  <div class="prob-track"><div class="prob-fill" style="width: 5%; background: #64748B;"></div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Case Verdict Distribution -->
+            <div class="white-card">
+              <div class="card-header-row">
+                <span class="card-title-text">Benchmark Adjudication Breakdown</span>
+                <span style="font-size: 0.75rem; color: #64748B;">20 Exam Cases</span>
+              </div>
+              <div style="margin-top: 20px; display: flex; flex-direction: column; gap: 16px;">
+                <div style="padding: 16px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px;">
+                  <div style="display: flex; justify-content: space-between; font-weight: 700; color: #DC2626;">
+                    <span>Confirmed Fraud (12 Cases)</span>
+                    <span>60.0%</span>
+                  </div>
+                  <p style="font-size: 0.78rem; color: #7F1D1D; margin: 4px 0 0 0;">All 12 cases resulted in Level 1 card blocking and mandatory FinCEN SAR filings under Route L2.</p>
+                </div>
+                <div style="padding: 16px; background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 8px;">
+                  <div style="display: flex; justify-content: space-between; font-weight: 700; color: #059669;">
+                    <span>Cleared Baseline (7 Cases)</span>
+                    <span>35.0%</span>
+                  </div>
+                  <p style="font-size: 0.78rem; color: #064E3B; margin: 4px 0 0 0;">Zero false positives penalized. Re-authenticated via recurring subscription history or cardholder validation.</p>
+                </div>
+                <div style="padding: 16px; background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 8px;">
+                  <div style="display: flex; justify-content: space-between; font-weight: 700; color: #D97706;">
+                    <span>Uncertain / Escalated (1 Case - HHG-002)</span>
+                    <span>5.0%</span>
+                  </div>
+                  <p style="font-size: 0.78rem; color: #78350F; margin: 4px 0 0 0;">Escalated to Senior Human Fraud Analyst (Route L1) per policy rule R8 for out-of-band identity check.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 4. CASE REPORTS VIEW
+    function renderCaseReportsView() {
+      const main = document.getElementById('main-content');
+      if (!main) return;
+
+      const fraudCases = allCases.filter(c => c.verdict === 'fraud');
+
+      main.innerHTML = `
+        <div style="padding: 24px 32px; max-width: 1400px; margin: 0 auto;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 22px; flex-wrap: wrap; gap: 14px;">
+            <div>
+              <h1 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin: 0 0 4px 0;">FinCEN Form 111 Compliance Reports</h1>
+              <p style="font-size: 0.82rem; color: #64748B; margin: 0;">12 Mandatory Regulatory Suspicious Activity Reports filed under 31 CFR §1020.320 and Bank Policy Rules R2/R6/R9.</p>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-top-action btn-primary-action" onclick="alert('Exporting 12 FinCEN Form 111 filings to XML batch archive...')">📥 Export SAR Batch (XML)</button>
+              <button class="btn-top-action" onclick="alert('Exporting case audit log to CSV...')">📄 Download Audit Log (CSV)</button>
+            </div>
+          </div>
+
+          <div class="white-card">
+            <div class="card-header-row">
+              <span class="card-title-text">Filed SAR Registry (${fraudCases.length} Filings)</span>
+              <span style="font-size: 0.75rem; color: #059669; font-weight: 600;">✓ 100% Route L2 Compliance Approval</span>
+            </div>
+
+            <table class="sar-table" style="margin-top: 10px;">
+              <thead>
+                <tr>
+                  <th>Case ID</th>
+                  <th>Subject Card</th>
+                  <th>Flagged Exposure</th>
+                  <th>Fraud Typology</th>
+                  <th>Statutory Filing Mandate</th>
+                  <th>Approval Route</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${fraudCases.map(c => `
+                  <tr>
+                    <td style="font-family: var(--font-mono); font-weight: 700; color: #2563EB;">${c.case_id}</td>
+                    <td style="font-family: var(--font-mono);">${c.card_id}</td>
+                    <td><strong>$${(c.exposure_usd || 0).toFixed(2)}</strong></td>
+                    <td><span class="metric-badge-pill pill-red">${(c.pattern || 'Fraud Ring').replace(/_/g, ' ')}</span></td>
+                    <td style="font-size: 0.75rem; color: #475569;">FinCEN CFR §1020.320 Multi-Card Compromise</td>
+                    <td><span style="color: #059669; font-weight: 600;">Route L2 (Approved)</span></td>
+                    <td><button class="btn-top-action" style="font-size: 0.72rem;" onclick="selectCase('${c.case_id}'); switchView('investigations');">View Narrative</button></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    // 5. WATCHLIST VIEW
+    function renderWatchlistView() {
+      const main = document.getElementById('main-content');
+      if (!main) return;
+
+      main.innerHTML = `
+        <div style="padding: 24px 32px; max-width: 1400px; margin: 0 auto;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 22px; flex-wrap: wrap; gap: 14px;">
+            <div>
+              <h1 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin: 0 0 4px 0;">Threat Watchlist & Entity Containment</h1>
+              <p style="font-size: 0.82rem; color: #64748B; margin: 0;">Active containment registry of flagged hardware profiles, syndicate rings, and compromised card numbers.</p>
+            </div>
+            <button class="btn-top-action btn-primary-action" onclick="alert('Enter entity ID (Device, Card, IP) to place on active surveillance.')">+ Add Entity to Watchlist</button>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="white-card">
+              <div class="card-header-row">
+                <span class="card-title-text">Blacklisted Hardware Profiles</span>
+                <span class="live-chip"><span class="live-dot"></span> Active</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px;">
+                <div style="padding: 14px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px;">
+                  <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                    <span style="font-family: var(--font-mono); color: #DC2626;">D005668 (Syndicate Master)</span>
+                    <span style="color: #DC2626;">51 Cards Linked</span>
+                  </div>
+                  <p style="font-size: 0.78rem; color: #7F1D1D; margin: 4px 0 0 0;">Hardware fingerprint associated with HHG-014 and multi-card credential stuffing network.</p>
+                </div>
+                <div style="padding: 14px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px;">
+                  <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                    <span style="font-family: var(--font-mono); color: #DC2626;">D008912 (Card Testing Botnet)</span>
+                    <span style="color: #DC2626;">542 Micro-Probes</span>
+                  </div>
+                  <p style="font-size: 0.78rem; color: #7F1D1D; margin: 4px 0 0 0;">High-velocity automated testing script pinging card numbers with &lt;$15.00 authorizations.</p>
+                </div>
+                <div style="padding: 14px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px;">
+                  <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                    <span style="font-family: var(--font-mono); color: #DC2626;">D004118 (Account Takeover Node)</span>
+                    <span style="color: #DC2626;">New Device Velocity</span>
+                  </div>
+                  <p style="font-size: 0.78rem; color: #7F1D1D; margin: 4px 0 0 0;">Sudden high-value online transactions from unrecognized mobile channel.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="white-card">
+              <div class="card-header-row">
+                <span class="card-title-text">Emergency Frozen Cards</span>
+                <span style="font-size: 0.75rem; color: #DC2626; font-weight: 600;">12 Cards Blocked (L1)</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px;">
+                ${allCases.filter(c => c.verdict === 'fraud').slice(0, 5).map(c => `
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; font-size: 0.78rem;">
+                    <div>
+                      <strong style="font-family: var(--font-mono); color: #0F172A;">${c.card_id}</strong>
+                      <span style="color: #64748B; margin-left: 8px;">(${c.case_id})</span>
+                    </div>
+                    <span style="color: #DC2626; font-weight: 600;">🔒 BLOCK_CARD [L1]</span>
+                  </div>
+                `).join('')}
+                <div style="text-align: center; margin-top: 6px;">
+                  <button class="btn-top-action" style="font-size: 0.74rem;" onclick="switchView('case_reports')">View All 12 Frozen Cards in Compliance Portal →</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // 6. SETTINGS VIEW
+    function renderSettingsView() {
+      const main = document.getElementById('main-content');
+      if (!main) return;
+
+      main.innerHTML = `
+        <div style="padding: 24px 32px; max-width: 1100px; margin: 0 auto;">
+          <div style="margin-bottom: 22px;">
+            <h1 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin: 0 0 4px 0;">Platform & Engine Configuration</h1>
+            <p style="font-size: 0.82rem; color: #64748B; margin: 0;">Configure TigerGraph graph connection parameters, Groq AI reasoning models, and bank policy rules.</p>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            <!-- TigerGraph Engine Config -->
+            <div class="white-card">
+              <div class="card-header-row">
+                <span class="card-title-text">TigerGraph Database Connection</span>
+                <span style="color: #059669; font-weight: 600; font-size: 0.75rem;">🟢 Connected (4.2ms)</span>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; font-size: 0.8rem;">
+                <div>
+                  <label style="display: block; color: #64748B; font-weight: 600; margin-bottom: 4px;">Host Endpoint</label>
+                  <input type="text" value="http://127.0.0.1:14240" style="width: 100%; padding: 8px 12px; border: 1px solid #CBD5E1; border-radius: 6px; font-family: var(--font-mono);" readonly>
+                </div>
+                <div>
+                  <label style="display: block; color: #64748B; font-weight: 600; margin-bottom: 4px;">Graph Schema Name</label>
+                  <input type="text" value="FraudGraph" style="width: 100%; padding: 8px 12px; border: 1px solid #CBD5E1; border-radius: 6px; font-family: var(--font-mono);" readonly>
+                </div>
+              </div>
+            </div>
+
+            <!-- Groq AI Core -->
+            <div class="white-card">
+              <div class="card-header-row">
+                <span class="card-title-text">Groq AI Adjudication Core</span>
+                <span style="color: #2563EB; font-weight: 600; font-size: 0.75rem;">⚡ LLaMA 3.3 70B Active</span>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; font-size: 0.8rem;">
+                <div>
+                  <label style="display: block; color: #64748B; font-weight: 600; margin-bottom: 4px;">Inference Model</label>
+                  <input type="text" value="llama-3.3-70b-versatile" style="width: 100%; padding: 8px 12px; border: 1px solid #CBD5E1; border-radius: 6px; font-family: var(--font-mono);" readonly>
+                </div>
+                <div>
+                  <label style="display: block; color: #64748B; font-weight: 600; margin-bottom: 4px;">Deterministic Fallback</label>
+                  <input type="text" value="Enabled (Zero-Downtime Guarantee)" style="width: 100%; padding: 8px 12px; border: 1px solid #CBD5E1; border-radius: 6px; color: #059669; font-weight: 600;" readonly>
+                </div>
+              </div>
+            </div>
+
+            <!-- Fraud Policy Thresholds -->
+            <div class="white-card">
+              <div class="card-header-row">
+                <span class="card-title-text">Bank Policy Governance Thresholds (Rules R1–R10)</span>
+                <span style="font-size: 0.75rem; color: #64748B;">Audit Grade</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px; font-size: 0.8rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid #F1F5F9;">
+                  <div>
+                    <strong>Rule R1: Customer Validation Priority</strong>
+                    <div style="color: #64748B; font-size: 0.74rem;">Mandates customer contact before permanent card restriction</div>
+                  </div>
+                  <span style="color: #059669; font-weight: 700;">ACTIVE</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid #F1F5F9;">
+                  <div>
+                    <strong>Rule R6: Shared Device Syndicate Trigger</strong>
+                    <div style="color: #64748B; font-size: 0.74rem;">≥ 3 connected cards across accounts triggers mandatory FinCEN SAR filing</div>
+                  </div>
+                  <span style="color: #059669; font-weight: 700;">ACTIVE (Threshold: 3)</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <strong>Rule R7: Recurring Subscription Protection</strong>
+                    <div style="color: #64748B; font-size: 0.74rem;">Periodic 30-day billing charges are auto-cleared with CLOSE_NO_FRAUD</div>
+                  </div>
+                  <span style="color: #059669; font-weight: 700;">ACTIVE (Tolerance: ±3 Days)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Analyst Session -->
+            <div class="white-card">
+              <div class="card-header-row">
+                <span class="card-title-text">Active Analyst Profile</span>
+                <span style="color: #2563EB; font-weight: 600; font-size: 0.75rem;">Adjudicator Session</span>
+              </div>
+              <div style="display: flex; gap: 16px; align-items: center; margin-top: 14px;">
+                <div style="width: 46px; height: 46px; border-radius: 50%; background: #2563EB; color: #FFF; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">ST</div>
+                <div>
+                  <div style="font-weight: 800; font-size: 0.95rem; color: #0F172A;">Srinath T.</div>
+                  <div style="color: #64748B; font-size: 0.78rem;">Senior Fraud Analyst • Level 2 Compliance Adjudicator • Clearance ID: SENTINEL-2026</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     // =========================================================================
     function toggleCopilot() {
       const drawer = document.getElementById('copilot-drawer');
