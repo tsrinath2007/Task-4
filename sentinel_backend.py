@@ -354,11 +354,55 @@ Answer the analyst's question clearly, authoritatively, and concisely. Quote spe
     # =========================================================================
     # CROSS-CASE & PORTFOLIO LEVEL QUERIES
     # =========================================================================
-    # 1. Low Fraud Probability / Cleared / Legitimate Cases
-    if any(phrase in query for phrase in ["low fraud", "low prob", "lowest", "clear", "legit", "safe", "not fraud", "which has low", "which have low", "low risk"]):
+    # 1. Lowest Dollar Amount / Exposure Query
+    is_lowest_amt = (
+        any(w in query for w in ["lowest", "min", "minimum", "smallest", "least", "cheapest"]) and
+        any(w in query for w in ["amount", "amound", "money", "usd", "$", "exposure", "dollar", "cost", "price", "txn", "transaction", "charge", "spend"])
+    ) or any(phrase in query for phrase in ["lowest amount", "lowest amound", "min amount", "minimum amount", "lowest exposure", "smallest transaction", "least amount", "smallest amount", "lowest money", "cheapest", "minimum exposure", "least exposure", "lowest value"])
+
+    if is_lowest_amt:
+        cases = list_cases()
+        sorted_exp = sorted(cases, key=lambda x: x.get("exposure_usd", 0.0))
+        lowest = sorted_exp[0]
+        p = round(lowest.get("fraud_probability", 0) * 100)
+        reply = f"**Lowest Transaction Amount in Portfolio:**\n\n"
+        reply += f"• **Case:** **{lowest['case_id']}**\n"
+        reply += f"• **Amount:** **${lowest.get('exposure_usd', 0.0):,.2f}**\n"
+        reply += f"• **Verdict:** **{lowest['verdict'].upper()}** ({p}% fraud probability)\n"
+        reply += f"• **Card:** `{lowest.get('card_id')}`\n"
+        reply += f"• **Pattern:** {lowest.get('pattern', 'none').replace('_', ' ').title()}\n\n"
+        reply += f"**Top 5 Lowest Dollar Amounts Across All 20 Cases:**\n"
+        for idx, c in enumerate(sorted_exp[:5]):
+            cp = round(c.get("fraud_probability", 0) * 100)
+            reply += f"{idx+1}. **{c['case_id']}**: **${c.get('exposure_usd', 0.0):,.2f}** ({c['verdict'].upper()}, {cp}% prob) — Card `{c.get('card_id')}`\n"
+        return {"reply": reply}
+
+    # 2. Highest Dollar Amount / Exposure Query
+    is_highest_amt = (
+        any(w in query for w in ["highest", "max", "maximum", "largest", "biggest", "top", "most"]) and
+        any(w in query for w in ["amount", "amound", "money", "usd", "$", "exposure", "dollar", "cost", "price", "txn", "transaction", "charge", "loss", "spend"])
+    ) or any(phrase in query for phrase in ["highest exposure", "max exposure", "most expensive", "highest amount", "largest transaction", "top exposure", "biggest loss", "maximum amount", "biggest amount", "largest amount", "most money"])
+
+    if is_highest_amt:
+        cases = list_cases()
+        top_exp = sorted(cases, key=lambda x: x.get("exposure_usd", 0.0), reverse=True)[:5]
+        reply = f"**Top Cases by Flagged Transaction Exposure:**\n\n"
+        for idx, c in enumerate(top_exp):
+            v_badge = c['verdict'].upper()
+            cp = round(c.get("fraud_probability", 0) * 100)
+            reply += f"{idx+1}. **{c['case_id']}**: **${c.get('exposure_usd', 0.0):,.2f}** ({v_badge}, {cp}% prob) — Card `{c.get('card_id')}`\n"
+        total_exp = sum(c.get("exposure_usd", 0.0) for c in cases)
+        reply += f"\n**Total Portfolio Exposure:** ${total_exp:,.2f} across 20 benchmark exam cases."
+        return {"reply": reply}
+
+    # 3. Low Fraud Probability / Cleared / Legitimate Cases
+    if any(phrase in query for phrase in [
+        "low fraud", "low prob", "lowest prob", "lowest risk", "clear", "legit", 
+        "safe", "not fraud", "which has low", "which have low", "low risk"
+    ]):
         cases = list_cases()
         legit_cases = [c for c in cases if c["verdict"] == "legitimate"]
-        reply = f"The following **{len(legit_cases)} cases** have the **lowest fraud probabilities** (8%) and were cleared as **LEGITIMATE** baseline transactions:\n\n"
+        reply = f"The following **{len(legit_cases)} cases** were cleared as **LEGITIMATE** baseline transactions:\n\n"
         for c in legit_cases:
             p = round(c.get("fraud_probability", 0) * 100)
             exp = c.get("exposure_usd", 0.0)
@@ -366,11 +410,15 @@ Answer the analyst's question clearly, authoritatively, and concisely. Quote spe
         reply += f"\n[Policy Note] All {len(legit_cases)} legitimate cases were resolved with `CLOSE_NO_FRAUD` [AUTO] after matching customer recurring billing baselines or verified travel (Rule R7).*"
         return {"reply": reply}
 
-    # 2. High Fraud Probability / Confirmed Fraud Cases
-    if any(phrase in query for phrase in ["high fraud", "high prob", "highest", "most fraud", "top fraud", "which has high", "which have high", "which are fraud", "high risk", "confirmed fraud"]):
+    # 4. High Fraud Probability / Confirmed Fraud Cases
+    if any(phrase in query for phrase in [
+        "high fraud", "high prob", "highest prob", "highest risk", "most fraud", 
+        "top fraud", "which has high", "which have high", "which are fraud", 
+        "high risk", "confirmed fraud"
+    ]):
         cases = list_cases()
         fraud_cases = [c for c in cases if c["verdict"] == "fraud"]
-        reply = f"The following **{len(fraud_cases)} cases** have **high fraud probabilities** (92%) and were confirmed as **FRAUD**:\n\n"
+        reply = f"The following **{len(fraud_cases)} cases** have high fraud confidence and were confirmed as **FRAUD**:\n\n"
         for c in fraud_cases:
             p = round(c.get("fraud_probability", 0) * 100)
             exp = c.get("exposure_usd", 0.0)
@@ -378,7 +426,7 @@ Answer the analyst's question clearly, authoritatively, and concisely. Quote spe
         reply += f"\n[Action Note] All {len(fraud_cases)} fraud cases resulted in Level 1 card blocking and mandatory FinCEN Form 111 SAR filings under Route L2."
         return {"reply": reply}
 
-    # 3. Uncertain / Ambiguous Cases
+    # 5. Uncertain / Ambiguous Cases
     if any(phrase in query for phrase in ["uncertain", "ambiguous", "medium risk", "not sure", "which is uncertain", "which are uncertain"]):
         cases = list_cases()
         unc_cases = [c for c in cases if c["verdict"] == "uncertain"]
@@ -390,19 +438,7 @@ Answer the analyst's question clearly, authoritatively, and concisely. Quote spe
         reply += f"\nSignals for this case were neither conclusively fraudulent nor clean. Per Bank Policy Rule R8, it was escalated to a Senior Fraud Analyst (`ESCALATE_TO_ANALYST` [Route L1]) for manual out-of-band verification."
         return {"reply": reply}
 
-    # 4. Highest Exposure / Dollar Amount
-    if any(phrase in query for phrase in ["highest exposure", "max exposure", "most expensive", "highest amount", "largest transaction", "top exposure", "biggest loss"]):
-        cases = list_cases()
-        top_exp = sorted(cases, key=lambda x: x.get("exposure_usd", 0), reverse=True)[:5]
-        reply = f"**Top Cases by Flagged Transaction Exposure:**\n\n"
-        for c in top_exp:
-            v_badge = c['verdict'].upper()
-            reply += f"- **{c['case_id']}**: **${c.get('exposure_usd', 0):,.2f}** ({v_badge}) - Card `{c.get('card_id')}`\n"
-        total_exp = sum(c.get("exposure_usd", 0) for c in cases)
-        reply += f"\n**Total Portfolio Exposure:** ${total_exp:,.2f} across 20 benchmark exam cases."
-        return {"reply": reply}
-
-    # 5. Portfolio Summary / Stats
+    # 6. Portfolio Summary / Stats
     if any(phrase in query for phrase in ["how many", "portfolio", "statistics", "breakdown", "overview", "summary", "stats", "all cases"]):
         summary = get_summary()
         reply = f"**SENTINEL Portfolio Overview (20 Exam Cases):**\n\n"
@@ -476,10 +512,10 @@ Answer the analyst's question clearly, authoritatively, and concisely. Quote spe
         reply = f"**Policy Engine Governance (Rules R1–R10):**\n\n"
         reply += f"• **R1:** Mandates customer verification prior to taking restrictive actions.\n"
         reply += f"• **R2:** Confirmed unauthorized activity requires `BLOCK_CARD` [L1].\n"
-        reply += f"• **R6:** Shared device rings ($\ge 3$ cards) mandate `FILE_REPORT` [L2] and network monitoring.\n"
+        reply += f"• **R6:** Shared device rings (≥ 3 cards) mandate `FILE_REPORT` [L2] and network monitoring.\n"
         reply += f"• **R7:** Recurring subscription disputes forbid blocking (`WARN_CUSTOMER` only).\n"
-        reply += f"• **R8:** Ambiguous signals with $>\\$500$ exposure escalate to `ESCALATE_TO_ANALYST` [L1].\n"
-        reply += f"• **R10:** `BLOCK_ALL_CARDS` requires $\ge 2$ confirmed compromised cards."
+        reply += f"• **R8:** Ambiguous signals with >$500 exposure escalate to `ESCALATE_TO_ANALYST` [L1].\n"
+        reply += f"• **R10:** `BLOCK_ALL_CARDS` requires ≥ 2 confirmed compromised cards."
         return {"reply": reply}
 
     # Default overview
@@ -493,4 +529,9 @@ Answer the analyst's question clearly, authoritatively, and concisely. Quote spe
                  f"• *\"What changed in final actions?\"*\n"
                  f"• *\"Summarize the SAR filing\"*"
     }
+
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("sentinel_backend:app", host="127.0.0.1", port=8000, reload=True)
 
