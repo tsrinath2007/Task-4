@@ -809,9 +809,314 @@
       margin-top: 14px;
       font-size: 0.82rem;
     }
+
+    /* ==========================================================================
+       SECURITY AUTHENTICATION & FULLSCREEN CONTROLS
+       ========================================================================== */
+    #auth-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at 50% 30%, rgba(13, 26, 56, 0.94) 0%, rgba(5, 9, 20, 0.98) 75%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+    #auth-overlay.authenticated {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .auth-card {
+      width: 470px;
+      max-width: 92vw;
+      background: linear-gradient(160deg, rgba(18, 30, 56, 0.96) 0%, rgba(10, 17, 34, 0.98) 100%);
+      border: 1px solid #1E2E52;
+      box-shadow: 0 25px 60px -12px rgba(0, 0, 0, 0.85), 0 0 35px rgba(37, 99, 235, 0.22);
+      border-radius: 12px;
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      position: relative;
+    }
+    .auth-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #2563EB, #6366F1, #10B981);
+      border-radius: 12px 12px 0 0;
+    }
+    .auth-shield-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 2px;
+    }
+    .auth-shield-icon {
+      width: 52px;
+      height: 52px;
+      background: linear-gradient(135deg, #1D4ED8 0%, #4338CA 100%);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 24px rgba(37, 99, 235, 0.45);
+      border: 1px solid rgba(147, 197, 253, 0.3);
+    }
+    .auth-header {
+      text-align: center;
+    }
+    .auth-title {
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #FFF;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .auth-subtitle {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 5px;
+      line-height: 1.4;
+    }
+    .auth-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      padding: 3px 10px;
+      border-radius: 20px;
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      color: #A5B4FC;
+      font-size: 0.67rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .auth-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #818CF8;
+      box-shadow: 0 0 6px #818CF8;
+    }
+    .auth-form {
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      margin-top: 4px;
+    }
+    .auth-field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .auth-label {
+      font-size: 0.71rem;
+      font-weight: 700;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      justify-content: space-between;
+    }
+    .auth-input {
+      width: 100%;
+      background: #080D1A;
+      border: 1px solid #1C2C4E;
+      border-radius: 7px;
+      padding: 9px 12px;
+      color: #F8FAFC;
+      font-family: var(--font-mono);
+      font-size: 0.84rem;
+      outline: none;
+      transition: all 0.2s ease;
+    }
+    .auth-input:focus {
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 3px var(--accent-blue-glow);
+    }
+    .auth-btn-primary {
+      background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%);
+      color: #FFF;
+      border: 1px solid #3B82F6;
+      border-radius: 7px;
+      padding: 10px 16px;
+      font-size: 0.86rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    }
+    .auth-btn-primary:hover {
+      background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);
+      box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5);
+      transform: translateY(-1px);
+    }
+    .auth-btn-demo {
+      background: rgba(16, 185, 129, 0.12);
+      color: #34D399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 7px;
+      padding: 9px 16px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .auth-btn-demo:hover {
+      background: rgba(16, 185, 129, 0.22);
+      border-color: #10B981;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+    }
+    .auth-footer-notice {
+      font-size: 0.67rem;
+      color: var(--text-dim);
+      text-align: center;
+      line-height: 1.45;
+      border-top: 1px solid #16223D;
+      padding-top: 10px;
+    }
+    .auth-error-msg {
+      color: #F87171;
+      font-size: 0.74rem;
+      text-align: center;
+      display: none;
+    }
+
+    /* Analyst Pill & Control Buttons */
+    .analyst-badge-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid #334155;
+      padding: 2px 7px;
+      border-radius: 5px;
+      font-size: 0.65rem;
+      font-family: var(--font-mono);
+      color: #CBD5E1;
+      white-space: nowrap;
+    }
+    .btn-lock {
+      border-color: rgba(239, 68, 68, 0.35) !important;
+      color: #FCA5A5 !important;
+    }
+    .btn-lock:hover {
+      background: rgba(239, 68, 68, 0.18) !important;
+      border-color: #EF4444 !important;
+      color: #FFF !important;
+    }
+    .btn-fs-active {
+      background: rgba(59, 130, 246, 0.2) !important;
+      border-color: var(--accent-blue) !important;
+      color: #93C5FD !important;
+    }
   </style>
 </head>
 <body>
+
+  <!-- SECURITY AUTHENTICATION GATEWAY -->
+  <div id="auth-overlay">
+    <div class="auth-card">
+      <div class="auth-shield-wrap">
+        <div class="auth-shield-icon">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="2.4">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="M9 12l2 2 4-4" stroke="#67E8F9" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+      
+      <div class="auth-header">
+        <div class="auth-title">
+          SENTINEL SECURITY GATEWAY
+        </div>
+        <div class="auth-subtitle">
+          Autonomous Fraud Investigation & SAR Filing Cockpit
+        </div>
+        <div class="auth-badge">
+          <span class="auth-badge-dot"></span>
+          RESTRICTED TO LEVEL 3 FRAUD INTELLIGENCE ANALYSTS
+        </div>
+      </div>
+
+      <form class="auth-form" onsubmit="event.preventDefault(); submitAuth();">
+        <div class="auth-field">
+          <label class="auth-label" for="input-analyst-id">
+            <span>Analyst Call-Sign / ID</span>
+            <span style="color: #60A5FA;">FinCEN Registered</span>
+          </label>
+          <div class="auth-input-wrap">
+            <input type="text" id="input-analyst-id" class="auth-input" value="SEC-INVESTIGATOR-9" placeholder="e.g. SEC-INVESTIGATOR-9" autocomplete="off" required>
+          </div>
+        </div>
+
+        <div class="auth-field">
+          <label class="auth-label" for="input-passcode">
+            <span>Security Passcode / Token</span>
+            <span style="color: #94A3B8;">AES-256 Session</span>
+          </label>
+          <div class="auth-input-wrap">
+            <input type="password" id="input-passcode" class="auth-input" value="SENTINEL-PROD-TG2026" placeholder="Enter security token" autocomplete="current-password" required>
+          </div>
+        </div>
+
+        <div class="auth-field">
+          <label class="auth-label">
+            <span>Target Graph Enclave</span>
+          </label>
+          <div style="font-family: var(--font-mono); font-size: 0.73rem; background: #080D1A; border: 1px solid #1C2C4E; border-radius: 6px; padding: 7px 10px; color: #93C5FD; display: flex; align-items: center; justify-content: space-between;">
+            <span>tigergraph://cluster-prod-01/FraudRiskGraph</span>
+            <span style="color: #10B981; font-weight: 700; display: flex; align-items: center; gap: 4px;"><span style="width: 5px; height: 5px; border-radius: 50%; background: #10B981; display: inline-block;"></span>CONNECTED</span>
+          </div>
+        </div>
+
+        <div id="auth-error-msg" class="auth-error-msg"></div>
+
+        <button type="submit" class="auth-btn-primary" id="btn-submit-auth">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          Authorize & Enter Cockpit
+        </button>
+
+        <button type="button" class="auth-btn-demo" onclick="submitAuth(true)">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          One-Click Demo Access (Judges & Evaluators)
+        </button>
+      </form>
+
+      <div class="auth-footer-notice">
+        <strong>Compliance Notice:</strong> Access is restricted to authorized financial crime investigators. All graph entity expansions, LLM reasoning traces, and SAR generation triggers are cryptographically audited under BSA/FinCEN CFR §1020.320 guidelines.
+      </div>
+    </div>
+  </div>
 
   <!-- SIDEBAR -->
   <aside id="sidebar">
@@ -825,12 +1130,23 @@
           </div>
           SENTINEL
         </div>
-        <div class="live-status">
-          <span class="live-dot"></span>
-          ONLINE
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <div class="live-status">
+            <span class="live-dot"></span>
+            ONLINE
+          </div>
+          <button class="nav-btn" style="padding: 4px 7px; font-size: 0.68rem;" onclick="toggleFullscreen()" title="Toggle Fullscreen Mode">
+            <svg id="header-fs-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          </button>
         </div>
       </div>
-      <div class="brand-subtitle">TigerGraph × GraphRAG Fraud Cockpit</div>
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+        <div class="brand-subtitle" style="margin-top: 0;">TigerGraph × GraphRAG Cockpit</div>
+        <div class="analyst-badge-pill" id="sidebar-analyst-pill" title="Active Analyst Session">
+          <span style="color: #10B981;">●</span>
+          <span id="active-analyst-name">SEC-INVESTIGATOR-9</span>
+        </div>
+      </div>
     </div>
 
     <!-- Stats Bar -->
@@ -1078,6 +1394,14 @@
           </div>
           
           <div class="nav-btn-group">
+            <button class="nav-btn" id="btn-fullscreen-topbar" onclick="toggleFullscreen()" title="Toggle Fullscreen Cockpit View">
+              <span id="topbar-fs-icon"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg></span>
+              <span id="topbar-fs-label">Fullscreen</span>
+            </button>
+            <button class="nav-btn btn-lock" onclick="lockCockpit()" title="Lock Cockpit (Sign Out)">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              Lock
+            </button>
             <button class="nav-btn" onclick="navigateCase(-1)">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg> Prev
             </button>
@@ -1374,6 +1698,8 @@
           <span><b>Stopping Rule §6 Met:</b> ${d.stop_reason || 'Investigation concluded with conclusive evidence baseline. Further steps would not change policy actions.'}</span>
         </div>
       `;
+
+      updateFullscreenUI();
     }
 
     // SVG Node-Link Diagram Generator
@@ -1535,8 +1861,139 @@
       };
     });
 
-    // Start on page load
-    window.addEventListener('DOMContentLoaded', initDashboard);
+    // =========================================================================
+    // SECURITY AUTHENTICATION & SESSION MANAGEMENT
+    // =========================================================================
+    function checkAuth() {
+      const isAuth = sessionStorage.getItem('sentinel_authenticated') === 'true';
+      const overlay = document.getElementById('auth-overlay');
+      const analystName = sessionStorage.getItem('sentinel_analyst') || 'SEC-INVESTIGATOR-9';
+      
+      const badgeElem = document.getElementById('active-analyst-name');
+      if (badgeElem) badgeElem.textContent = analystName;
+
+      if (isAuth) {
+        if (overlay) overlay.classList.add('authenticated');
+        initDashboard();
+      } else {
+        if (overlay) overlay.classList.remove('authenticated');
+        const inputId = document.getElementById('input-analyst-id');
+        if (inputId) {
+          setTimeout(() => inputId.focus(), 150);
+        }
+      }
+    }
+
+    function submitAuth(isDemo = false) {
+      let analystName = 'SEC-INVESTIGATOR-9';
+      if (isDemo) {
+        analystName = 'EVALUATOR-GUEST';
+      } else {
+        const idInput = document.getElementById('input-analyst-id');
+        if (idInput && idInput.value.trim()) {
+          analystName = idInput.value.trim().toUpperCase();
+        }
+      }
+
+      sessionStorage.setItem('sentinel_authenticated', 'true');
+      sessionStorage.setItem('sentinel_analyst', analystName);
+
+      const badgeElem = document.getElementById('active-analyst-name');
+      if (badgeElem) badgeElem.textContent = analystName;
+
+      const overlay = document.getElementById('auth-overlay');
+      if (overlay) overlay.classList.add('authenticated');
+
+      // Initialize dashboard if not yet loaded
+      if (!allCases || allCases.length === 0) {
+        initDashboard();
+      }
+    }
+
+    function lockCockpit() {
+      sessionStorage.removeItem('sentinel_authenticated');
+      const overlay = document.getElementById('auth-overlay');
+      if (overlay) {
+        overlay.classList.remove('authenticated');
+        const err = document.getElementById('auth-error-msg');
+        if (err) {
+          err.style.display = 'block';
+          err.style.color = '#F59E0B';
+          err.textContent = '🔒 Cockpit locked. Re-authenticate to resume session.';
+        }
+      }
+    }
+
+    // =========================================================================
+    // FULLSCREEN COCKPIT CONTROLS
+    // =========================================================================
+    function toggleFullscreen() {
+      try {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+          const docEl = document.documentElement;
+          if (docEl.requestFullscreen) {
+            docEl.requestFullscreen().catch(err => console.warn('Fullscreen request error:', err));
+          } else if (docEl.webkitRequestFullscreen) {
+            docEl.webkitRequestFullscreen();
+          } else if (docEl.msRequestFullscreen) {
+            docEl.msRequestFullscreen();
+          }
+        } else {
+          if (document.exitFullscreen) {
+            document.exitFullscreen().catch(err => console.warn('Exit fullscreen error:', err));
+          } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+          } else if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+          }
+        }
+      } catch (e) {
+        console.warn('Fullscreen toggle failed:', e);
+      }
+    }
+
+    function updateFullscreenUI() {
+      const isFs = !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+      
+      const topbarFsBtn = document.getElementById('btn-fullscreen-topbar');
+      const topbarFsLabel = document.getElementById('topbar-fs-label');
+      const topbarFsIcon = document.getElementById('topbar-fs-icon');
+      
+      const fsIconSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>';
+      const exitFsIconSvg = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>';
+
+      if (topbarFsBtn) {
+        if (isFs) {
+          topbarFsBtn.classList.add('btn-fs-active');
+          if (topbarFsLabel) topbarFsLabel.textContent = 'Exit Full';
+          if (topbarFsIcon) topbarFsIcon.innerHTML = exitFsIconSvg;
+        } else {
+          topbarFsBtn.classList.remove('btn-fs-active');
+          if (topbarFsLabel) topbarFsLabel.textContent = 'Fullscreen';
+          if (topbarFsIcon) topbarFsIcon.innerHTML = fsIconSvg;
+        }
+      }
+
+      const headerFsIcon = document.getElementById('header-fs-icon');
+      if (headerFsIcon) {
+        headerFsIcon.innerHTML = isFs ? exitFsIconSvg : fsIconSvg;
+      }
+    }
+
+    document.addEventListener('fullscreenchange', updateFullscreenUI);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenUI);
+
+    // Keyboard shortcut: Press 'F' key to toggle fullscreen when not typing in form inputs
+    window.addEventListener('keydown', (e) => {
+      const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+      if (activeTag === 'input' || activeTag === 'textarea') return;
+      if (e.key === 'f' || e.key === 'F') {
+        toggleFullscreen();
+      }
+    });
+
+    // Start on page load with security gateway check
+    window.addEventListener('DOMContentLoaded', checkAuth);
   </script>
 </body>
 </html>
