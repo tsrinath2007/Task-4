@@ -1,0 +1,108 @@
+// ============================================================================
+// TigerGraph GSQL Loading Jobs for HHGOA Fraud Investigation
+// Graph: FraudInvestigationGraph
+// ============================================================================
+
+USE GRAPH FraudInvestigationGraph
+
+// ----------------------------------------------------------------------------
+// Master Loading Job: Load Vertices First, Then Edges
+// ----------------------------------------------------------------------------
+
+CREATE LOADING JOB load_fraud_data FOR GRAPH FraudInvestigationGraph {
+  // Define filenames for processed vertices
+  DEFINE FILENAME f_cust = "$sys.data_root/v_customer.csv";
+  DEFINE FILENAME f_card = "$sys.data_root/v_card.csv";
+  DEFINE FILENAME f_dev  = "$sys.data_root/v_device.csv";
+  DEFINE FILENAME f_reg  = "$sys.data_root/v_billing_region.csv";
+  DEFINE FILENAME f_mail = "$sys.data_root/v_email_domain.csv";
+  DEFINE FILENAME f_case = "$sys.data_root/v_closed_case.csv";
+  DEFINE FILENAME f_txn  = "$sys.data_root/v_transaction.csv";
+
+  // Define filenames for processed edges
+  DEFINE FILENAME f_e_owns     = "$sys.data_root/e_customer_owns_card.csv";
+  DEFINE FILENAME f_e_made     = "$sys.data_root/e_card_made_txn.csv";
+  DEFINE FILENAME f_e_next     = "$sys.data_root/e_txn_next.csv";
+  DEFINE FILENAME f_e_involves = "$sys.data_root/e_case_involves_txn.csv";
+  DEFINE FILENAME f_e_dev      = "$sys.data_root/e_txn_from_device.csv";
+  DEFINE FILENAME f_e_bill     = "$sys.data_root/e_txn_billed_in.csv";
+  DEFINE FILENAME f_e_mail     = "$sys.data_root/e_txn_purchaser_email.csv";
+
+  // --------------------------------------------------------------------------
+  // STEP 1: LOAD ALL VERTICES
+  // --------------------------------------------------------------------------
+
+  // 1. Customer (13,553 rows)
+  LOAD f_cust TO VERTEX Customer VALUES ($0)
+    USING HEADER="true", SEPARATOR=",";
+
+  // 2. Card (14,524 rows)
+  LOAD f_card TO VERTEX Card VALUES ($0, $1)
+    USING HEADER="true", SEPARATOR=",";
+
+  // 3. DeviceProfile (9,706 rows)
+  LOAD f_dev TO VERTEX DeviceProfile VALUES ($0, $1, $2, $3, $4, $5)
+    USING HEADER="true", SEPARATOR=",";
+
+  // 4. BillingRegion (332 rows)
+  LOAD f_reg TO VERTEX BillingRegion VALUES ($0)
+    USING HEADER="true", SEPARATOR=",";
+
+  // 5. EmailDomain (59 rows)
+  LOAD f_mail TO VERTEX EmailDomain VALUES ($0)
+    USING HEADER="true", SEPARATOR=",";
+
+  // 6. ClosedCase (5,565 rows — ALL cases including 900 cleared)
+  // first_fraud_txn_id ($7) is empty string for cleared cases; loaded safely
+  LOAD f_case TO VERTEX ClosedCase VALUES (
+    $0, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14
+  ) USING HEADER="true", SEPARATOR=",";
+
+  // 7. Transaction (590,742 rows)
+  LOAD f_txn TO VERTEX Transaction VALUES (
+    $0, $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+    $11, $12, $13, $14, $15, $16, $17, $18, $19,
+    $20, $21, $22, $23, $24
+  ) USING HEADER="true", SEPARATOR=",";
+
+  // --------------------------------------------------------------------------
+  // STEP 2: LOAD ALL EDGES (Vertices exist prior to edge creation)
+  // --------------------------------------------------------------------------
+
+  // Customer -OWNS-> Card
+  LOAD f_e_owns TO EDGE OWNS VALUES ($0, $1)
+    USING HEADER="true", SEPARATOR=",";
+
+  // Card -MADE-> Transaction
+  LOAD f_e_made TO EDGE MADE VALUES ($0, $1)
+    USING HEADER="true", SEPARATOR=",";
+
+  // Transaction -NEXT-> Transaction (Ordered by ts, gap_min attribute)
+  LOAD f_e_next TO EDGE NEXT VALUES ($0, $1, $2)
+    USING HEADER="true", SEPARATOR=",";
+
+  // ClosedCase -INVOLVES-> Transaction
+  LOAD f_e_involves TO EDGE INVOLVES VALUES ($0, $1)
+    USING HEADER="true", SEPARATOR=",";
+
+  // ClosedCase -ON_CARD-> Card
+  LOAD f_case TO EDGE ON_CARD VALUES ($0, $2)
+    USING HEADER="true", SEPARATOR=",";
+
+  // Transaction -FROM_DEVICE-> DeviceProfile
+  LOAD f_e_dev TO EDGE FROM_DEVICE VALUES ($0, $1)
+    USING HEADER="true", SEPARATOR=",";
+
+  // Transaction -BILLED_IN-> BillingRegion
+  LOAD f_e_bill TO EDGE BILLED_IN VALUES ($0, $1)
+    USING HEADER="true", SEPARATOR=",";
+
+  // Transaction -PURCHASER_EMAIL-> EmailDomain
+  LOAD f_e_mail TO EDGE PURCHASER_EMAIL VALUES ($0, $1)
+    USING HEADER="true", SEPARATOR=",";
+
+  // Card -LINKED_DEVICE-> DeviceProfile (via transaction and device linkage)
+  LOAD f_txn TO EDGE LINKED_DEVICE VALUES ($1, $22)
+    WHERE $22 != ""
+    USING HEADER="true", SEPARATOR=",";
+}

@@ -1,0 +1,166 @@
+// ============================================================================
+// TigerGraph GSQL Schema for HHGOA Agentic Fraud Investigation Hackathon
+// Version: 1.0
+// Graph Name: FraudInvestigationGraph
+// ============================================================================
+
+DROP GRAPH FraudInvestigationGraph
+DROP VERTEX Customer, Card, Transaction, DeviceProfile, EmailDomain, BillingRegion, ClosedCase, Case
+DROP EDGE OWNS, OWNED_BY, MADE, MADE_BY, NEXT, PREV, INVOLVES, INVOLVED_IN_CLOSED_CASE
+DROP EDGE ON_CARD, HAS_CLOSED_CASE, CONNECTED_TO, CONNECTED_CLOSED_CASE
+DROP EDGE CASE_INVOLVES, INVOLVED_IN_CASE, CASE_ON_CARD, HAS_CASE, CASE_CONNECTED_TO, CONNECTED_CASE
+DROP EDGE FROM_DEVICE, DEVICE_FOR_TXN, BILLED_IN, REGION_FOR_TXN, PURCHASER_EMAIL, EMAIL_FOR_TXN
+DROP EDGE LINKED_DEVICE, USED_ON
+
+// ----------------------------------------------------------------------------
+// Vertices
+// ----------------------------------------------------------------------------
+
+// 1. Customer
+CREATE VERTEX Customer (
+  PRIMARY_ID customer_id STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+// 2. Card
+CREATE VERTEX Card (
+  PRIMARY_ID card_id STRING,
+  customer_id STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+// 3. Transaction
+CREATE VERTEX Transaction (
+  PRIMARY_ID TransactionID STRING,
+  card_id STRING,
+  customer_id STRING,
+  ts DATETIME,
+  TransactionAmt DOUBLE,
+  ProductCD STRING,
+  addr1 STRING,
+  P_emaildomain STRING,
+  R_emaildomain STRING,
+  risk_score DOUBLE,
+  channel STRING,
+  M1 STRING,
+  M2 STRING,
+  M3 STRING,
+  M4 STRING,
+  M5 STRING,
+  M6 STRING,
+  M7 STRING,
+  M8 STRING,
+  M9 STRING,
+  id_15 STRING,
+  id_23 STRING,
+  device_id STRING,
+  gap_min DOUBLE,
+  prev_txn_id STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+// 4. DeviceProfile
+CREATE VERTEX DeviceProfile (
+  PRIMARY_ID device_id STRING,
+  device_info STRING,
+  device_os STRING,
+  device_browser STRING,
+  device_screen STRING,
+  device_type STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+// 5. EmailDomain
+CREATE VERTEX EmailDomain (
+  PRIMARY_ID email_domain STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+// 6. BillingRegion
+CREATE VERTEX BillingRegion (
+  PRIMARY_ID addr1 STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+// 7. ClosedCase (Historical Finished Investigations)
+CREATE VERTEX ClosedCase (
+  PRIMARY_ID case_id STRING,
+  customer_id STRING,
+  card_id STRING,
+  opened_at DATETIME,
+  closed_at DATETIME,
+  outcome STRING,
+  pattern STRING,
+  first_fraud_txn_id STRING,
+  txn_ids STRING,
+  n_txns INT,
+  exposure_usd DOUBLE,
+  connected_card_ids STRING,
+  actions_taken STRING,
+  report_filed STRING,
+  analyst_notes STRING
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+// 8. Case (Agent-Generated Runtime Cases)
+CREATE VERTEX Case (
+  PRIMARY_ID case_id STRING,
+  status STRING,
+  verdict STRING,
+  fraud_probability DOUBLE,
+  pattern STRING,
+  pattern_description STRING,
+  first_suspicious_txn_id STRING,
+  exposure_usd DOUBLE,
+  summary STRING,
+  evidence_json STRING,
+  actions_json STRING,
+  sar_json STRING,
+  sar_filed BOOL,
+  stop_reason STRING,
+  created_at DATETIME
+) WITH STATS="OUTDEGREE_BY_EDGETYPE";
+
+// ----------------------------------------------------------------------------
+// Edges
+// ----------------------------------------------------------------------------
+
+// Customer <-> Card
+CREATE DIRECTED EDGE OWNS (FROM Customer, TO Card) WITH REVERSE_EDGE="OWNED_BY";
+
+// Card <-> Transaction
+CREATE DIRECTED EDGE MADE (FROM Card, TO Transaction) WITH REVERSE_EDGE="MADE_BY";
+
+// Transaction <-> Transaction (Chronological within card)
+CREATE DIRECTED EDGE NEXT (FROM Transaction, TO Transaction, gap_min DOUBLE) WITH REVERSE_EDGE="PREV";
+
+// ClosedCase <-> Transaction, Card
+CREATE DIRECTED EDGE INVOLVES (FROM ClosedCase, TO Transaction) WITH REVERSE_EDGE="INVOLVED_IN_CLOSED_CASE";
+CREATE DIRECTED EDGE ON_CARD (FROM ClosedCase, TO Card) WITH REVERSE_EDGE="HAS_CLOSED_CASE";
+CREATE DIRECTED EDGE CONNECTED_TO (FROM ClosedCase, TO Card) WITH REVERSE_EDGE="CONNECTED_CLOSED_CASE";
+
+// Runtime Case <-> Transaction, Card
+CREATE DIRECTED EDGE CASE_INVOLVES (FROM Case, TO Transaction) WITH REVERSE_EDGE="INVOLVED_IN_CASE";
+CREATE DIRECTED EDGE CASE_ON_CARD (FROM Case, TO Card) WITH REVERSE_EDGE="HAS_CASE";
+CREATE DIRECTED EDGE CASE_CONNECTED_TO (FROM Case, TO Card) WITH REVERSE_EDGE="CONNECTED_CASE";
+
+// Transaction Context Edges
+CREATE DIRECTED EDGE FROM_DEVICE (FROM Transaction, TO DeviceProfile) WITH REVERSE_EDGE="DEVICE_FOR_TXN";
+CREATE DIRECTED EDGE BILLED_IN (FROM Transaction, TO BillingRegion) WITH REVERSE_EDGE="REGION_FOR_TXN";
+CREATE DIRECTED EDGE PURCHASER_EMAIL (FROM Transaction, TO EmailDomain) WITH REVERSE_EDGE="EMAIL_FOR_TXN";
+
+// Card <-> DeviceProfile (Direct linkage for fast multi-card device traversal)
+CREATE DIRECTED EDGE LINKED_DEVICE (FROM Card, TO DeviceProfile) WITH REVERSE_EDGE="USED_ON";
+
+// ----------------------------------------------------------------------------
+// Create Graph
+// ----------------------------------------------------------------------------
+CREATE GRAPH FraudInvestigationGraph (
+  Customer, Card, Transaction, DeviceProfile, EmailDomain, BillingRegion, ClosedCase, Case,
+  OWNS, OWNED_BY,
+  MADE, MADE_BY,
+  NEXT, PREV,
+  INVOLVES, INVOLVED_IN_CLOSED_CASE,
+  ON_CARD, HAS_CLOSED_CASE,
+  CONNECTED_TO, CONNECTED_CLOSED_CASE,
+  CASE_INVOLVES, INVOLVED_IN_CASE,
+  CASE_ON_CARD, HAS_CASE,
+  CASE_CONNECTED_TO, CONNECTED_CASE,
+  FROM_DEVICE, DEVICE_FOR_TXN,
+  BILLED_IN, REGION_FOR_TXN,
+  PURCHASER_EMAIL, EMAIL_FOR_TXN,
+  LINKED_DEVICE, USED_ON
+);

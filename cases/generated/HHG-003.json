@@ -1,0 +1,203 @@
+{
+  "case_id": "HHG-003",
+  "case": {
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.08,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "",
+    "connected_card_ids": [
+      "C08623-K1"
+    ],
+    "connected_device_profiles": [],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Historical monthly charges matching amount on card C08623-K2",
+        "source": "graph",
+        "ref": "recurring_merchant_scan",
+        "entity_ids": [
+          "3530164"
+        ]
+      },
+      {
+        "claim": "Customer acknowledges subscription service upon reminder",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Historical closed case CC-4922 (confirmed_fraud) shares structural similarity",
+        "source": "document",
+        "ref": "retriever:CC-4922",
+        "entity_ids": [
+          "CC-4922"
+        ]
+      },
+      {
+        "claim": "Historical closed case CC-4718 (confirmed_fraud) shares structural similarity",
+        "source": "document",
+        "ref": "retriever:CC-4718",
+        "entity_ids": [
+          "CC-4718"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-4922",
+      "CC-4718",
+      "CC-4982",
+      "CC-4551",
+      "CC-5541"
+    ],
+    "summary": "Disputed transaction 3530164 matches historical recurring subscription billing pattern on card C08623-K2 with consistent monthly intervals. Customer confirmation indicates an unrecognized legitimate recurring charge rather than fraudulent card compromise.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-003"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 4,
+      "assumed_response": "Customer contacted regarding recurring subscription. Cardholder acknowledges subscription billing and requests merchant cancellation details rather than fraud claim."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1/R7: Verify charge with cardholder prior to taking restrictive actions."
+      },
+      {
+        "action": "WARN_CUSTOMER",
+        "route": "auto",
+        "reason": "R7: Inform cardholder of recurring subscription billing details."
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Mandatory internal investigation record opened upon alert trigger."
+      }
+    ],
+    "final": [
+      {
+        "action": "ALLOW_TRANSACTION",
+        "route": "auto",
+        "reason": "R3: Authorized transaction released following cardholder validation."
+      },
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "R3/R7: Cardholder confirmed transaction or recurring subscription clarified."
+      }
+    ],
+    "what_changed": "Customer validation response received (Customer contacted regarding recurring subscription. Cardhol...), allowing final determination and policy enforcement."
+  },
+  "sar": {
+    "file": false,
+    "reason": "Exposure and pattern do not meet mandatory regulatory SAR filing criteria under policy rules R2/R6/R9.",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
+  },
+  "stop_reason": "Recurring subscription pattern confirmed with cardholder; no unauthorized card compromise detected. Further steps would not change actions.",
+  "tool_calls": 7,
+  "tokens": 750,
+  "latency_s": 5.53,
+  "verdict": "legitimate",
+  "actions": [
+    {
+      "action": "ALLOW_TRANSACTION",
+      "route": "auto",
+      "reason": "R3: Authorized transaction released following cardholder validation."
+    },
+    {
+      "action": "CLOSE_NO_FRAUD",
+      "route": "auto",
+      "reason": "R3/R7: Cardholder confirmed transaction or recurring subscription clarified."
+    }
+  ],
+  "sar_filed": false,
+  "investigation_path": [
+    {
+      "step": 2,
+      "tool": "query_customer_cards",
+      "input": {
+        "customer_id": "C08623"
+      },
+      "result_summary": "Found 2 cards",
+      "latency_ms": 14.06,
+      "status": "success"
+    },
+    {
+      "step": 2,
+      "tool": "query_card_history",
+      "input": {
+        "card_id": "C08623-K2"
+      },
+      "result_summary": "Retrieved 100 transactions",
+      "latency_ms": 1405.72,
+      "status": "success"
+    },
+    {
+      "step": 2,
+      "tool": "query_shared_devices",
+      "input": {
+        "txn_id": "3530164"
+      },
+      "result_summary": "Found 0 connected cards",
+      "latency_ms": 77.79,
+      "status": "success"
+    },
+    {
+      "step": 2,
+      "tool": "query_prior_cases",
+      "input": {
+        "card_id": "C08623-K2"
+      },
+      "result_summary": "Found 6 prior cases",
+      "latency_ms": 49.15,
+      "status": "success"
+    },
+    {
+      "step": 3,
+      "tool": "run_all_detectors",
+      "input": {
+        "card_id": "C08623-K2",
+        "txn_id": "3530164"
+      },
+      "result_summary": "Evaluated 8 detectors",
+      "latency_ms": 3401.7,
+      "status": "success"
+    },
+    {
+      "step": 3,
+      "tool": "legitimacy_checklist",
+      "input": {
+        "card_id": "C08623-K2",
+        "txn_id": "3530164"
+      },
+      "result_summary": "Score 8/9",
+      "latency_ms": 145.98,
+      "status": "success"
+    },
+    {
+      "step": 3,
+      "tool": "retrieve_case_memory",
+      "input": {
+        "customer_id": "C08623",
+        "top_k": 5
+      },
+      "result_summary": "Retrieved 5 cases",
+      "latency_ms": 408.45,
+      "status": "success"
+    }
+  ],
+  "performance": {
+    "latency_ms": 5530.0,
+    "tokens": 750
+  }
+}

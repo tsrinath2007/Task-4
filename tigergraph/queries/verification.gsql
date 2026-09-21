@@ -1,0 +1,86 @@
+// ============================================================================
+// TigerGraph GSQL Verification Queries for HHGOA Fraud Investigation
+// Graph: FraudInvestigationGraph
+// ============================================================================
+
+USE GRAPH FraudInvestigationGraph
+
+// ----------------------------------------------------------------------------
+// 1. Check if Card C08623-K2 exists
+// ----------------------------------------------------------------------------
+CREATE OR REPLACE QUERY check_card_exists(STRING cardId = "C08623-K2") FOR GRAPH FraudInvestigationGraph {
+  Cards = {Card.*};
+  Target = SELECT c FROM Cards:c WHERE c.card_id == cardId;
+  PRINT Target.size() > 0 AS exists, Target;
+}
+
+// ----------------------------------------------------------------------------
+// 2. Check if Transaction 3530164 is connected to C08623-K2 via MADE edge
+// ----------------------------------------------------------------------------
+CREATE OR REPLACE QUERY check_txn_connected(STRING cardId = "C08623-K2", STRING txnId = "3530164") FOR GRAPH FraudInvestigationGraph {
+  StartCard = {Card.*};
+  TargetCard = SELECT c FROM StartCard:c WHERE c.card_id == cardId;
+  Txns = SELECT t FROM TargetCard:c -(MADE:e)-> Transaction:t WHERE t.TransactionID == txnId;
+  PRINT Txns.size() > 0 AS connected, Txns;
+}
+
+// ----------------------------------------------------------------------------
+// 3. Check if Customer C08623 owns at least 2 cards
+// ----------------------------------------------------------------------------
+CREATE OR REPLACE QUERY check_customer_cards(STRING custId = "C08623") FOR GRAPH FraudInvestigationGraph {
+  Custs = {Customer.*};
+  TargetCust = SELECT c FROM Custs:c WHERE c.customer_id == custId;
+  Cards = SELECT cd FROM TargetCust:c -(OWNS:e)-> Card:cd;
+  PRINT Cards.size() >= 2 AS has_multiple_cards, Cards.size() AS card_count, Cards;
+}
+
+// ----------------------------------------------------------------------------
+// 4. Check if cleared ClosedCase exists (outcome='cleared')
+// ----------------------------------------------------------------------------
+CREATE OR REPLACE QUERY check_cleared_cases() FOR GRAPH FraudInvestigationGraph {
+  Cases = {ClosedCase.*};
+  Cleared = SELECT c FROM Cases:c WHERE c.outcome == "cleared";
+  PRINT Cleared.size() > 0 AS cleared_exists, Cleared.size() AS cleared_count;
+}
+
+// ----------------------------------------------------------------------------
+// 5. Check if at least 1 DeviceProfile exists
+// ----------------------------------------------------------------------------
+CREATE OR REPLACE QUERY check_device_profile_exists() FOR GRAPH FraudInvestigationGraph {
+  Devices = {DeviceProfile.*};
+  PRINT Devices.size() > 0 AS device_exists, Devices.size() AS total_devices;
+}
+
+// ----------------------------------------------------------------------------
+// 6. Check if Card C08623-K2 has at least 10 Transaction neighbors
+// ----------------------------------------------------------------------------
+CREATE OR REPLACE QUERY check_card_txns_count(STRING cardId = "C08623-K2") FOR GRAPH FraudInvestigationGraph {
+  Cards = {Card.*};
+  TargetCard = SELECT c FROM Cards:c WHERE c.card_id == cardId;
+  Txns = SELECT t FROM TargetCard:c -(MADE:e)-> Transaction:t;
+  PRINT Txns.size() >= 10 AS has_min_10_txns, Txns.size() AS total_txns;
+}
+
+// ----------------------------------------------------------------------------
+// 7. Master Verification: Total Vertex Counts
+// ----------------------------------------------------------------------------
+CREATE OR REPLACE QUERY get_vertex_counts() FOR GRAPH FraudInvestigationGraph {
+  Custs = {Customer.*};
+  Cards = {Card.*};
+  Txns = {Transaction.*};
+  Devs = {DeviceProfile.*};
+  Regions = {BillingRegion.*};
+  Emails = {EmailDomain.*};
+  Cases = {ClosedCase.*};
+
+  PRINT Custs.size() AS customer_count,
+        Cards.size() AS card_count,
+        Txns.size() AS transaction_count,
+        Devs.size() AS device_count,
+        Regions.size() AS region_count,
+        Emails.size() AS email_count,
+        Cases.size() AS closed_case_count;
+}
+
+// Install queries
+INSTALL QUERY check_card_exists, check_txn_connected, check_customer_cards, check_cleared_cases, check_device_profile_exists, check_card_txns_count, get_vertex_counts

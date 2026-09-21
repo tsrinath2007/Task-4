@@ -1,0 +1,250 @@
+{
+  "case_id": "HHG-004",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.88,
+    "pattern": "card_testing",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3267644",
+      "3267708",
+      "3267875",
+      "3267919",
+      "3268251"
+    ],
+    "first_suspicious_txn_id": "3267644",
+    "connected_card_ids": [
+      "C02222-K1",
+      "C03095-K2",
+      "C04248-K2",
+      "C05031-K3",
+      "C07518-K2"
+    ],
+    "connected_device_profiles": [
+      "D000031"
+    ],
+    "exposure_usd": 55.89,
+    "evidence": [
+      {
+        "claim": "Sequence of low-value authorizations preceding larger charge on card C08106-K1",
+        "source": "graph",
+        "ref": "card_testing_scan",
+        "entity_ids": [
+          "3267644",
+          "3267708",
+          "3267875",
+          "3267919",
+          "3268251"
+        ]
+      },
+      {
+        "claim": "Historical closed case CC-0696 (cleared) shares structural similarity",
+        "source": "document",
+        "ref": "retriever:CC-0696",
+        "entity_ids": [
+          "CC-0696"
+        ]
+      },
+      {
+        "claim": "Historical closed case CC-1736 (confirmed_fraud) shares structural similarity",
+        "source": "document",
+        "ref": "retriever:CC-1736",
+        "entity_ids": [
+          "CC-1736"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0696",
+      "CC-1736",
+      "CC-2121",
+      "CC-3778",
+      "CC-2272"
+    ],
+    "summary": "Rapid sequence of small authorizations followed by higher-value purchase detected on card C08106-K1. Pattern represents automated card testing prior to unauthorized exploitation.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-004"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 4,
+      "assumed_response": "Customer confirms they did not make or authorize the transaction and still have the card in possession."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1/R7: Verify charge with cardholder prior to taking restrictive actions."
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: Place cards sharing device/region profile under heightened surveillance."
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Mandatory internal investigation record opened upon alert trigger."
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "R6/R9: Regulatory SAR filing required due to multi-card compromise ring or exposure."
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Customer denied transaction; card compromised, exposure $55.89."
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: Continued surveillance on linked cards in device ring."
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Internal case recorded and stored in TigerGraph case memory."
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "R2/R6: Confirmed unauthorized activity meets SAR reporting threshold."
+      }
+    ],
+    "what_changed": "Customer validation response received (Customer confirms they did not make or authorize the transac...), allowing final determination and policy enforcement."
+  },
+  "sar": {
+    "file": true,
+    "reason": "R6: Confirmed ring across 5 cards",
+    "narrative": "On or about 2016-12-29, suspicious transaction activity totaling $55.89 was detected on card C08106-K1 associated with customer C08106. Flagged transaction 3583227 exhibited patterns consistent with card testing. Analysis of graph linkages identified connections to 5 additional card accounts sharing common digital identifiers. Verification confirmed unauthorized use, indicating compromise of account credentials. The financial institution has blocked the impacted payment instruments and instituted monitoring on linked entities.",
+    "subjects": [
+      "C08106",
+      "C08106-K1",
+      "C02222-K1",
+      "C03095-K2",
+      "C04248-K2",
+      "C05031-K3",
+      "C07518-K2",
+      "D000031"
+    ],
+    "total_amount_usd": 55.89,
+    "activity_dates": [
+      "2016-12-29",
+      "2016-12-29"
+    ]
+  },
+  "stop_reason": "Verification confirmed card compromise; exposure quantified and protective policy actions enforced. Further steps would not change actions.",
+  "tool_calls": 7,
+  "tokens": 1150,
+  "latency_s": 2.54,
+  "verdict": "fraud",
+  "actions": [
+    {
+      "action": "BLOCK_CARD",
+      "route": "L1",
+      "reason": "R2: Customer denied transaction; card compromised, exposure $55.89."
+    },
+    {
+      "action": "MONITOR_CONNECTED_CARDS",
+      "route": "auto",
+      "reason": "R6: Continued surveillance on linked cards in device ring."
+    },
+    {
+      "action": "CREATE_CASE",
+      "route": "auto",
+      "reason": "Internal case recorded and stored in TigerGraph case memory."
+    },
+    {
+      "action": "FILE_REPORT",
+      "route": "L2",
+      "reason": "R2/R6: Confirmed unauthorized activity meets SAR reporting threshold."
+    }
+  ],
+  "sar_filed": true,
+  "investigation_path": [
+    {
+      "step": 2,
+      "tool": "query_customer_cards",
+      "input": {
+        "customer_id": "C08106"
+      },
+      "result_summary": "Found 1 cards",
+      "latency_ms": 13.58,
+      "status": "success"
+    },
+    {
+      "step": 2,
+      "tool": "query_card_history",
+      "input": {
+        "card_id": "C08106-K1"
+      },
+      "result_summary": "Retrieved 100 transactions",
+      "latency_ms": 1418.1,
+      "status": "success"
+    },
+    {
+      "step": 2,
+      "tool": "query_shared_devices",
+      "input": {
+        "txn_id": "3583227"
+      },
+      "result_summary": "Found 6 connected cards",
+      "latency_ms": 438.48,
+      "status": "success"
+    },
+    {
+      "step": 2,
+      "tool": "query_prior_cases",
+      "input": {
+        "card_id": "C08106-K1"
+      },
+      "result_summary": "Found 4 prior cases",
+      "latency_ms": 40.05,
+      "status": "success"
+    },
+    {
+      "step": 3,
+      "tool": "run_all_detectors",
+      "input": {
+        "card_id": "C08106-K1",
+        "txn_id": "3583227"
+      },
+      "result_summary": "Evaluated 8 detectors",
+      "latency_ms": 365.52,
+      "status": "success"
+    },
+    {
+      "step": 3,
+      "tool": "legitimacy_checklist",
+      "input": {
+        "card_id": "C08106-K1",
+        "txn_id": "3583227"
+      },
+      "result_summary": "Score 3/6",
+      "latency_ms": 118.46,
+      "status": "success"
+    },
+    {
+      "step": 3,
+      "tool": "retrieve_case_memory",
+      "input": {
+        "customer_id": "C08106",
+        "top_k": 5
+      },
+      "result_summary": "Retrieved 5 cases",
+      "latency_ms": 79.33,
+      "status": "success"
+    }
+  ],
+  "performance": {
+    "latency_ms": 2540.0,
+    "tokens": 1150
+  }
+}

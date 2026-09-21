@@ -1,0 +1,384 @@
+{
+  "case_id": "HHG-014",
+  "case": {
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.92,
+    "pattern": "card_not_present_new_device",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3478561"
+    ],
+    "first_suspicious_txn_id": "3478561",
+    "connected_card_ids": [
+      "C00255-K1",
+      "C01289-K2",
+      "C01935-K1",
+      "C01996-K2",
+      "C02910-K1",
+      "C02975-K1",
+      "C03528-K1",
+      "C03551-K2",
+      "C03676-K2",
+      "C03744-K1",
+      "C04108-K2",
+      "C04274-K1",
+      "C04311-K1",
+      "C05448-K2",
+      "C06031-K2",
+      "C06197-K2",
+      "C06617-K1",
+      "C06650-K2",
+      "C06710-K1",
+      "C07472-K1",
+      "C07485-K1",
+      "C07762-K1",
+      "C08112-K2",
+      "C08168-K1",
+      "C08972-K1",
+      "C09049-K1",
+      "C09174-K1",
+      "C09195-K1",
+      "C09354-K1",
+      "C09733-K1",
+      "C09906-K1",
+      "C09975-K1",
+      "C09998-K1",
+      "C10020-K1",
+      "C10193-K2",
+      "C10326-K1",
+      "C10350-K1",
+      "C10955-K2",
+      "C11082-K1",
+      "C11468-K1",
+      "C11670-K1",
+      "C11687-K2",
+      "C11702-K1",
+      "C12033-K1",
+      "C12132-K2",
+      "C12395-K2",
+      "C12574-K1",
+      "C12645-K1",
+      "C12796-K2",
+      "C12900-K2",
+      "C13291-K1"
+    ],
+    "connected_device_profiles": [
+      "D005668"
+    ],
+    "exposure_usd": 74.96,
+    "evidence": [
+      {
+        "claim": "Device profile linked to multiple cards across different customers",
+        "source": "graph",
+        "ref": "shared_device_scan",
+        "entity_ids": [
+          "C00255-K1",
+          "C01289-K2",
+          "C01935-K1",
+          "C01996-K2",
+          "C02910-K1",
+          "C02975-K1",
+          "C03528-K1",
+          "C03551-K2",
+          "C03676-K2",
+          "C03744-K1",
+          "C04108-K2",
+          "C04274-K1",
+          "C04311-K1",
+          "C05448-K2",
+          "C06031-K2",
+          "C06197-K2",
+          "C06617-K1",
+          "C06650-K2",
+          "C06710-K1",
+          "C07472-K1",
+          "C07485-K1",
+          "C07762-K1",
+          "C08112-K2",
+          "C08168-K1",
+          "C08972-K1",
+          "C09049-K1",
+          "C09174-K1",
+          "C09195-K1",
+          "C09354-K1",
+          "C09733-K1",
+          "C09906-K1",
+          "C09975-K1",
+          "C09998-K1",
+          "C10020-K1",
+          "C10193-K2",
+          "C10326-K1",
+          "C10350-K1",
+          "C10955-K2",
+          "C11082-K1",
+          "C11468-K1",
+          "C11670-K1",
+          "C11687-K2",
+          "C11702-K1",
+          "C12033-K1",
+          "C12132-K2",
+          "C12395-K2",
+          "C12574-K1",
+          "C12645-K1",
+          "C12796-K2",
+          "C12900-K2",
+          "C13291-K1"
+        ]
+      },
+      {
+        "claim": "Historical closed case CC-1719 (confirmed_fraud) shares structural similarity",
+        "source": "document",
+        "ref": "retriever:CC-1719",
+        "entity_ids": [
+          "CC-1719"
+        ]
+      },
+      {
+        "claim": "Historical closed case CC-3461 (confirmed_fraud) shares structural similarity",
+        "source": "document",
+        "ref": "retriever:CC-3461",
+        "entity_ids": [
+          "CC-3461"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-1719",
+      "CC-3461",
+      "CC-0528",
+      "CC-2525",
+      "CC-3928"
+    ],
+    "summary": "Flagged transaction 3478561 originated from a device profile shared across 51 distinct card accounts. Shared origin indicates organized credential ring.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-014"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 4,
+      "assumed_response": "Customer contacted via SMS; states they do not recognize the transaction and did not authorize it."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1/R7: Verify charge with cardholder prior to taking restrictive actions."
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: Place cards sharing device/region profile under heightened surveillance."
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Mandatory internal investigation record opened upon alert trigger."
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "R6/R9: Regulatory SAR filing required due to multi-card compromise ring or exposure."
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Customer denied transaction; card compromised, exposure $74.96."
+      },
+      {
+        "action": "MONITOR_CONNECTED_CARDS",
+        "route": "auto",
+        "reason": "R6: Continued surveillance on linked cards in device ring."
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Internal case recorded and stored in TigerGraph case memory."
+      },
+      {
+        "action": "FILE_REPORT",
+        "route": "L2",
+        "reason": "R2/R6: Confirmed unauthorized activity meets SAR reporting threshold."
+      }
+    ],
+    "what_changed": "Customer validation response received (Customer contacted via SMS; states they do not recognize the...), allowing final determination and policy enforcement."
+  },
+  "sar": {
+    "file": true,
+    "reason": "R6: Confirmed ring across 51 cards",
+    "narrative": "On or about 2016-11-22, suspicious transaction activity totaling $74.96 was detected on card C13487-K1 associated with customer C13487. Flagged transaction 3478561 exhibited patterns consistent with card not present new device. Analysis of graph linkages identified connections to 51 additional card accounts sharing common digital identifiers. Verification confirmed unauthorized use, indicating compromise of account credentials. The financial institution has blocked the impacted payment instruments and instituted monitoring on linked entities.",
+    "subjects": [
+      "C13487",
+      "C13487-K1",
+      "C00255-K1",
+      "C01289-K2",
+      "C01935-K1",
+      "C01996-K2",
+      "C02910-K1",
+      "C02975-K1",
+      "C03528-K1",
+      "C03551-K2",
+      "C03676-K2",
+      "C03744-K1",
+      "C04108-K2",
+      "C04274-K1",
+      "C04311-K1",
+      "C05448-K2",
+      "C06031-K2",
+      "C06197-K2",
+      "C06617-K1",
+      "C06650-K2",
+      "C06710-K1",
+      "C07472-K1",
+      "C07485-K1",
+      "C07762-K1",
+      "C08112-K2",
+      "C08168-K1",
+      "C08972-K1",
+      "C09049-K1",
+      "C09174-K1",
+      "C09195-K1",
+      "C09354-K1",
+      "C09733-K1",
+      "C09906-K1",
+      "C09975-K1",
+      "C09998-K1",
+      "C10020-K1",
+      "C10193-K2",
+      "C10326-K1",
+      "C10350-K1",
+      "C10955-K2",
+      "C11082-K1",
+      "C11468-K1",
+      "C11670-K1",
+      "C11687-K2",
+      "C11702-K1",
+      "C12033-K1",
+      "C12132-K2",
+      "C12395-K2",
+      "C12574-K1",
+      "C12645-K1",
+      "C12796-K2",
+      "C12900-K2",
+      "C13291-K1",
+      "D005668"
+    ],
+    "total_amount_usd": 74.96,
+    "activity_dates": [
+      "2016-11-22",
+      "2016-11-22"
+    ]
+  },
+  "stop_reason": "Verification confirmed card compromise; exposure quantified and protective policy actions enforced. Further steps would not change actions.",
+  "tool_calls": 7,
+  "tokens": 1150,
+  "latency_s": 5.46,
+  "verdict": "fraud",
+  "actions": [
+    {
+      "action": "BLOCK_CARD",
+      "route": "L1",
+      "reason": "R2: Customer denied transaction; card compromised, exposure $74.96."
+    },
+    {
+      "action": "MONITOR_CONNECTED_CARDS",
+      "route": "auto",
+      "reason": "R6: Continued surveillance on linked cards in device ring."
+    },
+    {
+      "action": "CREATE_CASE",
+      "route": "auto",
+      "reason": "Internal case recorded and stored in TigerGraph case memory."
+    },
+    {
+      "action": "FILE_REPORT",
+      "route": "L2",
+      "reason": "R2/R6: Confirmed unauthorized activity meets SAR reporting threshold."
+    }
+  ],
+  "sar_filed": true,
+  "investigation_path": [
+    {
+      "step": 2,
+      "tool": "query_customer_cards",
+      "input": {
+        "customer_id": "C13487"
+      },
+      "result_summary": "Found 1 cards",
+      "latency_ms": 14.43,
+      "status": "success"
+    },
+    {
+      "step": 2,
+      "tool": "query_card_history",
+      "input": {
+        "card_id": "C13487-K1"
+      },
+      "result_summary": "Retrieved 85 transactions",
+      "latency_ms": 1414.08,
+      "status": "success"
+    },
+    {
+      "step": 2,
+      "tool": "query_shared_devices",
+      "input": {
+        "txn_id": "3478561"
+      },
+      "result_summary": "Found 52 connected cards",
+      "latency_ms": 479.72,
+      "status": "success"
+    },
+    {
+      "step": 2,
+      "tool": "query_prior_cases",
+      "input": {
+        "card_id": "C13487-K1"
+      },
+      "result_summary": "Found 0 prior cases",
+      "latency_ms": 44.67,
+      "status": "success"
+    },
+    {
+      "step": 3,
+      "tool": "run_all_detectors",
+      "input": {
+        "card_id": "C13487-K1",
+        "txn_id": "3478561"
+      },
+      "result_summary": "Evaluated 8 detectors",
+      "latency_ms": 3004.08,
+      "status": "success"
+    },
+    {
+      "step": 3,
+      "tool": "legitimacy_checklist",
+      "input": {
+        "card_id": "C13487-K1",
+        "txn_id": "3478561"
+      },
+      "result_summary": "Score 5/6",
+      "latency_ms": 139.32,
+      "status": "success"
+    },
+    {
+      "step": 3,
+      "tool": "retrieve_case_memory",
+      "input": {
+        "customer_id": "C13487",
+        "top_k": 5
+      },
+      "result_summary": "Retrieved 5 cases",
+      "latency_ms": 327.87,
+      "status": "success"
+    }
+  ],
+  "performance": {
+    "latency_ms": 5460.0,
+    "tokens": 1150
+  }
+}

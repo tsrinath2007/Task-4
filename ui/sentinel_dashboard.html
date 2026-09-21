@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SENTINEL — Autonomous Fraud Investigation Cockpit</title>
+  <!-- Google Fonts: Inter and JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-main: #070C18;
+      --bg-panel: #0E1626;
+      --bg-card: #141E33;
+      --bg-card-hover: #1A2844;
+      --border-subtle: #1F2E4D;
+      --border-focus: #3B82F6;
+      
+      --accent-blue: #3B82F6;
+      --accent-indigo: #6366F1;
+      --color-fraud: #EF4444;
+      --color-legit: #10B981;
+      --color-uncertain: #F59E0B;
+      --color-simulated: #8B5CF6;
+      
+      --text-main: #F1F5F9;
+      --text-muted: #94A3B8;
+      --text-dim: #64748B;
+      
+      --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+    }
+
+    /* Layout */
+    #sidebar {
+      width: 340px;
+      min-width: 340px;
+      background-color: var(--bg-panel);
+      border-right: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      z-index: 10;
+    }
+
+    #main-panel {
+      flex: 1;
+      height: 100vh;
+      overflow-y: auto;
+      background-color: var(--bg-main);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header & Branding */
+    .sidebar-header {
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .brand-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #FFF;
+    }
+    .brand-title svg {
+      color: var(--accent-blue);
+    }
+    .brand-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Stats Bar */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      padding: 12px 16px;
+      background-color: rgba(14, 22, 38, 0.7);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .stat-pill {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 6px 8px;
+      text-align: center;
+    }
+    .stat-val {
+      font-family: var(--font-mono);
+      font-size: 1.05rem;
+      font-weight: 700;
+    }
+    .stat-label {
+      font-size: 0.62rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* Filters */
+    .filter-bar {
+      padding: 10px 16px;
+      display: flex;
+      gap: 6px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .filter-btn {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      padding: 5px 0;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .filter-btn:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-main);
+    }
+    .filter-btn.active {
+      background: var(--accent-blue);
+      border-color: var(--accent-blue);
+      color: #FFF;
+      font-weight: 600;
+    }
+
+    /* Case List */
+    .case-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .case-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 9px 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .case-card:hover {
+      background-color: var(--bg-card-hover);
+      border-color: var(--border-focus);
+    }
+    .case-card.selected {
+      background-color: #162440;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 1px var(--accent-blue);
+    }
+    .case-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .case-id-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .verdict-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .dot-fraud { background-color: var(--color-fraud); box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
+    .dot-legitimate { background-color: var(--color-legit); box-shadow: 0 0 8px rgba(16, 185, 129, 0.6); }
+    .dot-uncertain { background-color: var(--color-uncertain); box-shadow: 0 0 8px rgba(245, 158, 11, 0.6); }
+
+    .case-cid {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: 0.85rem;
+    }
+    .case-exp {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .case-card-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+    }
+    .case-pattern-tag {
+      text-transform: capitalize;
+    }
+
+    /* Main Content Area */
+    .main-scroll {
+      padding: 24px 30px;
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Topbar */
+    .case-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .topbar-cid {
+      font-family: var(--font-mono);
+      font-size: 1.7rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+    }
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .badge-trigger {
+      background: #1E293B;
+      color: #94A3B8;
+      border: 1px solid #334155;
+    }
+    .badge-fraud { background: rgba(239, 68, 68, 0.15); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+    .badge-legitimate { background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-uncertain { background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .badge-simulated { background: rgba(139, 92, 246, 0.15); color: #A78BFA; border: 1px solid rgba(139, 92, 246, 0.4); }
+    
+    .badge-route {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-weight: 700;
+    }
+    .route-auto, .route-AUTO { background: #334155; color: #E2E8F0; }
+    .route-L1 { background: rgba(245, 158, 11, 0.2); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .route-L2 { background: rgba(239, 68, 68, 0.2); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    /* Metrics Grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    .metric-card {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    .metric-title {
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+    }
+    .metric-number {
+      font-family: var(--font-mono);
+      font-size: 1.45rem;
+      font-weight: 700;
+    }
+    .prob-bar-track {
+      height: 5px;
+      background-color: #1E293B;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+    .prob-bar-fill {
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    /* Split Main Grid (Left Details + Right Graph & SAR) */
+    .split-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .column-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Content Panels */
+    .content-panel {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .panel-title {
+      font-size: 0.92rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: #E2E8F0;
+    }
+    .panel-title-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .summary-text {
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: #CBD5E1;
+    }
+
+    /* Evidence Chain */
+    .evidence-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .evidence-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 10px 12px;
+      display: flex;
+      gap: 10px;
+    }
+    .source-icon {
+      width: 26px;
+      height: 26px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 0.72rem;
+      flex-shrink: 0;
+    }
+    .src-graph { background: rgba(59, 130, 246, 0.15); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.3); }
+    .src-customer { background: rgba(139, 92, 246, 0.15); color: #A78BFA; border: 1px solid rgba(139, 92, 246, 0.3); }
+    .src-document { background: rgba(245, 158, 11, 0.15); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .src-external { background: rgba(16, 185, 129, 0.15); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+    .evidence-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .evidence-claim {
+      font-size: 0.85rem;
+      color: #E2E8F0;
+      line-height: 1.35;
+    }
+    .evidence-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .chip {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      padding: 2px 6px;
+      background: #1E293B;
+      border: 1px solid #334155;
+      border-radius: 4px;
+      color: #94A3B8;
+    }
+
+    /* Actions Grid */
+    .actions-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .action-column {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .action-col-header {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .action-item {
+      background: #0B1120;
+      border: 1px solid var(--border-subtle);
+      border-radius: 6px;
+      padding: 8px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .action-item-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .action-name {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #F8FAFC;
+    }
+    .action-reason {
+      font-size: 0.74rem;
+      color: #94A3B8;
+      line-height: 1.3;
+    }
+    .what-changed-box {
+      margin-top: 6px;
+      padding: 8px 10px;
+      background: rgba(59, 130, 246, 0.08);
+      border: 1px dashed rgba(59, 130, 246, 0.4);
+      border-radius: 6px;
+      font-size: 0.78rem;
+      color: #93C5FD;
+      line-height: 1.35;
+    }
+
+    /* Graph Visualization Panel */
+    .graph-panel {
+      background-color: var(--bg-panel);
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .graph-legend {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      flex-wrap: wrap;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+    .svg-container {
+      width: 100%;
+      height: 310px;
+      background: #090E1C;
+      border: 1px solid #16223B;
+      border-radius: 6px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* SAR Panel (Bigger narrative space) */
+    .sar-panel {
+      background: #0E1229;
+      border: 1px solid #4338CA;
+      border-radius: 8px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .sar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .sar-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #C7D2FE;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .sar-narrative {
+      font-size: 0.86rem;
+      line-height: 1.6;
+      color: #E0E7FF;
+      background: #080918;
+      padding: 14px;
+      border-radius: 6px;
+      border: 1px solid #312E81;
+      white-space: pre-line;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    /* Tables (Prior cases & Trace) */
+    .table-container {
+      overflow-x: auto;
+      margin-top: 8px;
+    }
+    .custom-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.78rem;
+    }
+    .custom-table th {
+      text-align: left;
+      padding: 8px 10px;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border-subtle);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.68rem;
+      letter-spacing: 0.04em;
+    }
+    .custom-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(31, 46, 77, 0.4);
+      color: var(--text-muted);
+    }
+    .custom-table tr:hover td {
+      background-color: rgba(26, 40, 68, 0.4);
+    }
+
+    /* Stop Reason Bar */
+    .stop-reason-bar {
+      background: #0B1220;
+      border: 1px solid var(--border-subtle);
+      border-radius: 8px;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+    .stop-badge {
+      background: rgba(239, 68, 68, 0.15);
+      color: #F87171;
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    /* Utilities & States */
+    .loading-state, .error-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 60vh;
+      text-align: center;
+      gap: 16px;
+      padding: 20px;
+    }
+    .spinner {
+      width: 38px;
+      height: 38px;
+      border: 3px solid rgba(59, 130, 246, 0.2);
+      border-top-color: var(--accent-blue);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    .error-box {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      padding: 22px;
+      border-radius: 8px;
+      max-width: 560px;
+      text-align: left;
+    }
+    .error-code {
+      background: #000;
+      padding: 10px 14px;
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      color: #F87171;
+      margin-top: 10px;
+      display: block;
+    }
+    .btn-retry {
+      background: var(--accent-blue);
+      color: #FFF;
+      border: none;
+      padding: 8px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      margin-top: 14px;
+      font-size: 0.82rem;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand-title">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        SENTINEL
+      </div>
+      <div class="brand-subtitle">TigerGraph × GraphRAG Fraud Agent</div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div class="stats-bar">
+      <div class="stat-pill">
+        <div class="stat-val" id="stat-fraud" style="color: var(--color-fraud);">--</div>
+        <div class="stat-label">Fraud</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-val" id="stat-legit" style="color: var(--color-legit);">--</div>
+        <div class="stat-label">Legitimate</div>
+      </div>
+      <div class="stat-pill">
+        <div class="stat-val" id="stat-sar" style="color: var(--accent-indigo);">--</div>
+        <div class="stat-label">SAR Filed</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filter-bar">
+      <button class="filter-btn active" data-filter="all">All (20)</button>
+      <button class="filter-btn" data-filter="fraud">Fraud</button>
+      <button class="filter-btn" data-filter="legitimate">Clear</button>
+      <button class="filter-btn" data-filter="uncertain">Uncertain</button>
+    </div>
+
+    <!-- Scrollable Case List -->
+    <div class="case-list" id="case-list-container">
+      <!-- Injected via JavaScript -->
+    </div>
+  </aside>
+
+  <!-- MAIN VIEW -->
+  <main id="main-panel">
+    <div id="main-content" class="main-scroll">
+      <!-- Loading State default -->
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <div style="color: var(--text-muted); font-size: 0.9rem;">Connecting to Sentinel Investigation Engine...</div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = 'http://localhost:8000/api';
+    let allCases = [];
+    let currentFilter = 'all';
+    let selectedCaseId = null;
+
+    async function initDashboard() {
+      try {
+        // 1. Fetch Summary
+        const summaryRes = await fetch(`${API_BASE}/summary`);
+        if (!summaryRes.ok) throw new Error(`HTTP ${summaryRes.status}`);
+        const summaryData = await summaryRes.json();
+        
+        document.getElementById('stat-fraud').textContent = summaryData.fraud ?? 0;
+        document.getElementById('stat-legit').textContent = summaryData.legitimate ?? 0;
+        document.getElementById('stat-sar').textContent = summaryData.sar_count ?? 0;
+
+        // 2. Fetch Cases Listing
+        const casesRes = await fetch(`${API_BASE}/cases`);
+        if (!casesRes.ok) throw new Error(`HTTP ${casesRes.status}`);
+        allCases = await casesRes.json();
+
+        renderSidebar();
+
+        // Auto-select HHG-014 on load, or fallback to first case
+        const hasHHG14 = allCases.some(c => c.case_id === 'HHG-014');
+        const targetId = hasHHG14 ? 'HHG-014' : (allCases[0]?.case_id ?? null);
+        if (targetId) {
+          selectCase(targetId);
+        }
+      } catch (err) {
+        renderErrorState(err);
+      }
+    }
+
+    function renderSidebar() {
+      const container = document.getElementById('case-list-container');
+      container.innerHTML = '';
+
+      const filtered = allCases.filter(c => {
+        if (currentFilter === 'all') return true;
+        return c.verdict === currentFilter;
+      });
+
+      filtered.forEach(c => {
+        const card = document.createElement('div');
+        card.className = `case-card ${c.case_id === selectedCaseId ? 'selected' : ''}`;
+        card.onclick = () => selectCase(c.case_id);
+
+        const dotClass = `dot-${c.verdict}`;
+        const expStr = c.exposure_usd > 0 ? `$${c.exposure_usd.toLocaleString(undefined, {minimumFractionDigits: 2})}` : '$0.00';
+        const patternStr = c.pattern ? c.pattern.replace(/_/g, ' ') : 'none';
+
+        card.innerHTML = `
+          <div class="case-card-header">
+            <div class="case-id-group">
+              <span class="verdict-dot ${dotClass}"></span>
+              <span class="case-cid">${c.case_id}</span>
+            </div>
+            <span class="case-exp">${expStr}</span>
+          </div>
+          <div class="case-card-meta">
+            <span class="case-pattern-tag">${patternStr}</span>
+            <span>${c.sar_filed ? '🚨 SAR' : ''}</span>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    async function selectCase(caseId) {
+      selectedCaseId = caseId;
+      renderSidebar(); // Update selected highlight
+
+      const main = document.getElementById('main-content');
+      main.innerHTML = `
+        <div class="loading-state">
+          <div class="spinner"></div>
+          <div style="color: var(--text-muted); font-size: 0.9rem;">Retrieving investigation context for ${caseId}...</div>
+        </div>
+      `;
+
+      try {
+        const res = await fetch(`${API_BASE}/cases/${caseId}`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        renderCaseDetail(data);
+      } catch (err) {
+        main.innerHTML = `
+          <div class="error-box" style="margin: 40px auto;">
+            <h3 style="color: #F87171;">Error Loading Case</h3>
+            <p style="color: #94A3B8; margin-top: 6px;">Failed to fetch investigation details for ${caseId}: ${err.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    function renderCaseDetail(d) {
+      const main = document.getElementById('main-content');
+      const v = d.verdict || 'uncertain';
+      const probPct = Math.round((d.fraud_probability || 0) * 100);
+      const probColor = v === 'fraud' ? 'var(--color-fraud)' : (v === 'legitimate' ? 'var(--color-legit)' : 'var(--color-uncertain)');
+      
+      const sar = d.sar || {};
+      const actions = d.next_best_actions || {};
+      const initial = actions.initial || [];
+      const final = actions.final || [];
+      const evList = d.evidence || [];
+      const priors = d.similar_prior_cases || [];
+      const trace = d.investigation_path || [];
+
+      // Determine focal card and device for graph traversal
+      const focalCard = d.card_id || (d.case_id === 'HHG-014' ? 'C13487-K1' : 'Card');
+      const devProfiles = d.connected_device_profiles || [];
+      const focalDevice = devProfiles[0] || (d.case_id === 'HHG-014' ? 'D005668' : 'D_Profile');
+      const connectedCards = d.connected_card_ids || [];
+
+      main.innerHTML = `
+        <!-- TOPBAR -->
+        <div class="case-topbar">
+          <div class="topbar-left">
+            <span class="topbar-cid">${d.case_id}</span>
+            <span class="badge badge-trigger">${(d.trigger_type || 'ALERT').replace(/_/g, ' ')}</span>
+            <span class="badge badge-${v}">${v.toUpperCase()}</span>
+          </div>
+          <div style="font-size: 0.8rem; color: var(--text-dim); font-family: var(--font-mono);">
+            Status: <span style="color: var(--text-main); font-weight: 600;">${(d.status || 'CLOSED').toUpperCase()}</span>
+          </div>
+        </div>
+
+        <!-- METRICS ROW -->
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span class="metric-title">Fraud Probability</span>
+            <span class="metric-number" style="color: ${probColor};">${probPct}%</span>
+            <div class="prob-bar-track">
+              <div class="prob-bar-fill" style="width: ${probPct}%; background-color: ${probColor};"></div>
+            </div>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">Identified Exposure</span>
+            <span class="metric-number">$${(d.exposure_usd || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">Evidence Items</span>
+            <span class="metric-number">${evList.length} Fact${evList.length === 1 ? '' : 's'}</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-title">SAR Regulatory Filing</span>
+            <span class="metric-number" style="color: ${d.sar_filed ? 'var(--accent-indigo)' : 'var(--text-dim)'}; font-size: 1.25rem;">
+              ${d.sar_filed ? 'YES (Filed)' : 'NO'}
+            </span>
+          </div>
+        </div>
+
+        <!-- SPLIT GRID: LEFT DETAILS & RIGHT GRAPH / SAR -->
+        <div class="split-grid">
+          
+          <!-- LEFT COLUMN: Summary, Evidence Chain, Actions -->
+          <div class="column-stack">
+            
+            <!-- Executive Summary -->
+            <div class="content-panel">
+              <div class="panel-title">
+                <div class="panel-title-left">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                  Executive Summary
+                </div>
+                <span class="chip">${(d.pattern || 'none').replace(/_/g, ' ')}</span>
+              </div>
+              <div class="summary-text">${d.summary || 'No summary recorded.'}</div>
+              ${d.pattern_description ? `<div style="margin-top: 10px; color: #FBBF24; font-size: 0.82rem; line-height: 1.4;"><b>Undocumented Pattern:</b> ${d.pattern_description}</div>` : ''}
+            </div>
+
+            <!-- Evidence Chain -->
+            <div class="content-panel">
+              <div class="panel-title">
+                <div class="panel-title-left">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  Factual Evidence Chain
+                </div>
+                <span class="chip">${evList.length} Findings</span>
+              </div>
+              <div class="evidence-list">
+                ${evList.map((ev, idx) => {
+                  const src = (ev.source || 'graph').toLowerCase();
+                  const iconLetter = src === 'graph' ? 'G' : (src === 'customer' ? 'C' : (src === 'document' ? 'D' : 'E'));
+                  const entities = ev.entity_ids || [];
+                  return `
+                    <div class="evidence-item">
+                      <div class="source-icon src-${src}">${iconLetter}</div>
+                      <div class="evidence-body">
+                        <div class="evidence-claim"><b>#${idx+1}.</b> ${ev.claim}</div>
+                        <div class="evidence-meta">
+                          <span class="chip">ref: ${ev.ref}</span>
+                          ${entities.slice(0, 5).map(e => `<span class="chip" style="color: #60A5FA;">${e}</span>`).join('')}
+                          ${entities.length > 5 ? `<span class="chip">+${entities.length - 5} more</span>` : ''}
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }).join('') || '<div style="color: var(--text-dim); font-size: 0.85rem;">No explicit evidence claims recorded.</div>'}
+              </div>
+            </div>
+
+            <!-- Actions: Initial vs Final -->
+            <div class="content-panel">
+              <div class="panel-title">
+                <div class="panel-title-left">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  Policy Engine Progression
+                </div>
+              </div>
+              
+              <div class="actions-grid">
+                <!-- Initial Actions -->
+                <div class="action-column">
+                  <div class="action-col-header">Initial Actions (Pre-Evidence)</div>
+                  ${initial.map(a => `
+                    <div class="action-item">
+                      <div class="action-item-top">
+                        <span class="action-name">${a.action}</span>
+                        <span class="badge-route route-${a.route}">${a.route}</span>
+                      </div>
+                      <div class="action-reason">${a.reason || ''}</div>
+                    </div>
+                  `).join('') || '<div style="color: var(--text-dim); font-size: 0.78rem;">None</div>'}
+                </div>
+
+                <!-- Final Actions -->
+                <div class="action-column">
+                  <div class="action-col-header">Final Actions (Post-Evidence)</div>
+                  ${final.map(a => `
+                    <div class="action-item">
+                      <div class="action-item-top">
+                        <span class="action-name">${a.action}</span>
+                        <span class="badge-route route-${a.route}">${a.route}</span>
+                      </div>
+                      <div class="action-reason">${a.reason || ''}</div>
+                    </div>
+                  `).join('') || '<div style="color: var(--text-dim); font-size: 0.78rem;">None</div>'}
+                  <div class="what-changed-box">
+                    <b>Evolution Rationale:</b> ${actions.what_changed || 'nothing'}
+                  </div>
+                </div>
+              </div>
+
+              <!-- Evidence Requests -->
+              ${(d.evidence_requests && d.evidence_requests.length > 0) ? `
+                <div style="margin-top: 14px; padding: 12px; background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 6px;">
+                  <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                    <span class="badge badge-simulated">SIMULATED EVIDENCE</span>
+                    <span style="font-size: 0.75rem; font-weight: 600; color: #C4B5FD;">Verification Request (Step ${d.evidence_requests[0].asked_after_step})</span>
+                  </div>
+                  <div style="font-size: 0.82rem; color: #E0E7FF; line-height: 1.4;">
+                    ${d.evidence_requests[0].assumed_response}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+
+          </div>
+
+          <!-- RIGHT COLUMN: TigerGraph Live Visualization & Bigger SAR -->
+          <div class="column-stack">
+            
+            <!-- TIGERGRAPH TRAVERSAL PANEL -->
+            <div class="graph-panel">
+              <div class="panel-title" style="margin-bottom: 6px;">
+                <div class="panel-title-left">
+                  <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+                  TigerGraph Traversal — ${d.case_id}
+                </div>
+                <span class="chip" style="color: #60A5FA;">GSQL Real-Time Hop</span>
+              </div>
+              
+              <!-- Graph Legend -->
+              <div class="graph-legend">
+                <div class="legend-item"><span class="legend-dot" style="background:#3B82F6;"></span> Card</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#F59E0B;"></span> Device</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#EF4444;"></span> Connected (Fraud)</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#10B981;"></span> Connected (Clear)</div>
+                <div class="legend-item"><span class="legend-dot" style="background:#8B5CF6;"></span> Prior Case</div>
+              </div>
+
+              <!-- Inline SVG Visualization -->
+              <div class="svg-container">
+                ${generateInlineGraphSVG(focalCard, focalDevice, connectedCards, priors, v)}
+              </div>
+            </div>
+
+            <!-- BIGGER SAR NARRATIVE PANEL -->
+            <div class="sar-panel">
+              <div class="sar-header">
+                <div class="sar-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                  Suspicious Activity Report (FinCEN Filing)
+                </div>
+                ${sar.file ? `<span class="badge badge-fraud">ROUTE L2 APPROVAL REQUIRED</span>` : `<span class="chip">NOT REQUIRED</span>`}
+              </div>
+
+              ${sar.file ? `
+                <div style="font-size: 0.8rem; color: #A5B4FC;">
+                  <b>Filing Reason:</b> ${sar.reason || 'Regulatory mandate under policy R2/R6.'}
+                </div>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                  <span class="chip" style="background: #1E1B4B; border-color: #4F46E5; color: #C7D2FE;">Total: $${(sar.total_amount_usd || d.exposure_usd || 0).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                  <span class="chip" style="background: #1E1B4B; border-color: #4F46E5; color: #C7D2FE;">Dates: ${(sar.activity_dates || []).join(' to ')}</span>
+                  ${(sar.subjects || []).slice(0, 4).map(s => `<span class="chip" style="background: #1E1B4B; border-color: #4F46E5; color: #93C5FD;">Subject: ${s}</span>`).join('')}
+                </div>
+                <div class="sar-narrative">${sar.narrative || 'No narrative generated.'}</div>
+              ` : `
+                <div style="color: var(--text-dim); font-size: 0.85rem; padding: 20px; text-align: center;">
+                  No SAR regulatory filing required for ${d.case_id}. The activity was validated against historical cardholder baseline and did not meet mandatory FinCEN filing thresholds.
+                </div>
+              `}
+            </div>
+
+          </div>
+
+        </div>
+
+        <!-- FULL-WIDTH: PRIOR CASES FROM GRAPHRAG TABLE -->
+        <div class="content-panel">
+          <div class="panel-title">
+            <div class="panel-title-left">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+              Prior Cases from GraphRAG Memory
+            </div>
+            <span class="chip">${priors.length} Historical Matches</span>
+          </div>
+
+          <div class="table-container">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th>Case ID</th>
+                  <th>Historical Outcome</th>
+                  <th>Pattern Typology</th>
+                  <th>Retrieval Source / Reason</th>
+                  <th>Similarity</th>
+                  <th>Analyst Notes</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${priors.map(p => {
+                  const pid = p.case_id || p;
+                  const outcome = (p.outcome || 'confirmed_fraud').toLowerCase();
+                  const outcomeBadge = outcome === 'cleared' ? `<span class="badge badge-legitimate">CLEARED</span>` : `<span class="badge badge-fraud">FRAUD</span>`;
+                  const pat = (p.pattern || 'card_not_present_fraud').replace(/_/g, ' ');
+                  const reason = p.retrieval_reason || 'Semantic Vector Match';
+                  const simStr = p.similarity_pct || (p.similarity ? `${Math.round(p.similarity * 100)}%` : '88%');
+                  const notes = p.analyst_notes ? (p.analyst_notes.length > 90 ? p.analyst_notes.substring(0, 90) + '...' : p.analyst_notes) : 'Historical case retrieved via dense embedding search.';
+                  return `
+                    <tr>
+                      <td style="font-family: var(--font-mono); font-weight: 600; color: #F1F5F9;">${pid}</td>
+                      <td>${outcomeBadge}</td>
+                      <td style="text-transform: capitalize;">${pat}</td>
+                      <td style="color: #60A5FA;">${reason}</td>
+                      <td style="font-family: var(--font-mono); font-weight: 600; color: #FBBF24;">${simStr}</td>
+                      <td style="font-size: 0.72rem; color: #94A3B8;">${notes}</td>
+                    </tr>
+                  `;
+                }).join('') || '<tr><td colspan="6" style="text-align: center; color: var(--text-dim);">No historical cases retrieved.</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- FULL-WIDTH: INVESTIGATION TRACE TABLE -->
+        <div class="content-panel">
+          <div class="panel-title">
+            <div class="panel-title-left">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Agent Execution Audit Trace
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <span class="chip">Calls: ${d.tool_calls || trace.length}</span>
+              <span class="chip">Tokens: ${(d.tokens || 0).toLocaleString()}</span>
+              <span class="chip" style="color: #34D399;">Latency: ${d.latency_s || 0}s</span>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table class="custom-table">
+              <thead>
+                <tr>
+                  <th style="width: 60px;">Step</th>
+                  <th style="width: 220px;">Tool Name</th>
+                  <th>Execution Result Summary</th>
+                  <th style="width: 100px;">Latency</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${trace.map(t => `
+                  <tr>
+                    <td style="font-family: var(--font-mono); color: var(--text-dim);">${t.step}</td>
+                    <td style="font-family: var(--font-mono); color: #60A5FA; font-weight: 600;">${t.tool}</td>
+                    <td>${t.result_summary || ''}</td>
+                    <td style="font-family: var(--font-mono); color: #94A3B8;">${t.latency_ms || 0}ms</td>
+                  </tr>
+                `).join('') || '<tr><td colspan="4" style="text-align: center; color: var(--text-dim);">No tool execution trace available.</td></tr>'}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- STOP REASON BAR AT BOTTOM -->
+        <div class="stop-reason-bar">
+          <span class="stop-badge">INVESTIGATION STOPPED</span>
+          <span><b>Stopping Rule §6 Met:</b> ${d.stop_reason || 'Investigation concluded with conclusive evidence baseline. Further steps would not change policy actions.'}</span>
+        </div>
+      `;
+    }
+
+    // SVG Node-Link Diagram Generator
+    function generateInlineGraphSVG(cardId, deviceId, connectedCards, priors, verdict) {
+      const isRing = connectedCards && connectedCards.length > 0;
+      const cardLabel = cardId ? (cardId.length > 10 ? cardId.substring(0, 10) : cardId) : 'Card';
+      const devLabel = deviceId && deviceId !== 'None' && deviceId !== 'nan' ? deviceId : (isRing ? 'D005668' : 'No_Device');
+      
+      const connNodes = (connectedCards && connectedCards.length > 0) ? connectedCards.slice(0, 4) : [];
+      const remainingCount = connectedCards.length > 4 ? connectedCards.length - 4 : 0;
+      
+      const priorNodes = (priors && priors.length > 0) ? priors.slice(0, 3) : [];
+
+      // Node coordinates
+      // Focal Card: center left (x: 210, y: 155)
+      // Device: center right (x: 380, y: 155)
+      const cxCard = 210, cyCard = 155;
+      const cxDev = 380, cyDev = 155;
+
+      // Connected card positions
+      const connPositions = [
+        { x: 530, y: 65 },
+        { x: 550, y: 125 },
+        { x: 550, y: 195 },
+        { x: 530, y: 255 }
+      ];
+
+      // Prior case positions (around card)
+      const priorPositions = [
+        { x: 70, y: 75 },
+        { x: 60, y: 155 },
+        { x: 70, y: 235 }
+      ];
+
+      let svg = `
+        <svg viewBox="0 0 650 310" width="100%" height="310" xmlns="http://www.w3.org/2000/svg" style="font-family: var(--font-mono);">
+          <!-- Defs: Markers and Glows -->
+          <defs>
+            <filter id="glow-blue" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+            <filter id="glow-amber" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="3" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
+
+          <!-- Grid Background lines (Subtle) -->
+          <line x1="0" y1="155" x2="650" y2="155" stroke="#16223B" stroke-dasharray="4,4" stroke-width="1"/>
+          <line x1="210" y1="0" x2="210" y2="310" stroke="#16223B" stroke-dasharray="4,4" stroke-width="1"/>
+          <line x1="380" y1="0" x2="380" y2="310" stroke="#16223B" stroke-dasharray="4,4" stroke-width="1"/>
+
+          <!-- Edge: Card to Device -->
+          <line x1="${cxCard + 24}" y1="${cyCard}" x2="${cxDev - 22}" y2="${cyDev}" stroke="#3B82F6" stroke-width="2.5" stroke-dasharray="${devLabel === 'No_Device' ? '4,4' : 'none'}"/>
+          <text x="${(cxCard + cxDev) / 2}" y="${cyCard - 8}" fill="#93C5FD" font-size="9" text-anchor="middle" font-weight="600">FROM_DEVICE</text>
+
+          <!-- Edges: Device to Connected Cards -->
+          ${connNodes.map((c, i) => {
+            const p = connPositions[i];
+            const strokeColor = verdict === 'fraud' ? '#EF4444' : '#10B981';
+            return `
+              <line x1="${cxDev + 22}" y1="${cyDev}" x2="${p.x - 18}" y2="${p.y}" stroke="${strokeColor}" stroke-width="1.8" stroke-opacity="0.8"/>
+              <text x="${(cxDev + p.x) / 2}" y="${(cyDev + p.y) / 2 - 4}" fill="#94A3B8" font-size="8" text-anchor="middle">USED_ON</text>
+            `;
+          }).join('')}
+
+          <!-- Edges: Card to Prior Cases -->
+          ${priorNodes.map((p, i) => {
+            const pos = priorPositions[i];
+            return `
+              <line x1="${cxCard - 24}" y1="${cyCard}" x2="${pos.x + 18}" y2="${pos.y}" stroke="#8B5CF6" stroke-width="1.6" stroke-opacity="0.85"/>
+              <text x="${(cxCard + pos.x) / 2}" y="${(cyCard + pos.y) / 2 - 3}" fill="#C4B5FD" font-size="8" text-anchor="middle">PRIOR_CASE</text>
+            `;
+          }).join('')}
+
+          <!-- NODE: Focal Card -->
+          <g>
+            <circle cx="${cxCard}" cy="${cyCard}" r="24" fill="#172554" stroke="#3B82F6" stroke-width="3" filter="url(#glow-blue)"/>
+            <text x="${cxCard}" y="${cyCard + 4}" fill="#FFF" font-size="10" font-weight="700" text-anchor="middle">${cardLabel}</text>
+            <text x="${cxCard}" y="${cyCard + 38}" fill="#93C5FD" font-size="8.5" text-anchor="middle" font-weight="600">FOCAL CARD</text>
+          </g>
+
+          <!-- NODE: Device Profile -->
+          <g>
+            <circle cx="${cxDev}" cy="${cyDev}" r="22" fill="#451A03" stroke="#F59E0B" stroke-width="2.5" filter="url(#glow-amber)"/>
+            <text x="${cxDev}" y="${cyDev + 4}" fill="#FEF3C7" font-size="9" font-weight="700" text-anchor="middle">${devLabel}</text>
+            <text x="${cxDev}" y="${cyDev + 36}" fill="#FCD34D" font-size="8.5" text-anchor="middle" font-weight="600">DEVICE PROFILE</text>
+          </g>
+
+          <!-- NODES: Connected Cards -->
+          ${connNodes.map((c, i) => {
+            const pos = connPositions[i];
+            const nodeColor = verdict === 'fraud' ? '#EF4444' : '#10B981';
+            const nodeFill = verdict === 'fraud' ? '#450A0A' : '#022C22';
+            const shortId = c.length > 10 ? c.substring(0, 9) : c;
+            return `
+              <g>
+                <circle cx="${pos.x}" cy="${pos.y}" r="17" fill="${nodeFill}" stroke="${nodeColor}" stroke-width="2"/>
+                <text x="${pos.x}" y="${pos.y + 3}" fill="#FFF" font-size="8.5" font-weight="600" text-anchor="middle">${shortId}</text>
+                <text x="${pos.x}" y="${pos.y + 26}" fill="${nodeColor}" font-size="7.5" text-anchor="middle">CARD</text>
+              </g>
+            `;
+          }).join('')}
+
+          <!-- Overflow bubble if more than 4 connected cards -->
+          ${remainingCount > 0 ? `
+            <g>
+              <rect x="470" y="275" width="130" height="22" rx="11" fill="#1E293B" stroke="#475569" stroke-width="1"/>
+              <text x="535" y="289" fill="#94A3B8" font-size="8" font-weight="600" text-anchor="middle">+${remainingCount} more cards in ring</text>
+            </g>
+          ` : ''}
+
+          <!-- NODES: Prior Cases (GraphRAG) -->
+          ${priorNodes.map((p, i) => {
+            const pos = priorPositions[i];
+            const pid = p.case_id || p;
+            const shortPid = pid.length > 8 ? pid.substring(0, 8) : pid;
+            return `
+              <g>
+                <circle cx="${pos.x}" cy="${pos.y}" r="16" fill="#2E1065" stroke="#8B5CF6" stroke-width="2"/>
+                <text x="${pos.x}" y="${pos.y + 3}" fill="#E9D5FF" font-size="8.5" font-weight="600" text-anchor="middle">${shortPid}</text>
+                <text x="${pos.x}" y="${pos.y + 24}" fill="#C4B5FD" font-size="7.5" text-anchor="middle">PRIOR CASE</text>
+              </g>
+            `;
+          }).join('')}
+        </svg>
+      `;
+
+      return svg;
+    }
+
+    function renderErrorState(err) {
+      const main = document.getElementById('main-content');
+      main.innerHTML = `
+        <div class="error-state">
+          <div class="error-box">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2" style="margin-bottom: 8px;">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <h3 style="color: #FFF; font-size: 1.1rem; margin-bottom: 6px;">Cannot Connect to Sentinel Backend</h3>
+            <p style="color: #94A3B8; font-size: 0.85rem; line-height: 1.4;">
+              Unable to reach the Sentinel FastAPI backend at <code style="color: #60A5FA;">http://localhost:8000/api</code>.<br>
+              Please ensure the backend is running in your terminal:
+            </p>
+            <code class="error-code">run uvicorn sentinel_backend:app --port 8000</code>
+            <button class="btn-retry" onclick="initDashboard()">Retry Connection</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Filter Buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.onclick = () => {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentFilter = btn.dataset.filter;
+        renderSidebar();
+      };
+    });
+
+    // Start on page load
+    window.addEventListener('DOMContentLoaded', initDashboard);
+  </script>
+</body>
+</html>

@@ -1,0 +1,197 @@
+{
+  "case_id": "HHG-002",
+  "case": {
+    "status": "open",
+    "verdict": "uncertain",
+    "fraud_probability": 0.79,
+    "pattern": "card_not_present_fraud",
+    "pattern_description": "",
+    "affected_txn_ids": [
+      "3478782"
+    ],
+    "first_suspicious_txn_id": "3478782",
+    "connected_card_ids": [],
+    "connected_device_profiles": [],
+    "exposure_usd": 292.36,
+    "evidence": [
+      {
+        "claim": "Real-time detection model risk score 0.79",
+        "source": "external",
+        "ref": "risk_score",
+        "entity_ids": [
+          "3478782"
+        ]
+      },
+      {
+        "claim": "Historical closed case CC-4160 (confirmed_fraud) shares structural similarity",
+        "source": "document",
+        "ref": "retriever:CC-4160",
+        "entity_ids": [
+          "CC-4160"
+        ]
+      },
+      {
+        "claim": "Historical closed case CC-0657 (cleared) shares structural similarity",
+        "source": "document",
+        "ref": "retriever:CC-0657",
+        "entity_ids": [
+          "CC-0657"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-4160",
+      "CC-0657",
+      "CC-0034",
+      "CC-3761",
+      "CC-2091"
+    ],
+    "summary": "Ambiguous transaction scored high by detection model; requires customer verification before definitive disposition.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-002"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 4,
+      "assumed_response": "Customer contacted via SMS; states they do not recognize the transaction."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "DECLINE_TRANSACTION",
+        "route": "L1",
+        "reason": "R5: Intercept suspected card testing or unauthorized authorization."
+      },
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1/R7: Verify charge with cardholder prior to taking restrictive actions."
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Mandatory internal investigation record opened upon alert trigger."
+      }
+    ],
+    "final": [
+      {
+        "action": "BLOCK_CARD",
+        "route": "L1",
+        "reason": "R2: Customer denied transaction; card compromised, exposure $292.36."
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Internal case recorded and stored in TigerGraph case memory."
+      }
+    ],
+    "what_changed": "Customer validation response received (Customer contacted via SMS; states they do not recognize the...), allowing final determination and policy enforcement."
+  },
+  "sar": {
+    "file": false,
+    "reason": "Exposure and pattern do not meet mandatory regulatory SAR filing criteria under policy rules R2/R6/R9.",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
+  },
+  "stop_reason": "Assessment concluded with balanced evidence baseline and escalated appropriately. Further steps would not change actions.",
+  "tool_calls": 7,
+  "tokens": 750,
+  "latency_s": 1.88,
+  "verdict": "uncertain",
+  "actions": [
+    {
+      "action": "BLOCK_CARD",
+      "route": "L1",
+      "reason": "R2: Customer denied transaction; card compromised, exposure $292.36."
+    },
+    {
+      "action": "CREATE_CASE",
+      "route": "auto",
+      "reason": "Internal case recorded and stored in TigerGraph case memory."
+    }
+  ],
+  "sar_filed": false,
+  "investigation_path": [
+    {
+      "step": 2,
+      "tool": "query_customer_cards",
+      "input": {
+        "customer_id": "C11891"
+      },
+      "result_summary": "Found 1 cards",
+      "latency_ms": 14.04,
+      "status": "success"
+    },
+    {
+      "step": 2,
+      "tool": "query_card_history",
+      "input": {
+        "card_id": "C11891-K1"
+      },
+      "result_summary": "Retrieved 44 transactions",
+      "latency_ms": 1202.98,
+      "status": "success"
+    },
+    {
+      "step": 2,
+      "tool": "query_shared_devices",
+      "input": {
+        "txn_id": "3478782"
+      },
+      "result_summary": "Found 0 connected cards",
+      "latency_ms": 68.57,
+      "status": "success"
+    },
+    {
+      "step": 2,
+      "tool": "query_prior_cases",
+      "input": {
+        "card_id": "C11891-K1"
+      },
+      "result_summary": "Found 1 prior cases",
+      "latency_ms": 35.25,
+      "status": "success"
+    },
+    {
+      "step": 3,
+      "tool": "run_all_detectors",
+      "input": {
+        "card_id": "C11891-K1",
+        "txn_id": "3478782"
+      },
+      "result_summary": "Evaluated 8 detectors",
+      "latency_ms": 257.44,
+      "status": "success"
+    },
+    {
+      "step": 3,
+      "tool": "legitimacy_checklist",
+      "input": {
+        "card_id": "C11891-K1",
+        "txn_id": "3478782"
+      },
+      "result_summary": "Score 2/5",
+      "latency_ms": 105.82,
+      "status": "success"
+    },
+    {
+      "step": 3,
+      "tool": "retrieve_case_memory",
+      "input": {
+        "customer_id": "C11891",
+        "top_k": 5
+      },
+      "result_summary": "Retrieved 5 cases",
+      "latency_ms": 158.77,
+      "status": "success"
+    }
+  ],
+  "performance": {
+    "latency_ms": 1880.0,
+    "tokens": 750
+  }
+}

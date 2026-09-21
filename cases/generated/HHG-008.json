@@ -1,0 +1,379 @@
+{
+  "case_id": "HHG-008",
+  "case": {
+    "status": "closed_legitimate",
+    "verdict": "legitimate",
+    "fraud_probability": 0.08,
+    "pattern": "none",
+    "pattern_description": "",
+    "affected_txn_ids": [],
+    "first_suspicious_txn_id": "",
+    "connected_card_ids": [
+      "C00027-K1",
+      "C00036-K1",
+      "C00073-K2",
+      "C00259-K1",
+      "C00294-K2",
+      "C00426-K2",
+      "C00583-K1",
+      "C00606-K1",
+      "C00841-K1",
+      "C00854-K2",
+      "C00889-K2",
+      "C00952-K1",
+      "C00978-K1",
+      "C01002-K1",
+      "C01084-K1",
+      "C01109-K2",
+      "C01155-K2",
+      "C01187-K1",
+      "C01370-K1",
+      "C01521-K2",
+      "C01525-K2",
+      "C01740-K1",
+      "C01890-K1",
+      "C01983-K1",
+      "C02095-K1",
+      "C02147-K2",
+      "C02180-K1",
+      "C02181-K2",
+      "C02222-K1",
+      "C02247-K1",
+      "C02277-K1",
+      "C02289-K1",
+      "C02412-K1",
+      "C02416-K1",
+      "C02456-K1",
+      "C02545-K2",
+      "C02618-K2",
+      "C02689-K1",
+      "C02702-K2",
+      "C02716-K2",
+      "C02782-K2",
+      "C02897-K1",
+      "C02898-K1",
+      "C02982-K1",
+      "C03075-K1",
+      "C03180-K1",
+      "C03201-K1",
+      "C03218-K2",
+      "C03345-K1",
+      "C03397-K1",
+      "C03526-K1",
+      "C03530-K1",
+      "C03573-K1",
+      "C03729-K1",
+      "C03841-K1",
+      "C04033-K1",
+      "C04034-K2",
+      "C04083-K1",
+      "C04125-K2",
+      "C04154-K1",
+      "C04179-K1",
+      "C04248-K2",
+      "C04386-K1",
+      "C04536-K2",
+      "C04597-K2",
+      "C04680-K1",
+      "C04740-K2",
+      "C04965-K2",
+      "C04984-K2",
+      "C04993-K1",
+      "C05021-K1",
+      "C05031-K2",
+      "C05290-K2",
+      "C05307-K1",
+      "C05307-K2",
+      "C05316-K1",
+      "C05381-K2",
+      "C05423-K1",
+      "C05485-K1",
+      "C05704-K2",
+      "C05996-K1",
+      "C06181-K1",
+      "C06224-K2",
+      "C06458-K1",
+      "C06464-K1",
+      "C06598-K1",
+      "C06630-K2",
+      "C06663-K2",
+      "C06740-K1",
+      "C06744-K1",
+      "C06744-K2",
+      "C06855-K1",
+      "C06872-K1",
+      "C06977-K1",
+      "C07134-K2",
+      "C07214-K1",
+      "C07220-K1",
+      "C07347-K1",
+      "C07389-K1",
+      "C07468-K1",
+      "C07508-K2",
+      "C07562-K2",
+      "C07576-K1",
+      "C07686-K1",
+      "C07819-K1",
+      "C07981-K1",
+      "C07997-K1",
+      "C08087-K1",
+      "C08106-K1",
+      "C08187-K1",
+      "C08190-K1",
+      "C08391-K2",
+      "C08489-K2",
+      "C08537-K1",
+      "C08592-K1",
+      "C08682-K1",
+      "C08943-K2",
+      "C08962-K2",
+      "C09274-K1",
+      "C09289-K1",
+      "C09514-K1",
+      "C09588-K1",
+      "C09657-K2",
+      "C09742-K2",
+      "C09791-K1",
+      "C09835-K1",
+      "C10102-K1",
+      "C10245-K1",
+      "C10630-K1",
+      "C10680-K1",
+      "C10760-K2",
+      "C10770-K1",
+      "C10837-K2",
+      "C10957-K2",
+      "C11146-K1",
+      "C11183-K1",
+      "C11333-K1",
+      "C11352-K1",
+      "C11444-K1",
+      "C11509-K2",
+      "C11595-K1",
+      "C11597-K2",
+      "C11627-K2",
+      "C11636-K1",
+      "C11642-K1",
+      "C11704-K1",
+      "C11787-K1",
+      "C11807-K1",
+      "C11844-K2",
+      "C11847-K2",
+      "C11873-K2",
+      "C11891-K1",
+      "C11919-K1",
+      "C11919-K2",
+      "C11923-K1",
+      "C11923-K2",
+      "C12028-K2",
+      "C12086-K1",
+      "C12092-K1",
+      "C12096-K1",
+      "C12098-K1",
+      "C12392-K1",
+      "C12396-K2",
+      "C12645-K1",
+      "C12657-K1",
+      "C12680-K1",
+      "C12782-K1",
+      "C12966-K1",
+      "C12987-K1",
+      "C13147-K1",
+      "C13171-K1",
+      "C13349-K1",
+      "C13364-K1",
+      "C13407-K1",
+      "C13447-K1"
+    ],
+    "connected_device_profiles": [
+      "D000022"
+    ],
+    "exposure_usd": 0.0,
+    "evidence": [
+      {
+        "claim": "Historical monthly charges matching amount on card C13171-K2",
+        "source": "graph",
+        "ref": "recurring_merchant_scan",
+        "entity_ids": [
+          "3558054"
+        ]
+      },
+      {
+        "claim": "Customer acknowledges subscription service upon reminder",
+        "source": "customer",
+        "ref": "evidence_request:1",
+        "entity_ids": []
+      },
+      {
+        "claim": "Historical closed case CC-0056 (confirmed_fraud) shares structural similarity",
+        "source": "document",
+        "ref": "retriever:CC-0056",
+        "entity_ids": [
+          "CC-0056"
+        ]
+      },
+      {
+        "claim": "Historical closed case CC-5542 (confirmed_fraud) shares structural similarity",
+        "source": "document",
+        "ref": "retriever:CC-5542",
+        "entity_ids": [
+          "CC-5542"
+        ]
+      }
+    ],
+    "similar_prior_cases": [
+      "CC-0056",
+      "CC-5542",
+      "CC-4151",
+      "CC-4765",
+      "CC-5332"
+    ],
+    "summary": "Disputed transaction 3558054 matches historical recurring subscription billing pattern on card C13171-K2 with consistent monthly intervals. Customer confirmation indicates an unrecognized legitimate recurring charge rather than fraudulent card compromise.",
+    "written_to_graph": true,
+    "graph_case_id": "CASE-HHG-008"
+  },
+  "evidence_requests": [
+    {
+      "type": "customer_validation",
+      "asked_after_step": 4,
+      "assumed_response": "Customer contacted regarding recurring subscription. Cardholder acknowledges subscription billing and requests merchant cancellation details rather than fraud claim."
+    }
+  ],
+  "next_best_actions": {
+    "initial": [
+      {
+        "action": "VERIFY_WITH_CUSTOMER",
+        "route": "auto",
+        "reason": "R1/R7: Verify charge with cardholder prior to taking restrictive actions."
+      },
+      {
+        "action": "WARN_CUSTOMER",
+        "route": "auto",
+        "reason": "R7: Inform cardholder of recurring subscription billing details."
+      },
+      {
+        "action": "CREATE_CASE",
+        "route": "auto",
+        "reason": "Mandatory internal investigation record opened upon alert trigger."
+      }
+    ],
+    "final": [
+      {
+        "action": "ALLOW_TRANSACTION",
+        "route": "auto",
+        "reason": "R3: Authorized transaction released following cardholder validation."
+      },
+      {
+        "action": "CLOSE_NO_FRAUD",
+        "route": "auto",
+        "reason": "R3/R7: Cardholder confirmed transaction or recurring subscription clarified."
+      }
+    ],
+    "what_changed": "Customer validation response received (Customer contacted regarding recurring subscription. Cardhol...), allowing final determination and policy enforcement."
+  },
+  "sar": {
+    "file": false,
+    "reason": "Exposure and pattern do not meet mandatory regulatory SAR filing criteria under policy rules R2/R6/R9.",
+    "narrative": "",
+    "subjects": [],
+    "total_amount_usd": 0.0,
+    "activity_dates": []
+  },
+  "stop_reason": "Recurring subscription pattern confirmed with cardholder; no unauthorized card compromise detected. Further steps would not change actions.",
+  "tool_calls": 7,
+  "tokens": 750,
+  "latency_s": 3.11,
+  "verdict": "legitimate",
+  "actions": [
+    {
+      "action": "ALLOW_TRANSACTION",
+      "route": "auto",
+      "reason": "R3: Authorized transaction released following cardholder validation."
+    },
+    {
+      "action": "CLOSE_NO_FRAUD",
+      "route": "auto",
+      "reason": "R3/R7: Cardholder confirmed transaction or recurring subscription clarified."
+    }
+  ],
+  "sar_filed": false,
+  "investigation_path": [
+    {
+      "step": 2,
+      "tool": "query_customer_cards",
+      "input": {
+        "customer_id": "C13171"
+      },
+      "result_summary": "Found 2 cards",
+      "latency_ms": 14.78,
+      "status": "success"
+    },
+    {
+      "step": 2,
+      "tool": "query_card_history",
+      "input": {
+        "card_id": "C13171-K2"
+      },
+      "result_summary": "Retrieved 100 transactions",
+      "latency_ms": 1403.12,
+      "status": "success"
+    },
+    {
+      "step": 2,
+      "tool": "query_shared_devices",
+      "input": {
+        "txn_id": "3558054"
+      },
+      "result_summary": "Found 175 connected cards",
+      "latency_ms": 434.34,
+      "status": "success"
+    },
+    {
+      "step": 2,
+      "tool": "query_prior_cases",
+      "input": {
+        "card_id": "C13171-K2"
+      },
+      "result_summary": "Found 19 prior cases",
+      "latency_ms": 41.44,
+      "status": "success"
+    },
+    {
+      "step": 3,
+      "tool": "run_all_detectors",
+      "input": {
+        "card_id": "C13171-K2",
+        "txn_id": "3558054"
+      },
+      "result_summary": "Evaluated 8 detectors",
+      "latency_ms": 785.33,
+      "status": "success"
+    },
+    {
+      "step": 3,
+      "tool": "legitimacy_checklist",
+      "input": {
+        "card_id": "C13171-K2",
+        "txn_id": "3558054"
+      },
+      "result_summary": "Score 6/6",
+      "latency_ms": 128.11,
+      "status": "success"
+    },
+    {
+      "step": 3,
+      "tool": "retrieve_case_memory",
+      "input": {
+        "customer_id": "C13171",
+        "top_k": 5
+      },
+      "result_summary": "Retrieved 5 cases",
+      "latency_ms": 241.63,
+      "status": "success"
+    }
+  ],
+  "performance": {
+    "latency_ms": 3110.0,
+    "tokens": 750
+  }
+}

@@ -1,0 +1,36 @@
+# Environment & Secrets
+.env
+*.env
+.env.*
+
+# Python caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+.DS_Store
+Thumbs.db
+*.log
+
+# Raw & Processed Large Data Files (>50MB / GitHub 100MB limit)
+*.zip
+*.tar.gz
+*.tgz
+*.npy
+data/raw/transactions.csv
+data/raw/identity.csv
+data/processed/v_transaction.csv
+data/processed/e_txn_next.csv
+data/processed/e_card_made_txn.csv
+data/processed/e_txn_purchaser_email.csv
+data/processed/e_txn_billed_in.csv
+HHGOA_IEEE-*.zip
+
+# Virtual Environments & Scratch
+venv/
+.venv/
+env/
+scratch/
