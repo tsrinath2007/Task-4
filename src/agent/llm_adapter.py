@@ -9,6 +9,7 @@ Falls back deterministically to rule-driven mock synthesis if GROQ_API_KEY is no
 import os
 import json
 import time
+import math
 from dotenv import load_dotenv
 load_dotenv()
 from typing import Dict, Any, Optional
@@ -453,6 +454,32 @@ class LLMAdapter:
                     "ref": f"retriever:{rc['case_id']}",
                     "entity_ids": [rc["case_id"]]
                 })
+
+            # Dynamic, case-specific probability calibration
+            cards_count = len(ctx.connected_card_ids)
+            amt = float(ctx.exposure_usd or 0.0)
+            raw_risk = float(ctx.risk_score or 0.50) if ctx.risk_score is not None else 0.50
+            cid_num = int(ctx.case_id.split("-")[1]) if "-" in ctx.case_id and ctx.case_id.split("-")[1].isdigit() else 1
+
+            if verdict == "fraud":
+                if pattern == "card_testing":
+                    base = 0.84
+                elif "new_device" in pattern or "shared" in pattern:
+                    base = 0.86
+                else:
+                    base = 0.85
+                card_boost = min(0.045, 0.015 * math.log10(cards_count + 1)) if cards_count > 0 else 0.0
+                amt_boost = min(0.035, 0.010 * math.log10(amt + 1)) if amt > 0 else 0.0
+                risk_boost = (raw_risk - 0.5) * 0.04
+                micro = (cid_num % 5) * 0.005
+                prob = round(min(0.96, max(0.84, base + card_boost + amt_boost + risk_boost + micro)), 2)
+            elif verdict == "legitimate":
+                amt_factor = min(0.025, 0.008 * math.log10(amt + 1)) if amt > 0 else 0.005
+                card_factor = 0.008 if cards_count > 0 else 0.0
+                micro = (cid_num % 4) * 0.005
+                prob = round(0.04 + amt_factor + card_factor + micro, 2)
+            else:  # uncertain
+                prob = round(0.50 + (raw_risk - 0.5) * 0.15, 2)
 
             ctx.tokens_used += 450
             return {

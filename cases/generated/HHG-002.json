@@ -3,7 +3,7 @@
   "case": {
     "status": "open",
     "verdict": "uncertain",
-    "fraud_probability": 0.79,
+    "fraud_probability": 0.54,
     "pattern": "card_not_present_fraud",
     "pattern_description": "",
     "affected_txn_ids": [
