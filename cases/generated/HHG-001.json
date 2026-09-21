@@ -3,7 +3,7 @@
   "case": {
     "status": "closed_legitimate",
     "verdict": "legitimate",
-    "fraud_probability": 0.06,
+    "fraud_probability": 0.073,
     "pattern": "none",
     "pattern_description": "",
     "affected_txn_ids": [],

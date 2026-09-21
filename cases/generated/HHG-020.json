@@ -3,7 +3,7 @@
   "case": {
     "status": "closed_fraud",
     "verdict": "fraud",
-    "fraud_probability": 0.92,
+    "fraud_probability": 0.95,
     "pattern": "card_not_present_new_device",
     "pattern_description": "",
     "affected_txn_ids": [

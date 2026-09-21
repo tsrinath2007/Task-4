@@ -2233,6 +2233,7 @@
           </div>
           <div class="case-card-sub">
             <span class="case-pat-name">${patternTag}</span>
+            <span style="font-family: var(--font-mono); font-size: 0.70rem; font-weight: 600; color: ${c.verdict === 'fraud' ? '#F87171' : (c.verdict === 'legitimate' ? '#34D399' : '#FBBF24')};">${((c.fraud_probability || 0)*100).toFixed(1)}%</span>
             ${c.sar_filed ? `<span class="case-sar-tag">🚨 SAR</span>` : ''}
           </div>
         `;
@@ -2301,7 +2302,9 @@
     function renderCaseDetail(d) {
       const main = document.getElementById('main-content');
       const v = d.verdict || 'uncertain';
-      const probPct = Math.round((d.fraud_probability || 0) * 100);
+      const rawProb = Number(d.fraud_probability || 0);
+      const probPct = (rawProb * 100).toFixed(1);
+      const probPctNum = Number(probPct);
       
       let probColor = '#EF4444';
       let priorityBadgeClass = 'badge-p-fraud';
@@ -2340,10 +2343,10 @@
       // Donut circumference
       const donutRadius = 38;
       const donutCircumference = 2 * Math.PI * donutRadius;
-      const donutOffset = donutCircumference * (1 - probPct / 100);
+      const donutOffset = donutCircumference * (1 - probPctNum / 100);
 
       // What Changed Callout Text
-      let whatChangedText = `After customer complaint and document verification, confidence increased from 67% to ${probPct}%, triggering SAR filing.`;
+      let whatChangedText = `After customer validation and TigerGraph multi-hop analysis, fraud confidence calibrated to ${probPct}% (p = ${rawProb.toFixed(3)}), triggering ${sar.file ? 'SAR filing' : 'case closure'}.`;
       if (v === 'legitimate') {
         whatChangedText = `Customer baseline recurring payment verification matched historical pattern across 3 billing cycles. Case cleared as legitimate charge with zero unauthorized activity.`;
       }
@@ -2390,10 +2393,10 @@
               </div>
               <span class="metric-badge-pill ${v === 'fraud' ? 'pill-red' : (v === 'legitimate' ? 'pill-green' : 'pill-blue')}">${probPill}</span>
             </div>
-            <div class="metric-number-big" style="color: ${probColor};">${probPct}%</div>
+            <div class="metric-number-big" style="color: ${probColor};">${probPct}% <span style="font-size: 0.82rem; font-weight: 500; color: #64748B; margin-left: 4px;">(p = ${rawProb.toFixed(3)})</span></div>
             <div class="metric-sparkline-wrap">
               <div class="prob-track">
-                <div class="prob-fill" style="width: ${probPct}%; background-color: ${probColor};"></div>
+                <div class="prob-fill" style="width: ${probPctNum}%; background-color: ${probColor};"></div>
               </div>
             </div>
           </div>
@@ -2520,7 +2523,7 @@
                 </svg>
                 <div class="donut-text-center">
                   <div class="donut-pct-val" style="color: ${probColor};">${probPct}%</div>
-                  <div class="donut-pct-label">Probability</div>
+                  <div class="donut-pct-label" style="font-size: 0.68rem; color: #64748B;">p = ${rawProb.toFixed(3)}</div>
                 </div>
               </div>
             </div>

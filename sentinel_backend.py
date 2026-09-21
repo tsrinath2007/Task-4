@@ -182,7 +182,7 @@ def normalise(data: dict) -> dict:
         "flagged_txn_id": flagged_txn_id,
         "status": status,
         "verdict": verdict,
-        "fraud_probability": round(fraud_prob, 2),
+        "fraud_probability": round(fraud_prob, 3),
         "pattern": pattern,
         "pattern_description": pattern_desc,
         "exposure_usd": round(exposure, 2),
@@ -364,17 +364,17 @@ Answer the analyst's question clearly, authoritatively, and concisely. Quote spe
         cases = list_cases()
         sorted_exp = sorted(cases, key=lambda x: x.get("exposure_usd", 0.0))
         lowest = sorted_exp[0]
-        p = round(lowest.get("fraud_probability", 0) * 100)
+        raw_p = float(lowest.get("fraud_probability", 0.0))
         reply = f"**Lowest Transaction Amount in Portfolio:**\n\n"
         reply += f"• **Case:** **{lowest['case_id']}**\n"
         reply += f"• **Amount:** **${lowest.get('exposure_usd', 0.0):,.2f}**\n"
-        reply += f"• **Verdict:** **{lowest['verdict'].upper()}** ({p}% fraud probability)\n"
+        reply += f"• **Verdict:** **{lowest['verdict'].upper()}** ({raw_p * 100:.1f}%, p = {raw_p:.3f})\n"
         reply += f"• **Card:** `{lowest.get('card_id')}`\n"
         reply += f"• **Pattern:** {lowest.get('pattern', 'none').replace('_', ' ').title()}\n\n"
         reply += f"**Top 5 Lowest Dollar Amounts Across All 20 Cases:**\n"
         for idx, c in enumerate(sorted_exp[:5]):
-            cp = round(c.get("fraud_probability", 0) * 100)
-            reply += f"{idx+1}. **{c['case_id']}**: **${c.get('exposure_usd', 0.0):,.2f}** ({c['verdict'].upper()}, {cp}% prob) — Card `{c.get('card_id')}`\n"
+            cp = float(c.get("fraud_probability", 0.0))
+            reply += f"{idx+1}. **{c['case_id']}**: **${c.get('exposure_usd', 0.0):,.2f}** ({c['verdict'].upper()}, {cp * 100:.1f}%, p = {cp:.3f}) — Card `{c.get('card_id')}`\n"
         return {"reply": reply}
 
     # 2. Highest Dollar Amount / Exposure Query
@@ -389,8 +389,8 @@ Answer the analyst's question clearly, authoritatively, and concisely. Quote spe
         reply = f"**Top Cases by Flagged Transaction Exposure:**\n\n"
         for idx, c in enumerate(top_exp):
             v_badge = c['verdict'].upper()
-            cp = round(c.get("fraud_probability", 0) * 100)
-            reply += f"{idx+1}. **{c['case_id']}**: **${c.get('exposure_usd', 0.0):,.2f}** ({v_badge}, {cp}% prob) — Card `{c.get('card_id')}`\n"
+            cp = float(c.get("fraud_probability", 0.0))
+            reply += f"{idx+1}. **{c['case_id']}**: **${c.get('exposure_usd', 0.0):,.2f}** ({v_badge}, {cp * 100:.1f}%, p = {cp:.3f}) — Card `{c.get('card_id')}`\n"
         total_exp = sum(c.get("exposure_usd", 0.0) for c in cases)
         reply += f"\n**Total Portfolio Exposure:** ${total_exp:,.2f} across 20 benchmark exam cases."
         return {"reply": reply}
@@ -404,9 +404,9 @@ Answer the analyst's question clearly, authoritatively, and concisely. Quote spe
         legit_cases = [c for c in cases if c["verdict"] == "legitimate"]
         reply = f"The following **{len(legit_cases)} cases** were cleared as **LEGITIMATE** baseline transactions:\n\n"
         for c in legit_cases:
-            p = round(c.get("fraud_probability", 0) * 100)
+            cp = float(c.get("fraud_probability", 0.0))
             exp = c.get("exposure_usd", 0.0)
-            reply += f"• **{c['case_id']}**: **{p}% probability** (${exp:,.2f}) — Card `{c.get('card_id')}`\n"
+            reply += f"• **{c['case_id']}**: **{cp * 100:.1f}%** (p = {cp:.3f}) (${exp:,.2f}) — Card `{c.get('card_id')}`\n"
         reply += f"\n[Policy Note] All {len(legit_cases)} legitimate cases were resolved with `CLOSE_NO_FRAUD` [AUTO] after matching customer recurring billing baselines or verified travel (Rule R7).*"
         return {"reply": reply}
 
@@ -420,9 +420,9 @@ Answer the analyst's question clearly, authoritatively, and concisely. Quote spe
         fraud_cases = [c for c in cases if c["verdict"] == "fraud"]
         reply = f"The following **{len(fraud_cases)} cases** have high fraud confidence and were confirmed as **FRAUD**:\n\n"
         for c in fraud_cases:
-            p = round(c.get("fraud_probability", 0) * 100)
+            cp = float(c.get("fraud_probability", 0.0))
             exp = c.get("exposure_usd", 0.0)
-            reply += f"- **{c['case_id']}**: **{p}% probability** (${exp:,.2f}) - Card `{c.get('card_id')}` | {c.get('pattern', 'New Device').replace('_', ' ').title()}\n"
+            reply += f"- **{c['case_id']}**: **{cp * 100:.1f}%** (p = {cp:.3f}) (${exp:,.2f}) - Card `{c.get('card_id')}` | {c.get('pattern', 'New Device').replace('_', ' ').title()}\n"
         reply += f"\n[Action Note] All {len(fraud_cases)} fraud cases resulted in Level 1 card blocking and mandatory FinCEN Form 111 SAR filings under Route L2."
         return {"reply": reply}
 
@@ -432,9 +432,9 @@ Answer the analyst's question clearly, authoritatively, and concisely. Quote spe
         unc_cases = [c for c in cases if c["verdict"] == "uncertain"]
         reply = f"**Uncertain Case Analysis:**\n\n"
         for c in unc_cases:
-            p = round(c.get("fraud_probability", 0.5) * 100)
+            cp = float(c.get("fraud_probability", 0.5))
             exp = c.get("exposure_usd", 0.0)
-            reply += f"- **{c['case_id']}**: **{p}% probability** (${exp:,.2f}) - Card `{c.get('card_id')}`\n"
+            reply += f"- **{c['case_id']}**: **{cp * 100:.1f}%** (p = {cp:.3f}) (${exp:,.2f}) - Card `{c.get('card_id')}`\n"
         reply += f"\nSignals for this case were neither conclusively fraudulent nor clean. Per Bank Policy Rule R8, it was escalated to a Senior Fraud Analyst (`ESCALATE_TO_ANALYST` [Route L1]) for manual out-of-band verification."
         return {"reply": reply}
 

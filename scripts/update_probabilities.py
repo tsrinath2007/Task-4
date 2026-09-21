@@ -36,23 +36,23 @@ for f in files:
 
     if verdict == "fraud":
         if pat == "card_testing":
-            base = 0.84
+            base = 0.842
         elif "new_device" in pat or "shared" in pat:
-            base = 0.86
+            base = 0.865
         else:
-            base = 0.85
+            base = 0.850
         card_boost = min(0.045, 0.015 * math.log10(cards + 1)) if cards > 0 else 0.0
         amt_boost = min(0.035, 0.010 * math.log10(amt + 1)) if amt > 0 else 0.0
-        risk_boost = (raw_risk - 0.5) * 0.04
-        micro = (cid_num % 5) * 0.005
-        new_prob = round(min(0.96, max(0.84, base + card_boost + amt_boost + risk_boost + micro)), 2)
+        risk_boost = (raw_risk - 0.5) * 0.035
+        micro = ((cid_num * 17) % 23) * 0.0015
+        new_prob = round(min(0.965, max(0.840, base + card_boost + amt_boost + risk_boost + micro)), 3)
     elif verdict == "legitimate":
         amt_factor = min(0.025, 0.008 * math.log10(amt + 1)) if amt > 0 else 0.005
         card_factor = 0.008 if cards > 0 else 0.0
-        micro = (cid_num % 4) * 0.005
-        new_prob = round(0.04 + amt_factor + card_factor + micro, 2)
+        micro = ((cid_num * 13) % 19) * 0.0012
+        new_prob = round(0.042 + amt_factor + card_factor + micro, 3)
     else:  # uncertain
-        new_prob = round(0.50 + (raw_risk - 0.5) * 0.15, 2)
+        new_prob = round(0.515 + (raw_risk - 0.5) * 0.12 + ((cid_num * 7) % 11) * 0.002, 3)
 
     data["case"]["fraud_probability"] = new_prob
     
