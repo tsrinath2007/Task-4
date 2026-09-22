@@ -2868,8 +2868,11 @@
             </div>
           </div>
 
-          <!-- Prev/Next Navigation -->
+          <!-- Prev/Next Navigation & Watchlist Quick Action -->
           <div class="nav-arrows-group">
+            <button class="btn-top-action" style="font-size: 0.74rem; color: #DC2626; border-color: #FECACA; background: #FEF2F2;" onclick="quickAddEntityToWatchlist('${focalCard}', 'card')" title="Place card ${focalCard} on Threat Watchlist">
+              🚨 Add to Watchlist
+            </button>
             <button class="btn-nav-arrow" onclick="navigateCase(-1)">
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"></polyline></svg> Prev
             </button>
@@ -3688,6 +3691,10 @@
       const isCard = type === 'card';
       const isMerch = type === 'merchant';
 
+      const inWatchlist = isCard 
+        ? getWatchlistCards().some(c => c.card_id === id) 
+        : getWatchlistProfiles().some(p => p.id === id);
+
       inspector.innerHTML = `
         <div style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: #2563EB; margin-bottom: 4px;">Node Inspector</div>
         <h3 style="font-size: 1.15rem; font-weight: 800; color: #0F172A; margin: 0 0 10px 0; font-family: var(--font-mono);">${id}</h3>
@@ -3718,7 +3725,11 @@
           <div style="font-size: 0.75rem; font-weight: 700; color: #334155; margin-bottom: 8px;">Automated Policy Actions</div>
           <div style="display: flex; flex-direction: column; gap: 6px;">
             <button class="btn-top-action" style="width: 100%; justify-content: center; font-size: 0.76rem;" onclick="showToast('Querying 3-hop neighbor subgraph for ' + '${id}' + '...', 'info')">🔍 Expand 3-Hop Subgraph</button>
-            <button class="btn-top-action" style="width: 100%; justify-content: center; font-size: 0.76rem; color: #DC2626; border-color: #FECACA;" onclick="quickAddEntityToWatchlist('${id}', '${ent.type || 'hardware'}')">🚨 Add to Watchlist</button>
+            ${inWatchlist ? `
+              <button class="btn-top-action" style="width: 100%; justify-content: center; font-size: 0.76rem; color: #059669; border-color: #A7F3D0; background: #ECFDF5;" onclick="switchView('watchlist')">✓ Active on Watchlist (View)</button>
+            ` : `
+              <button class="btn-top-action" style="width: 100%; justify-content: center; font-size: 0.76rem; color: #DC2626; border-color: #FECACA; background: #FEF2F2;" onclick="quickAddEntityToWatchlist('${id}', '${type}'); inspectGraphNode('${type}', '${id}', '${label}', ${degree});">🚨 Add to Watchlist</button>
+            `}
           </div>
         </div>
       `;
@@ -3791,7 +3802,12 @@
                   <td><strong>51 Cards Linked</strong></td>
                   <td>Region 444.0 (US-East)</td>
                   <td><span style="color: #DC2626; font-weight: 600;">🚨 Active Syndicate</span></td>
-                  <td><button class="btn-top-action" style="font-size: 0.72rem;" onclick="switchView('graph_explorer')">View Graph</button></td>
+                  <td>
+                    <div style="display: flex; gap: 6px;">
+                      <button class="btn-top-action" style="font-size: 0.72rem;" onclick="switchView('graph_explorer')">Graph</button>
+                      <button class="btn-top-action" style="font-size: 0.72rem; color: #DC2626; border-color: #FECACA; background: #FEF2F2;" onclick="quickAddEntityToWatchlist('D005668', 'device')">+ Watchlist</button>
+                    </div>
+                  </td>
                 </tr>
                 <tr>
                   <td style="font-family: var(--font-mono); font-weight: 700; color: #DC2626;">D008912</td>
@@ -3801,7 +3817,12 @@
                   <td>542 Micro-Probes</td>
                   <td>Region 315.0</td>
                   <td><span style="color: #DC2626; font-weight: 600;">🚨 Card Testing Bot</span></td>
-                  <td><button class="btn-top-action" style="font-size: 0.72rem;" onclick="switchView('graph_explorer')">View Graph</button></td>
+                  <td>
+                    <div style="display: flex; gap: 6px;">
+                      <button class="btn-top-action" style="font-size: 0.72rem;" onclick="switchView('graph_explorer')">Graph</button>
+                      <button class="btn-top-action" style="font-size: 0.72rem; color: #DC2626; border-color: #FECACA; background: #FEF2F2;" onclick="quickAddEntityToWatchlist('D008912', 'device')">+ Watchlist</button>
+                    </div>
+                  </td>
                 </tr>
                 <tr>
                   <td style="font-family: var(--font-mono); font-weight: 700; color: #2563EB;">C13487-K1</td>
@@ -3811,7 +3832,12 @@
                   <td>1 Flagged ($74.96)</td>
                   <td>Region 444.0</td>
                   <td><span style="color: #DC2626; font-weight: 600;">🔒 Blocked (L1)</span></td>
-                  <td><button class="btn-top-action" style="font-size: 0.72rem;" onclick="selectCase('HHG-014'); switchView('investigations');">Open Case</button></td>
+                  <td>
+                    <div style="display: flex; gap: 6px;">
+                      <button class="btn-top-action" style="font-size: 0.72rem;" onclick="selectCase('HHG-014'); switchView('investigations');">Case</button>
+                      <button class="btn-top-action" style="font-size: 0.72rem; color: #DC2626; border-color: #FECACA; background: #FEF2F2;" onclick="quickAddEntityToWatchlist('C13487-K1', 'card')">+ Watchlist</button>
+                    </div>
+                  </td>
                 </tr>
                 <tr>
                   <td style="font-family: var(--font-mono); font-weight: 700; color: #2563EB;">C07297-K1</td>
@@ -3821,7 +3847,12 @@
                   <td>$1,906.07 Exposure</td>
                   <td>Region 299.0</td>
                   <td><span style="color: #DC2626; font-weight: 600;">🔒 Blocked (L1)</span></td>
-                  <td><button class="btn-top-action" style="font-size: 0.72rem;" onclick="selectCase('HHG-006'); switchView('investigations');">Open Case</button></td>
+                  <td>
+                    <div style="display: flex; gap: 6px;">
+                      <button class="btn-top-action" style="font-size: 0.72rem;" onclick="selectCase('HHG-006'); switchView('investigations');">Case</button>
+                      <button class="btn-top-action" style="font-size: 0.72rem; color: #DC2626; border-color: #FECACA; background: #FEF2F2;" onclick="quickAddEntityToWatchlist('C07297-K1', 'card')">+ Watchlist</button>
+                    </div>
+                  </td>
                 </tr>
                 <tr>
                   <td style="font-family: var(--font-mono); font-weight: 700; color: #059669;">C12382-K1</td>
@@ -3831,7 +3862,12 @@
                   <td>6 Monthly Cycles</td>
                   <td>Region 444.0</td>
                   <td><span style="color: #059669; font-weight: 600;">✓ Cleared Baseline</span></td>
-                  <td><button class="btn-top-action" style="font-size: 0.72rem;" onclick="selectCase('HHG-001'); switchView('investigations');">Open Case</button></td>
+                  <td>
+                    <div style="display: flex; gap: 6px;">
+                      <button class="btn-top-action" style="font-size: 0.72rem;" onclick="selectCase('HHG-001'); switchView('investigations');">Case</button>
+                      <button class="btn-top-action" style="font-size: 0.72rem; color: #DC2626; border-color: #FECACA; background: #FEF2F2;" onclick="quickAddEntityToWatchlist('C12382-K1', 'card')">+ Watchlist</button>
+                    </div>
+                  </td>
                 </tr>
               </tbody>
             </table>
