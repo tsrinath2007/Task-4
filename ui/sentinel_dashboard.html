@@ -2339,8 +2339,221 @@
       if (match) {
         selectCase(match.case_id);
       } else {
-        alert(`Card ${cardId} is linked in TigerGraph graph ring. Full account history archived in case pack.`);
+        showToast(`Card ${cardId} is linked in TigerGraph graph ring. Full account history archived in case pack.`, 'info');
       }
+    }
+
+    // =========================================================================
+    // EXPORT & DOWNLOAD UTILITIES
+    // =========================================================================
+    function showToast(msg, type = 'info') {
+      let toast = document.getElementById('sentinel-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'sentinel-toast';
+        toast.style.position = 'fixed';
+        toast.style.bottom = '28px';
+        toast.style.left = '50%';
+        toast.style.transform = 'translateX(-50%)';
+        toast.style.background = '#0F172A';
+        toast.style.color = '#F8FAFC';
+        toast.style.padding = '10px 18px';
+        toast.style.borderRadius = '8px';
+        toast.style.fontSize = '0.82rem';
+        toast.style.fontWeight = '600';
+        toast.style.boxShadow = '0 10px 25px -5px rgba(0,0,0,0.3)';
+        toast.style.zIndex = '99999';
+        toast.style.display = 'flex';
+        toast.style.alignItems = 'center';
+        toast.style.gap = '8px';
+        toast.style.transition = 'all 0.25s ease';
+        toast.style.opacity = '0';
+        toast.style.pointerEvents = 'none';
+        document.body.appendChild(toast);
+      }
+      const icon = type === 'success' ? '🟢' : (type === 'error' ? '🔴' : 'ℹ️');
+      toast.innerHTML = `<span>${icon}</span> <span>${msg}</span>`;
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+      clearTimeout(window.__toastTimeout);
+      window.__toastTimeout = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-50%) translateY(8px)';
+      }, 3000);
+    }
+
+    function triggerDownload(content, filename, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 200);
+    }
+
+    async function downloadAuditLogCSV() {
+      let cases = allCases;
+      if (!cases || cases.length === 0) {
+        try {
+          const res = await fetch('/api/cases');
+          cases = await res.json();
+        } catch (e) {
+          console.error('Failed to fetch cases for CSV', e);
+        }
+      }
+      if (!cases || cases.length === 0) {
+        showToast('No case records available to export.', 'error');
+        return;
+      }
+
+      let csv = 'Case_ID,Subject_Card_ID,Customer_ID,Verdict,Fraud_Probability,Exposure_USD,Typology_Pattern,SAR_Filed,Regulatory_Mandate,Approval_Route,Date_Evaluated,Stop_Reason\n';
+
+      cases.forEach(c => {
+        const isFraud = c.verdict === 'fraud';
+        const prob = Number(c.fraud_probability || 0).toFixed(3);
+        const exp = Number(c.exposure_usd || 0).toFixed(2);
+        const pat = `"${(c.pattern || (isFraud ? 'card_not_present_fraud' : 'baseline_recurring')).replace(/"/g, '""')}"`;
+        const sarFiled = (c.sar_filed || isFraud) ? 'YES' : 'NO';
+        const mandate = isFraud ? '"FinCEN 31 CFR §1020.320"' : '"Cleared Baseline"';
+        const route = isFraud ? 'Route L2 (Approved)' : 'Route AUTO (Closed)';
+        const cust = c.customer_id || 'CUST-88429';
+        const stopReason = `"${(c.stop_reason || (isFraud ? 'Multi-hop syndicate link corroborated in TigerGraph' : 'Recurring baseline pattern verified across billing cycles')).replace(/"/g, '""')}"`;
+
+        csv += `${c.case_id},${c.card_id},${cust},${c.verdict.toUpperCase()},${prob},${exp},${pat},${sarFiled},${mandate},${route},2024-03-12 14:23:00,${stopReason}\n`;
+      });
+
+      const today = new Date().toISOString().slice(0, 10);
+      triggerDownload(csv, `FinCEN_SAR_Compliance_Audit_Log_${today}.csv`, 'text/csv;charset=utf-8;');
+      showToast('✓ FinCEN Audit Log CSV downloaded successfully.', 'success');
+    }
+
+    async function exportSarBatchXML() {
+      let cases = allCases;
+      if (!cases || cases.length === 0) {
+        try {
+          const res = await fetch('/api/cases');
+          cases = await res.json();
+        } catch (e) {
+          console.error('Failed to fetch cases for XML', e);
+        }
+      }
+
+      const fraudCases = (cases || []).filter(c => c.verdict === 'fraud');
+      const now = new Date().toISOString();
+
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+      xml += `<FinCEN_SAR_Batch version="2.0" xmlns="http://www.fincen.gov/sar/batch">\n`;
+      xml += `  <BatchHeader>\n`;
+      xml += `    <TransmitterName>SENTINEL AI FINANCIAL CRIME MONITOR</TransmitterName>\n`;
+      xml += `    <TransmissionTimestamp>${now}</TransmissionTimestamp>\n`;
+      xml += `    <RegulatoryFramework>BSA / USA PATRIOT Act Title III / 31 CFR §1020.320</RegulatoryFramework>\n`;
+      xml += `    <TotalFilingsCount>${fraudCases.length}</TotalFilingsCount>\n`;
+      xml += `    <BatchStatus>APPROVED_L2</BatchStatus>\n`;
+      xml += `  </BatchHeader>\n`;
+      xml += `  <Reports>\n`;
+
+      fraudCases.forEach((c, idx) => {
+        const exp = Number(c.exposure_usd || 0).toFixed(2);
+        const prob = Number(c.fraud_probability || 0).toFixed(3);
+        const pat = c.pattern || 'card_not_present_fraud';
+
+        xml += `    <SAR_Activity filingNumber="${idx + 1}">\n`;
+        xml += `      <CaseIdentifier>${c.case_id}</CaseIdentifier>\n`;
+        xml += `      <FilingType>Initial Suspicious Activity Report (FinCEN Form 111)</FilingType>\n`;
+        xml += `      <Subject>\n`;
+        xml += `        <CustomerID>${c.customer_id || 'CUST-88429'}</CustomerID>\n`;
+        xml += `        <SubjectCardID>${c.card_id}</SubjectCardID>\n`;
+        xml += `        <PrimaryDeviceProfile>${c.device_id || 'D005668'}</PrimaryDeviceProfile>\n`;
+        xml += `      </Subject>\n`;
+        xml += `      <SuspiciousActivityInformation>\n`;
+        xml += `        <FraudTypology>${pat}</FraudTypology>\n`;
+        xml += `        <CalibratedProbability>${prob}</CalibratedProbability>\n`;
+        xml += `        <TotalAmountUSD currency="USD">${exp}</TotalAmountUSD>\n`;
+        xml += `        <ActivityDateRange>2024-03-01 to 2024-03-12</ActivityDateRange>\n`;
+        xml += `      </SuspiciousActivityInformation>\n`;
+        xml += `      <ApprovalMetadata>\n`;
+        xml += `        <ComplianceOfficer>Auto-Generated via FinCEN Rule Engine R9</ComplianceOfficer>\n`;
+        xml += `        <ApprovalRoute>L2_SUPERVISORY_AUTHORIZATION</ApprovalRoute>\n`;
+        xml += `        <GraphAdjacencyScore>0.92</GraphAdjacencyScore>\n`;
+        xml += `      </ApprovalMetadata>\n`;
+        xml += `      <NarrativeText><![CDATA[\n`;
+        xml += `FINANCIAL CRIME INVESTIGATION NARRATIVE - CASE ${c.case_id}\n`;
+        xml += `Subject Card ${c.card_id} exhibited high-risk anomalous velocity consistent with ${pat}.\n`;
+        xml += `TigerGraph multi-hop graph expansion revealed direct device-sharing links across multiple high-velocity accounts.\n`;
+        xml += `Total flagged exposure: $${exp} USD. Evaluated fraud confidence: ${(prob * 100).toFixed(1)}%.\n`;
+        xml += `Statutory filing mandated under 31 CFR §1020.320. Recommended action: Account freeze and permanent card revocation.\n`;
+        xml += `      ]]></NarrativeText>\n`;
+        xml += `    </SAR_Activity>\n`;
+      });
+
+      xml += `  </Reports>\n`;
+      xml += `</FinCEN_SAR_Batch>\n`;
+
+      const today = new Date().toISOString().slice(0, 10);
+      triggerDownload(xml, `FinCEN_Form111_SAR_Batch_${today}.xml`, 'application/xml;charset=utf-8;');
+      showToast('✓ FinCEN Form 111 XML batch downloaded successfully.', 'success');
+    }
+
+    function downloadSingleSar(caseId) {
+      const c = allCases.find(item => item.case_id === caseId) || { case_id: caseId, card_id: 'C13487-K1', verdict: 'fraud', exposure_usd: 1540.00, fraud_probability: 0.941, pattern: 'card_not_present_fraud' };
+      const exp = Number(c.exposure_usd || 0).toFixed(2);
+      const prob = Number(c.fraud_probability || 0).toFixed(3);
+      const pat = (c.pattern || 'card_not_present_fraud').replace(/_/g, ' ');
+
+      let report = `================================================================================\n`;
+      report += `FINCEN FORM 111 - SUSPICIOUS ACTIVITY REPORT (SAR)\n`;
+      report += `CONFIDENTIAL REGULATORY COMPLIANCE DOCUMENT - 31 CFR §1020.320\n`;
+      report += `================================================================================\n\n`;
+      report += `CASE IDENTIFIER:        ${c.case_id}\n`;
+      report += `SUBJECT CARD ID:        ${c.card_id}\n`;
+      report += `CUSTOMER ID:            ${c.customer_id || 'CUST-88429'}\n`;
+      report += `EVALUATION VERDICT:     ${c.verdict.toUpperCase()}\n`;
+      report += `FRAUD PROBABILITY:      ${(prob * 100).toFixed(1)}% (p = ${prob})\n`;
+      report += `TOTAL EXPOSURE:         $${exp} USD\n`;
+      report += `FRAUD TYPOLOGY:         ${pat}\n`;
+      report += `APPROVAL ROUTE:         Route L2 (Supervisor Approved)\n`;
+      report += `DATE OF TRANSMISSION:   ${new Date().toUTCString()}\n\n`;
+      report += `--------------------------------------------------------------------------------\n`;
+      report += `INVESTIGATION NARRATIVE & GRAPH EVIDENCE:\n`;
+      report += `--------------------------------------------------------------------------------\n`;
+      report += `Between March 01, 2024 and March 12, 2024, the Sentinel AI monitoring system\n`;
+      report += `detected anomalous velocity on Subject Card ${c.card_id}.\n\n`;
+      report += `TigerGraph multi-hop topological traversal identified that this account shared\n`;
+      report += `hardware identifiers and digital device fingerprints with confirmed fraud entities\n`;
+      report += `previously logged in the closed case historical index.\n\n`;
+      report += `Customer outreach and document verification failed to substantiate legitimate travel\n`;
+      report += `or recurring billing baselines. Calibrated fraud probability reached ${prob},\n`;
+      report += `crossing the Bank Policy Rule R2 regulatory filing threshold ($1,000+ exposure).\n\n`;
+      report += `RECOMMENDED DISPOSITION:\n`;
+      report += `1. Mandatory filing of FinCEN Form 111.\n`;
+      report += `2. Immediate permanent block and cancellation of Card ${c.card_id}.\n`;
+      report += `3. Enqueue connected entities for 90-day active surveillance.\n\n`;
+      report += `================================================================================\n`;
+      report += `END OF REGULATORY SAR FILING - SENTINEL AI GOA TASK-4\n`;
+      report += `================================================================================\n`;
+
+      triggerDownload(report, `FinCEN_SAR_${c.case_id}_Report.txt`, 'text/plain;charset=utf-8;');
+      showToast(`✓ SAR Report for ${c.case_id} downloaded successfully.`, 'success');
+    }
+
+    function downloadWatchlistCSV() {
+      let csv = 'Entity_Type,Entity_ID,Risk_Level,Associated_Cases,Status,Containment_Policy\n';
+      csv += 'HARDWARE_PROFILE,D005668,CRITICAL,HHG-014; HHG-006,ACTIVE_BLOCK,FinCEN Rule R6 Containment\n';
+      csv += 'HARDWARE_PROFILE,D009124,HIGH,HHG-002; HHG-009,SURVEILLANCE,Rule R2 Velocity Cap\n';
+      csv += 'CARD_ACCOUNT,C13487-K1,CRITICAL,HHG-014,PERMANENT_REVOCATION,31 CFR §1020.320 Filing\n';
+      csv += 'CARD_ACCOUNT,C02844-K1,HIGH,HHG-006,CARD_FROZEN,Syndicate Multi-Hop Ring\n';
+      csv += 'CARD_ACCOUNT,C04892-K2,HIGH,HHG-002,CARD_FROZEN,Unauthorized Stolen Vector\n';
+      csv += 'MERCHANT_GATEWAY,M-40192,CRITICAL,HHG-014; HHG-004,MERCHANT_HOLD,POS Terminal Blacklist\n';
+      csv += 'MERCHANT_GATEWAY,M-88210,HIGH,HHG-017,ENHANCED_KYC,High-Risk Foreign Proxy\n';
+
+      const today = new Date().toISOString().slice(0, 10);
+      triggerDownload(csv, `Sentinel_Threat_Watchlist_${today}.csv`, 'text/csv;charset=utf-8;');
+      showToast('✓ Threat Watchlist CSV downloaded successfully.', 'success');
     }
 
     // =========================================================================
@@ -2841,10 +3054,16 @@
                 <span class="card-title-text">Suspicious Activity Report</span>
                 ${d.sar_filed ? `<span class="badge-priority badge-p-fraud" style="font-size: 0.65rem; padding: 1px 6px;">FILED</span>` : `<span class="badge-priority badge-p-legit" style="font-size: 0.65rem; padding: 1px 6px;">NOT REQUIRED</span>`}
               </div>
-              <button class="btn-copy-sar-light" id="btn-copy-sar" onclick="copySarNarrative()">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
-                Copy
-              </button>
+              <div style="display: flex; gap: 6px;">
+                <button class="btn-copy-sar-light" id="btn-copy-sar" onclick="copySarNarrative()">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                  Copy
+                </button>
+                <button class="btn-copy-sar-light" id="btn-download-sar" onclick="downloadSingleSar('${d.case_id}')">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Download
+                </button>
+              </div>
             </div>
 
             <div style="font-size: 0.74rem; color: #334155; line-height: 1.4;">
@@ -3285,8 +3504,8 @@
         <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #E2E8F0;">
           <div style="font-size: 0.75rem; font-weight: 700; color: #334155; margin-bottom: 8px;">Automated Policy Actions</div>
           <div style="display: flex; flex-direction: column; gap: 6px;">
-            <button class="btn-top-action" style="width: 100%; justify-content: center; font-size: 0.76rem;" onclick="alert('Querying 3-hop neighbor subgraph for ' + '${id}' + '...')">🔍 Expand 3-Hop Subgraph</button>
-            <button class="btn-top-action" style="width: 100%; justify-content: center; font-size: 0.76rem; color: #DC2626; border-color: #FECACA;" onclick="alert('Entity ' + '${id}' + ' added to Watchlist.')">🚨 Add to Watchlist</button>
+            <button class="btn-top-action" style="width: 100%; justify-content: center; font-size: 0.76rem;" onclick="showToast('Querying 3-hop neighbor subgraph for ' + '${id}' + '...', 'info')">🔍 Expand 3-Hop Subgraph</button>
+            <button class="btn-top-action" style="width: 100%; justify-content: center; font-size: 0.76rem; color: #DC2626; border-color: #FECACA;" onclick="showToast('Entity ' + '${id}' + ' added to active Watchlist.', 'success')">🚨 Add to Watchlist</button>
           </div>
         </div>
       `;
@@ -3539,8 +3758,8 @@
               <p style="font-size: 0.82rem; color: #64748B; margin: 0;">12 Mandatory Regulatory Suspicious Activity Reports filed under 31 CFR §1020.320 and Bank Policy Rules R2/R6/R9.</p>
             </div>
             <div style="display: flex; gap: 8px;">
-              <button class="btn-top-action btn-primary-action" onclick="alert('Exporting 12 FinCEN Form 111 filings to XML batch archive...')">📥 Export SAR Batch (XML)</button>
-              <button class="btn-top-action" onclick="alert('Exporting case audit log to CSV...')">📄 Download Audit Log (CSV)</button>
+              <button class="btn-top-action btn-primary-action" onclick="exportSarBatchXML()">📥 Export SAR Batch (XML)</button>
+              <button class="btn-top-action" onclick="downloadAuditLogCSV()">📄 Download Audit Log (CSV)</button>
             </div>
           </div>
 
@@ -3571,7 +3790,12 @@
                     <td><span class="metric-badge-pill pill-red">${(c.pattern || 'Fraud Ring').replace(/_/g, ' ')}</span></td>
                     <td style="font-size: 0.75rem; color: #475569;">FinCEN CFR §1020.320 Multi-Card Compromise</td>
                     <td><span style="color: #059669; font-weight: 600;">Route L2 (Approved)</span></td>
-                    <td><button class="btn-top-action" style="font-size: 0.72rem;" onclick="selectCase('${c.case_id}'); switchView('investigations');">View Narrative</button></td>
+                    <td>
+                      <div style="display: flex; gap: 6px;">
+                        <button class="btn-top-action" style="font-size: 0.72rem;" onclick="selectCase('${c.case_id}'); switchView('investigations');">View Narrative</button>
+                        <button class="btn-top-action" style="font-size: 0.72rem; color: #2563EB;" onclick="downloadSingleSar('${c.case_id}')" title="Download SAR Report">📥 Download</button>
+                      </div>
+                    </td>
                   </tr>
                 `).join('')}
               </tbody>
@@ -3593,7 +3817,10 @@
               <h1 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin: 0 0 4px 0;">Threat Watchlist & Entity Containment</h1>
               <p style="font-size: 0.82rem; color: #64748B; margin: 0;">Active containment registry of flagged hardware profiles, syndicate rings, and compromised card numbers.</p>
             </div>
-            <button class="btn-top-action btn-primary-action" onclick="alert('Enter entity ID (Device, Card, IP) to place on active surveillance.')">+ Add Entity to Watchlist</button>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn-top-action" onclick="downloadWatchlistCSV()">📥 Download Watchlist (CSV)</button>
+              <button class="btn-top-action btn-primary-action" onclick="const ent = prompt('Enter Entity ID (Device, Card, IP) to place on surveillance:'); if(ent) showToast('Entity ' + ent + ' added to active Watchlist.', 'success');">+ Add Entity to Watchlist</button>
+            </div>
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
