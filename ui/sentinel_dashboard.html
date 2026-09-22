@@ -1259,6 +1259,80 @@
     }
 
     /* ==========================================================================
+       WATCHLIST & MODAL STYLES
+       ========================================================================== */
+    .btn-remove-watchlist {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #DC2626;
+      background: #FFFFFF;
+      border: 1px solid #FECACA;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      line-height: 1;
+    }
+    .btn-remove-watchlist:hover {
+      background: #DC2626;
+      color: #FFFFFF;
+      border-color: #DC2626;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-remove-all {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 6px 12px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      color: #DC2626;
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .btn-remove-all:hover {
+      background: #DC2626;
+      color: #FFFFFF;
+      border-color: #DC2626;
+      box-shadow: var(--shadow-sm);
+    }
+    .sentinel-modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+    .sentinel-modal-box {
+      background: #FFFFFF;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.25), 0 10px 10px -5px rgba(0, 0, 0, 0.1);
+      border: 1px solid #CBD5E1;
+      overflow: hidden;
+      animation: sentinelModalFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes sentinelModalFadeIn {
+      from { opacity: 0; transform: scale(0.96) translateY(8px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* ==========================================================================
        SECURITY AUTHENTICATION GATEWAY
        ========================================================================== */
     #auth-overlay {
@@ -2677,14 +2751,18 @@
     }
 
     function downloadWatchlistCSV() {
-      let csv = 'Entity_Type,Entity_ID,Risk_Level,Associated_Cases,Status,Containment_Policy\n';
-      csv += 'HARDWARE_PROFILE,D005668,CRITICAL,HHG-014; HHG-006,ACTIVE_BLOCK,FinCEN Rule R6 Containment\n';
-      csv += 'HARDWARE_PROFILE,D009124,HIGH,HHG-002; HHG-009,SURVEILLANCE,Rule R2 Velocity Cap\n';
-      csv += 'CARD_ACCOUNT,C13487-K1,CRITICAL,HHG-014,PERMANENT_REVOCATION,31 CFR §1020.320 Filing\n';
-      csv += 'CARD_ACCOUNT,C02844-K1,HIGH,HHG-006,CARD_FROZEN,Syndicate Multi-Hop Ring\n';
-      csv += 'CARD_ACCOUNT,C04892-K2,HIGH,HHG-002,CARD_FROZEN,Unauthorized Stolen Vector\n';
-      csv += 'MERCHANT_GATEWAY,M-40192,CRITICAL,HHG-014; HHG-004,MERCHANT_HOLD,POS Terminal Blacklist\n';
-      csv += 'MERCHANT_GATEWAY,M-88210,HIGH,HHG-017,ENHANCED_KYC,High-Risk Foreign Proxy\n';
+      const profiles = getWatchlistProfiles();
+      const cards = getWatchlistCards();
+
+      let csv = 'Entity_Type,Entity_ID,Label_Or_Case,Risk_Level,Policy_Status,Containment_Notes\n';
+
+      profiles.forEach(p => {
+        csv += `"${(p.type || 'HARDWARE_PROFILE').toUpperCase()}","${p.id}","${p.label || ''}","${p.risk || 'HIGH'}","ACTIVE_BLOCK","${(p.note || '').replace(/"/g, '""')}"\n`;
+      });
+
+      cards.forEach(c => {
+        csv += `"CARD_ACCOUNT","${c.card_id}","${c.case_id || 'COMPROMISED'}","${c.risk || 'HIGH'}","${c.policy || 'BLOCK_CARD [L1]'}","Immediate FinCEN Section 314(b) Emergency Freeze"\n`;
+      });
 
       const today = new Date().toISOString().slice(0, 10);
       triggerDownload(csv, `Sentinel_Threat_Watchlist_${today}.csv`, 'text/csv;charset=utf-8;');
@@ -3640,7 +3718,7 @@
           <div style="font-size: 0.75rem; font-weight: 700; color: #334155; margin-bottom: 8px;">Automated Policy Actions</div>
           <div style="display: flex; flex-direction: column; gap: 6px;">
             <button class="btn-top-action" style="width: 100%; justify-content: center; font-size: 0.76rem;" onclick="showToast('Querying 3-hop neighbor subgraph for ' + '${id}' + '...', 'info')">🔍 Expand 3-Hop Subgraph</button>
-            <button class="btn-top-action" style="width: 100%; justify-content: center; font-size: 0.76rem; color: #DC2626; border-color: #FECACA;" onclick="showToast('Entity ' + '${id}' + ' added to active Watchlist.', 'success')">🚨 Add to Watchlist</button>
+            <button class="btn-top-action" style="width: 100%; justify-content: center; font-size: 0.76rem; color: #DC2626; border-color: #FECACA;" onclick="quickAddEntityToWatchlist('${id}', '${ent.type || 'hardware'}')">🚨 Add to Watchlist</button>
           </div>
         </div>
       `;
@@ -3940,10 +4018,244 @@
       `;
     }
 
+    // =========================================================================
+    // THREAT WATCHLIST STATE & INTERACTIVE CONTAINMENT
+    // =========================================================================
+    const DEFAULT_WATCHLIST_PROFILES = [
+      { id: 'D005668', label: 'Syndicate Master', metric: '51 Cards Linked', note: 'Hardware fingerprint associated with HHG-014 and multi-card credential stuffing network.', risk: 'CRITICAL', type: 'hardware' },
+      { id: 'D008912', label: 'Card Testing Botnet', metric: '542 Micro-Probes', note: 'High-velocity automated testing script pinging card numbers with <$15.00 authorizations.', risk: 'HIGH', type: 'hardware' },
+      { id: 'D004118', label: 'Account Takeover Node', metric: 'New Device Velocity', note: 'Sudden high-value online transactions from unrecognized mobile channel.', risk: 'HIGH', type: 'hardware' }
+    ];
+
+    const DEFAULT_WATCHLIST_CARDS = [
+      { card_id: 'C08106-K1', case_id: 'HHG-004', policy: 'BLOCK_CARD [L1]', risk: 'CRITICAL' },
+      { card_id: 'C02923-K1', case_id: 'HHG-005', policy: 'BLOCK_CARD [L1]', risk: 'HIGH' },
+      { card_id: 'C07297-K1', case_id: 'HHG-006', policy: 'BLOCK_CARD [L1]', risk: 'HIGH' },
+      { card_id: 'C08299-K1', case_id: 'HHG-009', policy: 'BLOCK_CARD [L1]', risk: 'CRITICAL' },
+      { card_id: 'C10434-K1', case_id: 'HHG-010', policy: 'BLOCK_CARD [L1]', risk: 'HIGH' }
+    ];
+
+    function getWatchlistProfiles() {
+      try {
+        const s = localStorage.getItem('sentinel_watchlist_profiles');
+        if (s) {
+          const parsed = JSON.parse(s);
+          if (Array.isArray(parsed)) return parsed;
+        }
+      } catch(e) {}
+      return [...DEFAULT_WATCHLIST_PROFILES];
+    }
+
+    function saveWatchlistProfiles(list) {
+      try { localStorage.setItem('sentinel_watchlist_profiles', JSON.stringify(list)); } catch(e) {}
+    }
+
+    function getWatchlistCards() {
+      try {
+        const s = localStorage.getItem('sentinel_watchlist_cards');
+        if (s) {
+          const parsed = JSON.parse(s);
+          if (Array.isArray(parsed)) return parsed;
+        }
+      } catch(e) {}
+      return [...DEFAULT_WATCHLIST_CARDS];
+    }
+
+    function saveWatchlistCards(list) {
+      try { localStorage.setItem('sentinel_watchlist_cards', JSON.stringify(list)); } catch(e) {}
+    }
+
+    function openAddWatchlistModal(prefillId = '', prefillType = 'hardware') {
+      let modal = document.getElementById('watchlist-add-modal');
+      if (modal) modal.remove();
+
+      modal = document.createElement('div');
+      modal.id = 'watchlist-add-modal';
+      modal.className = 'sentinel-modal-overlay';
+      modal.innerHTML = `
+        <div class="sentinel-modal-box" onclick="event.stopPropagation()">
+          <div style="padding: 18px 22px; border-bottom: 1px solid #E2E8F0; display: flex; justify-content: space-between; align-items: center; background: #F8FAFC;">
+            <div>
+              <h3 style="font-size: 1.05rem; font-weight: 700; color: #0F172A; margin: 0;">Add Entity to Threat Watchlist</h3>
+              <p style="font-size: 0.76rem; color: #64748B; margin: 2px 0 0 0;">Place device fingerprint, card account, or network node under active containment.</p>
+            </div>
+            <button type="button" onclick="closeWatchlistModal()" style="background: none; border: none; font-size: 1.25rem; color: #94A3B8; cursor: pointer; padding: 4px; line-height: 1;">✕</button>
+          </div>
+
+          <form id="form-add-watchlist" onsubmit="submitAddWatchlist(event)" style="padding: 22px; display: flex; flex-direction: column; gap: 14px;">
+            <div>
+              <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 5px;">Entity Identifier *</label>
+              <input id="modal-entity-id" type="text" placeholder="e.g. D009941, C14209-K1, or IP-198.51.100.22" value="${prefillId}" required
+                style="width: 100%; padding: 8px 12px; border: 1px solid #CBD5E1; border-radius: 6px; font-family: var(--font-mono); font-size: 0.82rem; outline: none; box-sizing: border-box;">
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div>
+                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 5px;">Entity Category</label>
+                <select id="modal-entity-type" style="width: 100%; padding: 8px 10px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.8rem; background: #FFF; outline: none; box-sizing: border-box;">
+                  <option value="hardware" ${prefillType === 'hardware' ? 'selected' : ''}>Hardware Profile / Device</option>
+                  <option value="card" ${prefillType === 'card' ? 'selected' : ''}>Card Account (Freeze)</option>
+                  <option value="network" ${prefillType === 'network' ? 'selected' : ''}>IP / Proxy Gateway</option>
+                  <option value="merchant" ${prefillType === 'merchant' ? 'selected' : ''}>Merchant Terminal</option>
+                </select>
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 5px;">Containment Severity</label>
+                <select id="modal-entity-risk" style="width: 100%; padding: 8px 10px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.8rem; background: #FFF; outline: none; box-sizing: border-box;">
+                  <option value="CRITICAL">Critical (Immediate Block)</option>
+                  <option value="HIGH" selected>High (Velocity Cap)</option>
+                  <option value="MEDIUM">Medium (Surveillance)</option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 5px;">Threat Label / Alias</label>
+              <input id="modal-entity-label" type="text" placeholder="e.g. Syndicate Master Node or High-Velocity Testing Script"
+                style="width: 100%; padding: 8px 12px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.82rem; outline: none; box-sizing: border-box;">
+            </div>
+
+            <div>
+              <label style="display: block; font-size: 0.78rem; font-weight: 600; color: #334155; margin-bottom: 5px;">Containment Reason / Investigation Note</label>
+              <textarea id="modal-entity-note" rows="2" placeholder="e.g. Flagged by TigerGraph multi-hop ring traversal for rapid credential stuffing."
+                style="width: 100%; padding: 8px 12px; border: 1px solid #CBD5E1; border-radius: 6px; font-size: 0.82rem; outline: none; resize: vertical; box-sizing: border-box;"></textarea>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; border-top: 1px solid #F1F5F9; padding-top: 14px;">
+              <button type="button" onclick="closeWatchlistModal()" class="btn-top-action" style="padding: 7px 14px; font-size: 0.8rem;">Cancel</button>
+              <button type="submit" class="btn-top-action btn-primary-action" style="padding: 7px 16px; font-size: 0.8rem;">+ Add to Watchlist</button>
+            </div>
+          </form>
+        </div>
+      `;
+      modal.onclick = closeWatchlistModal;
+      document.body.appendChild(modal);
+      setTimeout(() => document.getElementById('modal-entity-id')?.focus(), 50);
+    }
+
+    function closeWatchlistModal() {
+      const modal = document.getElementById('watchlist-add-modal');
+      if (modal) modal.remove();
+    }
+
+    function submitAddWatchlist(e) {
+      if (e) e.preventDefault();
+      const idInput = document.getElementById('modal-entity-id');
+      if (!idInput || !idInput.value.trim()) return;
+
+      const id = idInput.value.trim().toUpperCase();
+      const type = document.getElementById('modal-entity-type')?.value || 'hardware';
+      const risk = document.getElementById('modal-entity-risk')?.value || 'HIGH';
+      const label = document.getElementById('modal-entity-label')?.value.trim() || (type === 'card' ? 'Compromised Card' : 'Flagged Entity');
+      const note = document.getElementById('modal-entity-note')?.value.trim() || 'Manual containment entry added via Sentinel Cockpit.';
+
+      if (type === 'card' || (id.startsWith('C') && id.includes('-K'))) {
+        const cards = getWatchlistCards();
+        const existing = cards.find(c => c.card_id === id);
+        if (!existing) {
+          cards.unshift({
+            card_id: id,
+            case_id: 'MANUAL',
+            policy: risk === 'CRITICAL' ? 'BLOCK_CARD [L1]' : 'MONITOR_VELOCITY',
+            risk: risk
+          });
+          saveWatchlistCards(cards);
+        }
+      } else {
+        const profiles = getWatchlistProfiles();
+        const existing = profiles.find(p => p.id === id);
+        if (!existing) {
+          profiles.unshift({
+            id: id,
+            label: label,
+            metric: risk === 'CRITICAL' ? 'Immediate Containment' : 'Active Surveillance',
+            note: note,
+            risk: risk,
+            type: type
+          });
+          saveWatchlistProfiles(profiles);
+        }
+      }
+
+      closeWatchlistModal();
+      renderWatchlistView();
+      showToast(`✓ Entity ${id} successfully added to active Watchlist.`, 'success');
+    }
+
+    function removeWatchlistProfile(id) {
+      let profiles = getWatchlistProfiles();
+      profiles = profiles.filter(p => p.id !== id);
+      saveWatchlistProfiles(profiles);
+      renderWatchlistView();
+      showToast(`✓ Removed profile ${id} from Watchlist.`, 'info');
+    }
+
+    function removeWatchlistCard(cardId) {
+      let cards = getWatchlistCards();
+      cards = cards.filter(c => c.card_id !== cardId);
+      saveWatchlistCards(cards);
+      renderWatchlistView();
+      showToast(`✓ Removed card ${cardId} from Watchlist.`, 'info');
+    }
+
+    function removeAllFromWatchlist() {
+      const profiles = getWatchlistProfiles();
+      const cards = getWatchlistCards();
+      const total = profiles.length + cards.length;
+
+      if (total === 0) {
+        showToast('Watchlist is already empty.', 'info');
+        return;
+      }
+
+      if (!confirm(`Are you sure you want to remove all ${total} entities and frozen cards from the active containment watchlist?`)) {
+        return;
+      }
+
+      saveWatchlistProfiles([]);
+      saveWatchlistCards([]);
+      renderWatchlistView();
+      showToast(`✓ All entities removed from Threat Watchlist.`, 'success');
+    }
+
+    function resetWatchlistDefaults() {
+      saveWatchlistProfiles([...DEFAULT_WATCHLIST_PROFILES]);
+      saveWatchlistCards([...DEFAULT_WATCHLIST_CARDS]);
+      renderWatchlistView();
+      showToast('✓ Watchlist restored to standard baseline.', 'success');
+    }
+
+    function quickAddEntityToWatchlist(id, type) {
+      if (type === 'card' || (id.startsWith('C') && id.includes('-'))) {
+        const cards = getWatchlistCards();
+        if (!cards.find(c => c.card_id === id)) {
+          cards.unshift({ card_id: id, case_id: 'INTELLIGENCE', policy: 'BLOCK_CARD [L1]', risk: 'CRITICAL' });
+          saveWatchlistCards(cards);
+        }
+      } else {
+        const profiles = getWatchlistProfiles();
+        if (!profiles.find(p => p.id === id)) {
+          profiles.unshift({
+            id: id,
+            label: type === 'device' || id.startsWith('D') ? 'Syndicate Hardware Node' : 'Flagged Entity',
+            metric: 'Intelligence Alert',
+            note: 'Directly placed under surveillance from Sentinel Entity Intelligence portal.',
+            risk: 'CRITICAL',
+            type: type === 'device' ? 'hardware' : type
+          });
+          saveWatchlistProfiles(profiles);
+        }
+      }
+      showToast(`✓ Entity ${id} added to active Threat Watchlist.`, 'success');
+    }
+
     // 5. WATCHLIST VIEW
     function renderWatchlistView() {
       const main = document.getElementById('main-content');
       if (!main) return;
+
+      const profiles = getWatchlistProfiles();
+      const cards = getWatchlistCards();
 
       main.innerHTML = `
         <div style="padding: 24px 32px; max-width: 1400px; margin: 0 auto;">
@@ -3952,60 +4264,88 @@
               <h1 style="font-size: 1.35rem; font-weight: 800; color: #0F172A; margin: 0 0 4px 0;">Threat Watchlist & Entity Containment</h1>
               <p style="font-size: 0.82rem; color: #64748B; margin: 0;">Active containment registry of flagged hardware profiles, syndicate rings, and compromised card numbers.</p>
             </div>
-            <div style="display: flex; gap: 8px;">
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
               <button class="btn-top-action" onclick="downloadWatchlistCSV()">📥 Download Watchlist (CSV)</button>
-              <button class="btn-top-action btn-primary-action" onclick="const ent = prompt('Enter Entity ID (Device, Card, IP) to place on surveillance:'); if(ent) showToast('Entity ' + ent + ' added to active Watchlist.', 'success');">+ Add Entity to Watchlist</button>
+              <button class="btn-remove-all" onclick="removeAllFromWatchlist()" title="Clear all items from watchlist">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                Remove All
+              </button>
+              <button class="btn-top-action btn-primary-action" onclick="openAddWatchlistModal()">+ Add Entity to Watchlist</button>
             </div>
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <!-- Column 1: Blacklisted Hardware Profiles -->
             <div class="white-card">
               <div class="card-header-row">
-                <span class="card-title-text">Blacklisted Hardware Profiles</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="card-title-text">Blacklisted Hardware Profiles</span>
+                  <span style="font-size: 0.72rem; background: #F1F5F9; color: #475569; padding: 2px 7px; border-radius: 12px; font-weight: 700;">${profiles.length}</span>
+                </div>
                 <span class="live-chip"><span class="live-dot"></span> Active</span>
               </div>
               <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px;">
-                <div style="padding: 14px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px;">
-                  <div style="display: flex; justify-content: space-between; font-weight: 700;">
-                    <span style="font-family: var(--font-mono); color: #DC2626;">D005668 (Syndicate Master)</span>
-                    <span style="color: #DC2626;">51 Cards Linked</span>
+                ${profiles.length === 0 ? `
+                  <div style="padding: 24px; text-align: center; background: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 8px;">
+                    <p style="font-size: 0.82rem; color: #64748B; margin-bottom: 10px;">No hardware profiles currently blacklisted.</p>
+                    <div style="display: flex; justify-content: center; gap: 8px;">
+                      <button class="btn-top-action" style="font-size: 0.74rem;" onclick="openAddWatchlistModal('', 'hardware')">+ Add Profile</button>
+                      <button class="btn-top-action" style="font-size: 0.74rem;" onclick="resetWatchlistDefaults()">↺ Restore Defaults</button>
+                    </div>
                   </div>
-                  <p style="font-size: 0.78rem; color: #7F1D1D; margin: 4px 0 0 0;">Hardware fingerprint associated with HHG-014 and multi-card credential stuffing network.</p>
-                </div>
-                <div style="padding: 14px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px;">
-                  <div style="display: flex; justify-content: space-between; font-weight: 700;">
-                    <span style="font-family: var(--font-mono); color: #DC2626;">D008912 (Card Testing Botnet)</span>
-                    <span style="color: #DC2626;">542 Micro-Probes</span>
+                ` : profiles.map(p => `
+                  <div style="padding: 14px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                      <span style="font-family: var(--font-mono); font-weight: 700; color: #DC2626; font-size: 0.85rem;">${p.id} ${p.label ? `(${p.label})` : ''}</span>
+                      <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="color: #DC2626; font-size: 0.78rem; font-weight: 700;">${p.metric || 'Active'}</span>
+                        <button class="btn-remove-watchlist" onclick="removeWatchlistProfile('${p.id}')" title="Remove ${p.id} from Watchlist">
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                          Remove
+                        </button>
+                      </div>
+                    </div>
+                    <p style="font-size: 0.78rem; color: #7F1D1D; margin: 4px 0 0 0;">${p.note || 'Placed under surveillance via Sentinel cockpit.'}</p>
                   </div>
-                  <p style="font-size: 0.78rem; color: #7F1D1D; margin: 4px 0 0 0;">High-velocity automated testing script pinging card numbers with &lt;$15.00 authorizations.</p>
-                </div>
-                <div style="padding: 14px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px;">
-                  <div style="display: flex; justify-content: space-between; font-weight: 700;">
-                    <span style="font-family: var(--font-mono); color: #DC2626;">D004118 (Account Takeover Node)</span>
-                    <span style="color: #DC2626;">New Device Velocity</span>
-                  </div>
-                  <p style="font-size: 0.78rem; color: #7F1D1D; margin: 4px 0 0 0;">Sudden high-value online transactions from unrecognized mobile channel.</p>
-                </div>
+                `).join('')}
               </div>
             </div>
 
+            <!-- Column 2: Emergency Frozen Cards -->
             <div class="white-card">
               <div class="card-header-row">
-                <span class="card-title-text">Emergency Frozen Cards</span>
-                <span style="font-size: 0.75rem; color: #DC2626; font-weight: 600;">12 Cards Blocked (L1)</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="card-title-text">Emergency Frozen Cards</span>
+                  <span style="font-size: 0.72rem; background: #F1F5F9; color: #475569; padding: 2px 7px; border-radius: 12px; font-weight: 700;">${cards.length}</span>
+                </div>
+                <span style="font-size: 0.75rem; color: #DC2626; font-weight: 600;">${cards.length} Cards Blocked (L1)</span>
               </div>
               <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 14px;">
-                ${allCases.filter(c => c.verdict === 'fraud').slice(0, 5).map(c => `
+                ${cards.length === 0 ? `
+                  <div style="padding: 24px; text-align: center; background: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 8px;">
+                    <p style="font-size: 0.82rem; color: #64748B; margin-bottom: 10px;">No card accounts currently frozen.</p>
+                    <div style="display: flex; justify-content: center; gap: 8px;">
+                      <button class="btn-top-action" style="font-size: 0.74rem;" onclick="openAddWatchlistModal('', 'card')">+ Add Card</button>
+                      <button class="btn-top-action" style="font-size: 0.74rem;" onclick="resetWatchlistDefaults()">↺ Restore Defaults</button>
+                    </div>
+                  </div>
+                ` : cards.map(c => `
                   <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 6px; font-size: 0.78rem;">
                     <div>
                       <strong style="font-family: var(--font-mono); color: #0F172A;">${c.card_id}</strong>
-                      <span style="color: #64748B; margin-left: 8px;">(${c.case_id})</span>
+                      <span style="color: #64748B; margin-left: 8px;">(${c.case_id || 'CONTAINMENT'})</span>
                     </div>
-                    <span style="color: #DC2626; font-weight: 600;">🔒 BLOCK_CARD [L1]</span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <span style="color: #DC2626; font-weight: 600;">🔒 ${c.policy || 'BLOCK_CARD [L1]'}</span>
+                      <button class="btn-remove-watchlist" onclick="removeWatchlistCard('${c.card_id}')" title="Unblock and remove ${c.card_id}">
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        Remove
+                      </button>
+                    </div>
                   </div>
                 `).join('')}
                 <div style="text-align: center; margin-top: 6px;">
-                  <button class="btn-top-action" style="font-size: 0.74rem;" onclick="switchView('case_reports')">View All 12 Frozen Cards in Compliance Portal →</button>
+                  <button class="btn-top-action" style="font-size: 0.74rem;" onclick="switchView('case_reports')">View All Cases in Compliance Portal →</button>
                 </div>
               </div>
             </div>
