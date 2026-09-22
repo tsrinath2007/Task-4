@@ -1875,7 +1875,7 @@
        ========================================================================== -->
   <div id="auth-overlay">
     <div class="auth-card">
-      <div class="auth-shield-wrap">
+      <div class="auth-shield-wrap" onclick="openTeamModal()" style="cursor: pointer;" title="Click to view Team GOA-T Details">
         <div class="auth-shield-icon">
           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="2.4">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
@@ -1897,13 +1897,27 @@
         </div>
       </div>
 
+      <!-- Team GOA-T Showcase Banner in Auth -->
+      <div onclick="openTeamModal()" style="background: rgba(30, 41, 59, 0.75); border: 1px solid rgba(56, 189, 248, 0.35); border-radius: 8px; padding: 10px 14px; text-align: center; margin-bottom: 14px; cursor: pointer; transition: all 0.15s ease;" title="Click to view full Team GOA-T details">
+        <div style="font-size: 0.72rem; font-weight: 800; color: #38BDF8; letter-spacing: 0.1em; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <span>TEAM GOA-T</span>
+          <span style="font-size: 0.85rem;">🐐</span>
+        </div>
+        <div style="font-size: 0.82rem; font-weight: 700; color: #FFF; margin-top: 3px;">
+          Thota Sai Eswar Srinath <span style="color: #FBBF24; font-size: 0.72rem; font-weight: 600;">(Team Leader)</span>
+        </div>
+        <div style="font-size: 0.74rem; color: #94A3B8; margin-top: 2px;">
+          Nikhil Kadiri &nbsp;•&nbsp; Bondugula Pranav Teja
+        </div>
+      </div>
+
       <form class="auth-form" onsubmit="event.preventDefault(); submitAuth(false);">
         <div class="auth-field">
           <label class="auth-label" for="input-analyst-id">
             <span>Analyst Call-Sign / ID</span>
             <span style="color: #60A5FA;">FinCEN Registered</span>
           </label>
-          <input type="text" id="input-analyst-id" class="auth-input" value="Srinath T." placeholder="e.g. Srinath T. or ANALYST-01" autocomplete="off" required>
+          <input type="text" id="input-analyst-id" class="auth-input" value="Thota Sai Eswar Srinath" placeholder="e.g. Thota Sai Eswar Srinath" autocomplete="off" required>
         </div>
 
         <div class="auth-field">
@@ -1955,15 +1969,17 @@
   <aside id="sidebar">
     <!-- Brand Header -->
     <div class="sidebar-brand" style="justify-content: space-between;">
-      <div style="display: flex; align-items: center; gap: 10px;">
+      <div style="display: flex; align-items: center; gap: 10px; cursor: pointer;" onclick="openTeamModal()" title="Click to view Team GOA-T Details">
         <div class="brand-logo-icon">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="2.6">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
           </svg>
         </div>
         <div class="brand-text-col">
-          <div class="brand-title">SENTINEL</div>
-          <div class="brand-subtitle">Fraud Intelligence</div>
+          <div class="brand-title" style="display: flex; align-items: center; gap: 6px;">
+            SENTINEL <span style="font-size: 0.65rem; background: rgba(56, 189, 248, 0.2); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.4); padding: 1px 5px; border-radius: 3px;">GOA-T</span>
+          </div>
+          <div class="brand-subtitle">Team GOA-T 🐐</div>
         </div>
       </div>
       <button class="btn-sidebar-collapse" onclick="toggleSidebar()" title="Collapse Sidebar (Maximize Workspace)">
@@ -2062,15 +2078,15 @@
     </div>
 
     <!-- Analyst User Footer -->
-    <div class="sidebar-user-footer">
+    <div class="sidebar-user-footer" onclick="openTeamModal()" style="cursor: pointer;" title="Click to view Team GOA-T Profile">
       <div class="user-profile-left">
-        <div class="user-avatar-circle" id="sidebar-avatar">ST</div>
+        <div class="user-avatar-circle" id="sidebar-avatar" style="background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: #FFF; font-weight: 800;">TS</div>
         <div class="user-meta-col">
-          <span class="user-name-text" id="sidebar-username">Srinath T.</span>
-          <span class="user-role-text">Analyst • L2</span>
+          <span class="user-name-text" id="sidebar-username">Thota Sai Eswar Srinath</span>
+          <span class="user-role-text" style="color: #FBBF24; font-weight: 700;">Team Leader • GOA-T</span>
         </div>
       </div>
-      <button class="btn-lock-session" onclick="lockCockpit()" title="Lock Cockpit / Sign Out">
+      <button class="btn-lock-session" onclick="event.stopPropagation(); lockCockpit();" title="Lock Cockpit / Sign Out">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
       </button>
     </div>
@@ -2103,6 +2119,10 @@
           <input type="text" placeholder="Search entities, transactions, cases..." oninput="handleGlobalSearch(this.value)">
           <span class="kbd-hint">⌘ K</span>
         </div>
+
+        <button class="btn-top-action" onclick="openTeamModal()" title="View Team GOA-T Details" style="font-weight: 700; color: #1E40AF; background: #DBEAFE; border-color: #BFDBFE;">
+          🐐 Team GOA-T
+        </button>
 
         <span class="tagline-badge">DETECT • INVESTIGATE • PREVENT</span>
 
@@ -2206,7 +2226,139 @@
         if (sidebar) sidebar.classList.remove('collapsed');
         updateSidebarToggleBtn(false);
       }
+
+      // Automatically showcase Team GOA-T details when opening the site
+      setTimeout(() => openTeamModal(), 120);
     });
+
+    // =========================================================================
+    // TEAM GOA-T SHOWCASE MODAL
+    // =========================================================================
+    function openTeamModal() {
+      let modal = document.getElementById('team-goat-modal');
+      if (modal) modal.remove();
+
+      modal = document.createElement('div');
+      modal.id = 'team-goat-modal';
+      modal.className = 'sentinel-modal-overlay';
+      modal.style.zIndex = '999999';
+      modal.onclick = closeTeamModal;
+      modal.innerHTML = `
+        <div class="sentinel-modal-box team-modal-box" onclick="event.stopPropagation()" style="max-width: 530px; background: linear-gradient(155deg, #090E1D 0%, #0F172A 100%); border: 1px solid #1E293B; color: #F8FAFC; box-shadow: 0 25px 60px -12px rgba(0,0,0,0.85), 0 0 45px rgba(56, 189, 248, 0.22); border-radius: 14px; overflow: hidden; animation: sentinelModalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);">
+          
+          <!-- Modal Top Header -->
+          <div style="padding: 20px 24px 16px 24px; border-bottom: 1px solid #1E293B; display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.75);">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <div style="width: 44px; height: 44px; border-radius: 10px; background: linear-gradient(135deg, #2563EB 0%, #06B6D4 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 0 16px rgba(37, 99, 235, 0.45); flex-shrink: 0;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="2.5">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                  <path d="M9 12l2 2 4-4" stroke="#A7F3D0" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="font-size: 1.25rem; font-weight: 800; letter-spacing: 0.06em; color: #FFFFFF;">SENTINEL</span>
+                  <span style="font-size: 0.65rem; font-weight: 700; background: rgba(56, 189, 248, 0.15); color: #38BDF8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono);">TEAM GOA-T</span>
+                </div>
+                <div style="font-size: 0.75rem; color: #94A3B8; margin-top: 1px;">Autonomous Fraud Investigation & SAR Cockpit</div>
+              </div>
+            </div>
+            <button type="button" onclick="closeTeamModal()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); color: #94A3B8; width: 30px; height: 30px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; transition: all 0.15s ease;" onmouseover="this.style.color='#FFF'; this.style.background='rgba(255,255,255,0.15)';" onmouseout="this.style.color='#94A3B8'; this.style.background='rgba(255,255,255,0.06)';">✕</button>
+          </div>
+
+          <!-- Modal Content -->
+          <div style="padding: 24px;">
+            <!-- Team Card -->
+            <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 18px 20px; margin-bottom: 20px; box-shadow: inset 0 1px 0 rgba(255,255,255,0.06);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid rgba(148, 163, 184, 0.15);">
+                <div>
+                  <div style="font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: #38BDF8;">PROJECT ENGINEERING TEAM</div>
+                  <div style="font-size: 1.55rem; font-weight: 900; color: #F8FAFC; letter-spacing: 0.05em; display: flex; align-items: center; gap: 8px;">
+                    Team GOA-T 🐐
+                  </div>
+                </div>
+                <span style="font-size: 0.72rem; font-weight: 700; background: #064E3B; color: #6EE7B7; border: 1px solid #059669; padding: 4px 10px; border-radius: 12px; display: inline-flex; align-items: center; gap: 5px;">
+                  <span style="width: 6px; height: 6px; border-radius: 50%; background: #10B981; display: inline-block;"></span>
+                  Task-4 Verified
+                </span>
+              </div>
+
+              <!-- Members -->
+              <div style="display: flex; flex-direction: column; gap: 10px;">
+                <!-- Leader -->
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 11px 14px; background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 8px; box-shadow: 0 0 12px rgba(245, 158, 11, 0.15);">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);">
+                      👑
+                    </div>
+                    <div>
+                      <div style="font-size: 0.95rem; font-weight: 800; color: #FFFFFF;">Thota Sai Eswar Srinath</div>
+                      <div style="font-size: 0.75rem; color: #FBBF24; font-weight: 700; letter-spacing: 0.02em;">Team Leader</div>
+                    </div>
+                  </div>
+                  <span style="font-size: 0.7rem; font-family: var(--font-mono); color: #FDE68A; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); padding: 3px 8px; border-radius: 4px;">Lead Architect</span>
+                </div>
+
+                <!-- Member 2 -->
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(148, 163, 184, 0.18); border-radius: 8px;">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; color: #FFF;">
+                      NK
+                    </div>
+                    <div>
+                      <div style="font-size: 0.9rem; font-weight: 700; color: #F1F5F9;">Nikhil Kadiri</div>
+                      <div style="font-size: 0.74rem; color: #94A3B8;">Team Member</div>
+                    </div>
+                  </div>
+                  <span style="font-size: 0.7rem; font-family: var(--font-mono); color: #94A3B8; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 4px;">Core Engineering</span>
+                </div>
+
+                <!-- Member 3 -->
+                <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(148, 163, 184, 0.18); border-radius: 8px;">
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%); display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; color: #FFF;">
+                      BP
+                    </div>
+                    <div>
+                      <div style="font-size: 0.9rem; font-weight: 700; color: #F1F5F9;">Bondugula Pranav Teja</div>
+                      <div style="font-size: 0.74rem; color: #94A3B8;">Team Member</div>
+                    </div>
+                  </div>
+                  <span style="font-size: 0.7rem; font-family: var(--font-mono); color: #94A3B8; background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 4px;">Core Engineering</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Core Highlights -->
+            <div style="display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px;">
+              <span style="font-size: 0.68rem; font-family: var(--font-mono); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #CBD5E1; padding: 3px 8px; border-radius: 4px;">TigerGraph GraphRAG</span>
+              <span style="font-size: 0.68rem; font-family: var(--font-mono); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #CBD5E1; padding: 3px 8px; border-radius: 4px;">FastAPI Backend</span>
+              <span style="font-size: 0.68rem; font-family: var(--font-mono); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #CBD5E1; padding: 3px 8px; border-radius: 4px;">20/20 Test Benchmark PASS</span>
+              <span style="font-size: 0.68rem; font-family: var(--font-mono); background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #CBD5E1; padding: 3px 8px; border-radius: 4px;">FinCEN SAR Generation</span>
+            </div>
+
+            <!-- Action Button -->
+            <button type="button" onclick="enterCockpitFromTeamModal()" style="width: 100%; padding: 12px 20px; background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); color: #FFF; border: none; border-radius: 8px; font-weight: 700; font-size: 0.9rem; cursor: pointer; box-shadow: 0 4px 14px rgba(37,99,235,0.4); display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.15s ease;">
+              <span>Enter Sentinel Cockpit</span>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    function closeTeamModal() {
+      const modal = document.getElementById('team-goat-modal');
+      if (modal) modal.remove();
+    }
+
+    function enterCockpitFromTeamModal() {
+      closeTeamModal();
+      if (sessionStorage.getItem('sentinel_authenticated') !== 'true') {
+        submitAuth(true);
+      }
+    }
 
     // =========================================================================
     // STRICT AUTHENTICATION & SECURITY ENCLAVE
@@ -2214,7 +2366,7 @@
     function checkAuth() {
       const isAuth = sessionStorage.getItem('sentinel_authenticated') === 'true';
       const overlay = document.getElementById('auth-overlay');
-      const analystName = sessionStorage.getItem('sentinel_analyst') || 'Srinath T.';
+      const analystName = sessionStorage.getItem('sentinel_analyst') || 'Thota Sai Eswar Srinath';
       
       updateAnalystProfile(analystName);
 
@@ -2239,10 +2391,10 @@
       }
       if (passInput) passInput.classList.remove('input-error');
 
-      let analyst = 'Srinath T.';
+      let analyst = 'Thota Sai Eswar Srinath';
 
       if (isDemo) {
-        analyst = 'Srinath T.';
+        analyst = 'Thota Sai Eswar Srinath';
       } else {
         const enteredId = idInput ? idInput.value.trim() : '';
         const enteredPass = passInput ? passInput.value.trim() : '';
