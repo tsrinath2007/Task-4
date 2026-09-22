@@ -11,6 +11,7 @@ import json
 import pandas as pd
 from pydantic import BaseModel
 from fastapi import FastAPI, Response
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="SENTINEL Fraud Investigation API")
@@ -207,6 +208,32 @@ def normalise(data: dict) -> dict:
         "latency_s": round(float(latency_s), 2),
         "investigation_path": investigation_path
     }
+
+
+@app.get("/", response_class=HTMLResponse)
+def serve_root():
+    """Serves the main Sentinel Dashboard at root /."""
+    for p in ["index.html", os.path.join("ui", "sentinel_dashboard.html")]:
+        if os.path.exists(p):
+            with open(p, "r", encoding="utf-8") as f:
+                return HTMLResponse(content=f.read())
+    return HTMLResponse("<h3>Sentinel Dashboard file not found</h3>", status_code=404)
+
+
+@app.get("/dashboard", response_class=HTMLResponse)
+def serve_dashboard():
+    return serve_root()
+
+
+@app.get("/index.html", response_class=HTMLResponse)
+def serve_index():
+    return serve_root()
+
+
+@app.get("/health")
+@app.get("/api/health")
+def health_check():
+    return {"status": "ok", "service": "sentinel-backend"}
 
 
 @app.get("/api/cases")

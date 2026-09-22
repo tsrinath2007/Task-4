@@ -2063,7 +2063,10 @@
        DASHBOARD JAVASCRIPT & REACTIVE LOGIC
        ========================================================================== -->
   <script>
-    const API_BASE = 'http://localhost:8000/api';
+    const API = 'https://task-4-nvan.onrender.com/api';
+    const API_BASE = (window.location.origin.includes('localhost') || window.location.origin.includes('127.0.0.1'))
+      ? 'http://localhost:8000/api'
+      : (window.location.origin.includes('onrender.com') ? `${window.location.origin}/api` : API);
     let allCases = [];
     let currentFilter = 'all';
     let searchQuery = '';
