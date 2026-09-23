@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from fastapi import FastAPI, Response
 from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(title="SENTINEL Fraud Investigation API")
 
@@ -24,6 +25,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+# Mount static assets if directory exists
+if os.path.exists("assets"):
+    app.mount("/assets", StaticFiles(directory="assets"), name="assets")
 
 # Load metadata lookups at startup
 CASE_PACK = {}
