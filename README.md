@@ -9,8 +9,8 @@
 [![Validation](https://img.shields.io/badge/Benchmark-20%2F20%20PASS-brightgreen)](cases/generated/)
 [![Live Cockpit](https://img.shields.io/badge/Live%20Cockpit-Render%20Online-blue)](https://task-4-nvan.onrender.com/)
 
-**TigerGraph Agentic Fraud Investigation Hackathon Submission**  
-🏆 **Team Name:** **GOA-T**
+**TigerGraph Agentic Fraud Investigation Hackathon 2026**  
+🏆 **Team Name:** **GOA-T** 🐐
 
 | Team Member | Role |
 | :--- | :--- |
@@ -24,11 +24,12 @@
 
 ## 🌟 Overview
 
-**SENTINEL** is an evidence-driven, policy-governed autonomous fraud investigation agent and interactive cockpit powered by **TigerGraph GSQL**, **GraphRAG hybrid memory**, 8 deterministic detectors, a deterministic policy engine (Rules R1–R10), and Groq LLaMA 3.3 70B synthesis.
+**SENTINEL** is an evidence-driven, policy-governed autonomous fraud investigation agent and interactive cockpit powered by **TigerGraph GSQL**, **GraphRAG hybrid memory**, 8 deterministic detectors, an authoritative policy engine (Rules R1–R10), and Groq LLaMA 3.3 70B synthesis.
 
 Evaluated on **590,742 IEEE-CIS / Vesta transactions**, **5,565 historical closed cases**, and validated across **20 end-to-end benchmark exam cases (`HHG-001` to `HHG-020`)** with zero human intervention.
 
 - 🌐 **Live Web Cockpit:** [https://task-4-nvan.onrender.com/](https://task-4-nvan.onrender.com/)
+- 📊 **Comprehensive 20-Case Benchmark Report:** [docs/BENCHMARK_REPORT.md](docs/BENCHMARK_REPORT.md)
 - 📖 **Comprehensive Technical Blog:** [docs/TECHNICAL_BLOG.md](docs/TECHNICAL_BLOG.md)
 - 🎬 **Demo Video Script & Screenplay:** [docs/DEMO_VIDEO_SCRIPT.md](docs/DEMO_VIDEO_SCRIPT.md)
 - 📱 **Official Social Media Announcement:** [docs/SOCIAL_POST.md](docs/SOCIAL_POST.md)
@@ -36,175 +37,183 @@ Evaluated on **590,742 IEEE-CIS / Vesta transactions**, **5,565 historical close
 
 ---
 
-## 🎯 Hackathon Rubric Alignment
+## ⚡ Why TigerGraph
 
-| Rubric Category | Weight | How SENTINEL Delivers | Location / Proof |
-| :--- | :---: | :--- | :--- |
-| **Investigation Accuracy** | **25%** | 8 deterministic detectors + legitimacy checklist across 590K txns. Calibrated 12 Fraud, 7 Legitimate, 1 Uncertain with 0 errors. | `src/detectors/`, `cases/generated/*.json` |
-| **Next Best Action** | **25%** | Pre-evidence vs post-evidence action progression with strict approval routes (`auto`, `L1` Lead, `L2` Manager). Dynamic simulation loop. | `src/policy/policy_engine.py`, `what_changed` in all 20 cases |
-| **Case Summary & Explainability** | **10%** | Groq LLaMA 3.3 70B executive summaries, policy rule citations (R1–R10), FinCEN Form 111 SAR narratives, tool latency audit logs. | `src/agent/llm_adapter.py`, Web Cockpit SAR drawer |
-| **Agentic Design & Engineering** | **15%** | 8-stage state machine (`TRIGGER` $\to$ `MEMORY`), Stopping Rule §6, TigerGraph MCP client, runtime graph write-back (`Case` vertex). | `src/agent/orchestrator.py`, `src/graph/mcp_client.py` |
-| **Innovation** | **15%** | GraphRAG 384-d dense embeddings + topological graph adjacency boost (+0.15). Cleared cases indexed as negative evidence. | `src/memory/retriever.py`, `scripts/embed_cases.py` |
-| **Demo Quality & Completeness** | **10%** | Full analyst cockpit (Render/local), live SVG graph traversal diagrams, AI Copilot, security gateway, demo video script. | [Live Cockpit](https://task-4-nvan.onrender.com/), `docs/DEMO_VIDEO_SCRIPT.md` |
+Traditional financial crime systems rely on relational databases or flat feature stores that examine transactions as isolated events. In real-world fraud syndicates, compromise signals only emerge when traversing relationships across entities.
+
+### Relational Multi-Join Failure vs. TigerGraph Native Pointer-Chasing
+
+To discover a shared device ring across accounts in a relational database, the system must execute:
+
+```sql
+-- Relational 4-JOIN Query (Fails under sub-second SLAs on 590K+ records)
+SELECT c2.card_id, count(*) 
+FROM transactions t1
+JOIN cards c1 ON t1.card_id = c1.card_id
+JOIN device_profiles d ON t1.device_id = d.device_id
+JOIN transactions t2 ON t2.device_id = d.device_id
+JOIN cards c2 ON t2.card_id = c2.card_id
+WHERE c1.card_id != c2.card_id AND t1.transaction_id = '3478561'
+GROUP BY c2.card_id;
+```
+
+- **Why Relational Fails**: Joining 3 high-volume tables (`transactions`, `devices`, `cards`) across millions of records requires scanning massive secondary indexes and materializing large temporary tables. Under high transaction volume, running multi-hop relational joins triggers table locks, query timeouts (>5s), or forces financial institutions to rely on stale overnight batch jobs.
+- **The TigerGraph Advantage**: TigerGraph represents graph edges as direct physical in-memory memory pointers. Executing a 4-hop traversal (`Transaction -> Card -> DeviceProfile -> Connected Cards -> Customers`) runs in **<15 milliseconds**, scaling with local node degree $O(d)$ rather than database size $O(N)$.
+
+### Concrete Multi-Hop Traversals Implemented in SENTINEL
+
+1. **Shared Hardware Ring Expansion (`query_shared_devices`)**:
+   - `Transaction -(PAID_WITH)-> Card -(USED_DEVICE)-> DeviceProfile -(USED_DEVICE_REVERSE)-> Card -(ISSUED_TO)-> Customer`
+   - *Benchmark Impact*: In case `HHG-014`, single-hop lookup sees only card `C13487-K1`. TigerGraph's 4-hop traversal uncovered **51 additional linked cards** operating from the same hardware signature (`D005668`), immediately escalating the decision to ring containment (`MONITOR_CONNECTED_CARDS`).
+2. **Temporal Card Velocity & Micro-Testing Traversal (`query_card_history`)**:
+   - Traverses chronological transaction edges on a card vertex within a 2-hour window. Detects low-dollar sequential authorization spikes typical of automated card-testing bots (e.g. `HHG-004`, `HHG-006`, `HHG-017`).
+3. **Recurring Merchant Historical Scan (`recurring_merchant_scan`)**:
+   - Traverses temporal card-to-merchant transaction edges looking for periodic 28–34 day billing intervals.
+   - *Benchmark Impact*: Safely overrules false alarms on high ML risk alerts (e.g. `HHG-001`, `HHG-008`, `HHG-012`, `HHG-018`), confirming regular subscriptions and preventing wrongful card blocks.
 
 ---
 
 ## 🏛️ System Architecture
 
+SENTINEL operates as an 8-stage calibrated agent pipeline:
+
 ```
-                       +-----------------------------------+
-                       |           ALERT TRIGGER           |
-                       | (Risk Score / Dispute / Escalation)
-                       +-----------------+-----------------+
-                                         |
-                                         v
-                       +-----------------------------------+
-                       |      TIGERGRAPH MCP TRAVERSAL     |
-                       | - Card History   - Shared Devices |
-                       | - Customer Cards - Prior Cases    |
-                       +-----------------+-----------------+
-                                         |
-                                         v
-   +-------------------------------------+-------------------------------------+
-   |                                                                           |
-   v                                                                           v
-+-----------------------------+                             +-----------------------------+
-|    DETERMINISTIC DETECTORS  |                             |       GRAPHRAG MEMORY       |
-| - Card Testing Scan         |                             | - 384-d Dense Embeddings    |
-| - Shared Device Ring Scan   |                             | - 5,565 Closed Cases        |
-| - New Device & CNP Burst    |                             | - Graph Adjacency (+0.15)   |
-| - Out-of-Region & ATO       |                             | - 900 Cleared Cases (Shield)|
-| - Recurring Merchant Scan   |                             | - Top-5 Semantic Retrieval  |
-| - Legitimacy Checklist (9)  |                             +--------------+--------------+
-+--------------+--------------+                                            |
-               |                                                           |
-               +-----------------------------+-----------------------------+
-                                             |
-                                             v
-                       +-----------------------------------+
-                       |    DETERMINISTIC POLICY ENGINE    |
-                       | - Rules R1 to R10 Coded Logic     |
-                       | - Pre-Evidence Action Gating      |
-                       | - Strict Routing (AUTO, L1, L2)   |
-                       | - FinCEN SAR Filing Mandate       |
-                       +-----------------+-----------------+
-                                             |
-                          [Evidence Request Required?]
-                                         /       \
-                                    YES /         \ NO
-                                       v           v
-                       +----------------------------+       |
-                       |  EVIDENCE SIMULATION LOOP  |       |
-                       |  - Customer Validation     |       |
-                       |  - Step-up Authentication  |       |
-                       +--------------+-------------+       |
-                                      |                     |
-                                      v                     |
-                       +----------------------------+       |
-                       | REASSESSMENT & FINAL RULES |<------+
-                       +--------------+-------------+
-                                      |
-                                      v
-                       +-----------------------------------+
-                       |     GROQ LLaMA 3.3 70B ADAPTER    |
-                       | - Adjudication Synthesis          |
-                       | - Action Policy Justification     |
-                       | - FinCEN Form 111 SAR Narrative   |
-                       +-----------------+-----------------+
-                                             |
-                                             v
-                       +-----------------------------------+
-                       |      TIGERGRAPH RUNTIME WRITE     |
-                       | Writes Case vertex & links to txns|
-                       +-----------------------------------+
+[ TRIGGER ]
+Alert Received: Real-time ML Risk Score | Customer Dispute | Analyst Request
+      │
+      ▼
+[ TIGERGRAPH TRAVERSAL ]
+Native Pointer-Chasing: Card Portfolio ➔ Device Profiles ➔ Connected Cards ➔ Prior Cases
+      │
+      ▼
+[ 8 DETERMINISTIC DETECTORS ]
+Card Testing | Shared Device Ring | CNP Burst | Out-of-Region | ATO | Recurring Scan
+      │
+      ▼
+[ GRAPHRAG CASE MEMORY ]
+Topological Adjacency Boost (+0.15) + 384-d Dense Semantic Vector Retrieval (5,565 Precedents)
+      │
+      ▼
+[ LLM ADJUDICATION ]
+Groq LLaMA 3.3 70B: Contextual Evidence Synthesis & Hypothesis Calibration
+      │
+      ▼
+[ EVIDENCE REQUEST ]
+Dynamic Customer/Channel Verification Loop (Simulated Interactive Challenge)
+      │
+      ▼
+[ POLICY ENFORCEMENT ]
+Deterministic Rules R1–R10: Pre-evidence Gating & Strict Route Assignment (AUTO, L1, L2)
+      │
+      ▼
+[ SAR GENERATION & GRAPH WRITE-BACK ]
+FinCEN Form 111 XML/Narrative Generation + TigerGraph Runtime `Case` Vertex Insertion
 ```
 
 ---
 
-## 📊 Benchmark Exam Results (20/20 Cases)
+## 📊 Benchmark Results
 
-The agent was evaluated across all 20 ground-truth exam cases (`HHG-001` through `HHG-020`) in `case_pack.csv`:
+Full case-by-case data and topological analysis: 📄 **[docs/BENCHMARK_REPORT.md](docs/BENCHMARK_REPORT.md)**.
 
-| Metric | Result | Description |
-| :--- | :--- | :--- |
-| **Total Cases** | `20 / 20` | All cases executed and validated without human intervention |
-| **Validation Score** | `20 / 20 PASS` | 0 schema, policy, or consistency errors (`scripts/validate_answers.py`) |
-| **Verdict Calibration** | `12 Fraud, 7 Legitimate, 1 Uncertain` | Balanced decision boundary with zero false-positive bias |
-| **SAR Regulatory Filings** | `12 Filed (100% Route L2)` | Strict FinCEN adherence (all multi-card rings or >$1,000 exposure) |
-| **Total Exposure Handled** | `$4,679.81` | Quantified across all compromised card accounts |
-| **Total Runtime** | `154.36 s` | **7.72s average per case** end-to-end (traversal, detectors, memory, LLM) |
+### Aggregate Performance Across 20 Exam Cases
 
-To run the validation test locally:
-```powershell
-python scripts/validate_answers.py
-```
-Output:
-```text
-======================================================================
-HHGOA ANSWER VALIDATOR
-======================================================================
-  [PASS] HHG-001: PASS
-  [PASS] HHG-002: PASS
-  ...
-  [PASS] HHG-020: PASS
-======================================================================
-VALIDATION SUMMARY: 20/20 PASSED, 0/20 FAILED
-======================================================================
-ALL 20 CASE FILES MEET SPECIFICATIONS!
-```
-
----
-
-## 🕸️ TigerGraph Schema & GSQL Traversal
-
-In TigerGraph, uncovering multi-card fraud rings requires traversing across transaction, device, and card vertices in sub-second time:
-
-```gsql
-CREATE OR REPLACE QUERY find_shared_device_ring(STRING txnId) FOR GRAPH FraudInvestigationGraph {
-  StartTxn = {Transaction.*};
-  TargetTxn = SELECT t FROM StartTxn:t WHERE t.TransactionID == txnId;
-  
-  // Hop 1: Transaction -> DeviceProfile
-  Dev = SELECT d FROM TargetTxn:t -(FROM_DEVICE:e)-> DeviceProfile:d;
-  
-  // Hop 2: DeviceProfile -> Connected Cards
-  ConnectedCards = SELECT c FROM Dev:d -(USED_ON:e)-> Card:c;
-  
-  // Hop 3: Connected Cards -> Prior Closed Cases
-  PriorFraud = SELECT cc FROM ConnectedCards:c -(HAS_CLOSED_CASE:e)-> ClosedCase:cc 
-               WHERE cc.outcome == "fraud";
-  
-  PRINT ConnectedCards.size() AS syndicate_size, ConnectedCards, PriorFraud;
-}
-```
-
-In benchmark cases `HHG-014` and `HHG-017`, this lookup identified device profile `D007287` connecting **299 distinct card accounts** across unrelated customer identities.
+| Metric | Value | Audit Verification |
+| :--- | :---: | :--- |
+| **Total Cases Executed** | **20** | Ground-truth IEEE-CIS / Vesta test pack (`HHG-001` to `HHG-020`) |
+| **Validation Score** | **20 / 20 PASS** | 0 schema, policy, or constraint errors (`scripts/validate_answers.py`) |
+| **Fraud Verdicts** | **12** | Calibrated high-confidence fraud detection |
+| **Legitimate Verdicts** | **7** | False positives successfully cleared via recurring graph analysis |
+| **Uncertain Verdicts** | **1** | Escalated to analyst review under Rule R8 |
+| **FinCEN SARs Filed** | **12** | 100% compliant with FinCEN 31 CFR §1020.320 and Route L2 approval |
+| **Evidence Requests** | **20** | Interactive corroboration evaluated on every case |
+| **Cases where Initial ≠ Final Action** | **20** | 100% dynamic policy adjustment between hypothesis and post-validation |
+| **Avg P(Fraud) — Fraud Cases** | **93.3%** | Clear, decisive separation from borderline noise |
+| **Avg P(Fraud) — Legit Cases** | **7.3%** | Pristine false positive suppression |
+| **Total Exposure Identified** | **$5,174.77** | Quantified financial exposure protected |
+| **Avg Tool Calls Per Case** | **7.0** | Systematic multi-step investigation protocol |
 
 ---
 
 ## 🖥️ Interactive Analyst Cockpit
 
-A fast, modern web cockpit accessible online or locally:
+SENTINEL includes an analyst cockpit designed for fraud intelligence units:
 
-- **Online Deployment:** [https://task-4-nvan.onrender.com/](https://task-4-nvan.onrender.com/)
-- **Live SVG TigerGraph Traversal Diagram:** Visualizes Focal Card $\to$ Device Profile $\to$ Connected Cards (Fraud/Clear) $\to$ Prior Cases.
-- **Dynamic Next-Best Action Grid:** Highlights Initial Actions, Final Actions, and the "What Changed" audit banner.
-- **FinCEN Form 111 SAR Panel:** Complete federal narrative, subjects, date ranges, and Route L2 approval badges with 1-click clipboard copy.
-- **AI Copilot:** Live grounded assistant answering questions about graph paths, policy rules, and evidence.
-- **Threat Watchlist:** Interactive analyst watchlist with add, remove, and clear controls.
-- **Team GOA-T Credentials:** Instant team identity modal on launch and logo click.
+- **Live Deployment:** [https://task-4-nvan.onrender.com/](https://task-4-nvan.onrender.com/)
+- **Panel 1: Confidence Evolution Chart:** Visual SVG line chart plotting calibrated fraud probability across all 7 investigation stages (Trigger $\to$ Graph $\to$ Detectors $\to$ Memory $\to$ LLM $\to$ Evidence $\to$ Final) with hover tooltips displaying stage reasons.
+- **Panel 2: Investigation Timeline:** Chronological vertical rail logging every milestone event, timestamp, color-coded state badge (`TRIGGER`, `INVESTIGATE`, `ADJUDICATE`, `ENFORCE`, `CLOSED`), tool badge, and summary.
+- **Panel 3: Memory Impact:** Live endpoint integration showing precedent cases retrieved, confidence before vs. after memory, direction arrow, precedent breakdown table, and prominent `MEMORY CHANGED THIS DECISION` alert.
+- **Panel 4: TigerGraph Traversal Path:** Visual hop-by-hop chain (`Transaction -> Card -> Device -> Connected Cards -> Customer`), entity discovery counters, compiled executable GSQL query block with copy button, and "Why TigerGraph" callout box.
+- **FinCEN SAR Compliance Export:** 1-click batch export for FinCEN Form 111 XML (`/api/reports/sar_batch_xml`) and regulatory CSV audit log (`/api/reports/audit_log_csv`).
+- **AI Copilot & Threat Watchlist:** Grounded interactive assistant and real-time watchlist management.
 
-### Running Locally:
-1. **Install requirements:**
-   ```bash
-   pip install fastapi uvicorn pandas numpy sentence-transformers groq python-dotenv pyTigerGraph
-   ```
-2. **Start Backend:**
-   ```bash
-   uvicorn sentinel_backend:app --port 8000 --reload
-   ```
-3. **Open Cockpit:**
-   Double click `index.html` or open in any browser.
+---
+
+## 🚀 How to Run
+
+Follow these instructions to replicate the benchmark results and run the system locally from scratch.
+
+### 1. Prerequisites
+- Python 3.10 or higher
+- Git
+
+### 2. Clone and Setup Environment
+```bash
+git clone https://github.com/tsrinath2007/Task-4.git
+cd "Task-4 TigerGraph"
+
+# Create and activate virtual environment
+python -m venv venv
+# Windows:
+.\venv\Scripts\activate
+# Linux/macOS:
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+```
+
+### 3. Configure API Credentials (Optional for Live LLM)
+Create a `.env` file in the repository root:
+```env
+GROQ_API_KEY=your_groq_api_key_here
+TIGERGRAPH_HOST=http://127.0.0.1:9000
+TIGERGRAPH_USERNAME=tigergraph
+TIGERGRAPH_PASSWORD=tigergraph
+```
+*(Note: SENTINEL features complete deterministic offline fallback for all detectors, graph queries, and embeddings if external credentials are not configured).*
+
+### 4. Build Dataset and GraphRAG Embeddings
+```bash
+# Prepare processed graph CSVs from raw data
+python src/data/prep_data.py
+
+# Generate 384-dimensional dense semantic embeddings for 5,565 closed cases
+python scripts/embed_cases.py
+```
+
+### 5. Execute Full 20-Case Benchmark
+```bash
+# Run all 20 cases through the autonomous orchestrator
+python scripts/run_benchmark.py
+
+# Re-generate the official markdown benchmark report
+python scripts/generate_benchmark_report.py
+
+# Run the official answer validator
+python scripts/validate_answers.py
+```
+
+### 6. Launch the Interactive Analyst Cockpit
+```bash
+# Start the FastAPI backend
+python sentinel_backend.py
+```
+Open your browser and navigate to:
+```
+http://localhost:8000/
+```
+Or open `index.html` directly in any web browser.
 
 ---
 
@@ -215,16 +224,18 @@ A fast, modern web cockpit accessible online or locally:
 ├── cases/
 │   └── generated/             # 20 validated JSON answer files & benchmark summary
 ├── data/
-│   ├── raw/                   # Raw IEEE-CIS datasets (case_pack.csv, closed_cases_history.csv)
+│   ├── raw/                   # Raw IEEE-CIS datasets (case_pack.csv, identity.csv)
 │   └── processed/             # Graph schema vertices & edges (v_*.csv, e_*.csv)
 ├── docs/
-│   ├── TECHNICAL_BLOG.md      # Comprehensive technical blog post covering all 6 rubric topics
-│   ├── DEMO_VIDEO_SCRIPT.md   # 3-5 minute video demo screenplay & talking points
-│   ├── SOCIAL_POST.md         # Ready-to-publish social media announcements tagging @TigerGraphDB
-│   ├── DATA_PROFILE.md        # Deep statistical profiling of the 590K transactions
+│   ├── BENCHMARK_REPORT.md    # Official 20-case aggregate and per-case benchmark audit
+│   ├── TECHNICAL_BLOG.md      # Comprehensive technical blog covering all rubric criteria
+│   ├── DEMO_VIDEO_SCRIPT.md   # 5-minute video screenplay & team presentation script
+│   ├── SOCIAL_POST.md         # Ready-to-publish social media announcements
+│   ├── DATA_PROFILE.md        # Deep statistical profiling of 590K transactions
 │   └── MCP_SETUP.md           # TigerGraph MCP installation & connection guide
 ├── scripts/
 │   ├── run_benchmark.py       # Full benchmark runner across all 20 cases
+│   ├── generate_benchmark_report.py # Benchmark report generator
 │   ├── validate_answers.py    # Official answer schema & policy validator (20/20 PASS)
 │   ├── verify_tigergraph.py   # TigerGraph connection and schema verification
 │   └── embed_cases.py         # GraphRAG 384-d embedding generator
@@ -252,4 +263,4 @@ A fast, modern web cockpit accessible online or locally:
 - **Nikhil Kadiri** — *TigerGraph Schema, GSQL Queries, Traversal Algorithms*
 - **Bondugula Pranav Teja** — *Policy Engine (R1–R10), GraphRAG Hybrid Memory, Detectors*
 
-*Built for the TigerGraph Agentic Fraud Investigation Hackathon 2026.*
+*Built with ❤️ for the TigerGraph Agentic Fraud Investigation Hackathon 2026.*

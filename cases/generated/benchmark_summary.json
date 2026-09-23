@@ -3,8 +3,8 @@
   "total_cases": 20,
   "completed_cases": 20,
   "failed_cases": 0,
-  "total_runtime_s": 154.36,
-  "avg_latency_s": 7.72,
+  "total_runtime_s": 763.84,
+  "avg_latency_s": 38.19,
   "verdict_counts": {
     "fraud": 12,
     "legitimate": 7,
@@ -17,7 +17,7 @@
     "card_not_present_fraud": 1,
     "none": 7
   },
-  "total_exposure_usd": 4679.81,
+  "total_exposure_usd": 5174.77,
   "total_tool_calls": 140,
   "total_tokens": 19800,
   "cases": [
@@ -27,13 +27,13 @@
       "trigger_type": "risk_score",
       "card_id": "C04570-K1",
       "verdict": "fraud",
-      "fraud_probability": 0.88,
+      "fraud_probability": 0.93,
       "pattern": "card_testing",
       "exposure_usd": 300.14,
       "sar_filed": true,
       "tool_calls": 7,
       "tokens": 1150,
-      "latency_s": 22.47,
+      "latency_s": 206.89,
       "status": "success"
     },
     {
@@ -48,7 +48,7 @@
       "sar_filed": true,
       "tool_calls": 7,
       "tokens": 1150,
-      "latency_s": 4.93,
+      "latency_s": 13.83,
       "status": "success"
     },
     {
@@ -57,13 +57,13 @@
       "trigger_type": "customer_report",
       "card_id": "C07297-K1",
       "verdict": "fraud",
-      "fraud_probability": 0.88,
+      "fraud_probability": 0.93,
       "pattern": "card_testing",
       "exposure_usd": 1906.07,
       "sar_filed": true,
       "tool_calls": 7,
       "tokens": 1150,
-      "latency_s": 8.19,
+      "latency_s": 41.42,
       "status": "success"
     },
     {
@@ -78,7 +78,7 @@
       "sar_filed": true,
       "tool_calls": 7,
       "tokens": 1150,
-      "latency_s": 5.46,
+      "latency_s": 41.79,
       "status": "success"
     },
     {
@@ -87,13 +87,13 @@
       "trigger_type": "risk_score",
       "card_id": "C11891-K1",
       "verdict": "uncertain",
-      "fraud_probability": 0.79,
+      "fraud_probability": 0.56,
       "pattern": "card_not_present_fraud",
       "exposure_usd": 292.36,
       "sar_filed": false,
       "tool_calls": 7,
       "tokens": 750,
-      "latency_s": 1.88,
+      "latency_s": 25.76,
       "status": "success"
     },
     {
@@ -102,13 +102,13 @@
       "trigger_type": "customer_report",
       "card_id": "C02354-K2",
       "verdict": "legitimate",
-      "fraud_probability": 0.08,
+      "fraud_probability": 0.07,
       "pattern": "none",
-      "exposure_usd": 0.0,
+      "exposure_usd": 39.08,
       "sar_filed": false,
       "tool_calls": 7,
       "tokens": 750,
-      "latency_s": 4.24,
+      "latency_s": 27.0,
       "status": "success"
     },
     {
@@ -117,13 +117,13 @@
       "trigger_type": "risk_score",
       "card_id": "C07987-K2",
       "verdict": "fraud",
-      "fraud_probability": 0.92,
+      "fraud_probability": 0.91,
       "pattern": "card_not_present_new_device",
       "exposure_usd": 99.92,
       "sar_filed": true,
       "tool_calls": 7,
       "tokens": 1150,
-      "latency_s": 7.33,
+      "latency_s": 27.41,
       "status": "success"
     },
     {
@@ -132,13 +132,13 @@
       "trigger_type": "risk_score",
       "card_id": "C10434-K1",
       "verdict": "fraud",
-      "fraud_probability": 0.92,
+      "fraud_probability": 0.96,
       "pattern": "card_not_present_new_device",
       "exposure_usd": 1000.03,
       "sar_filed": true,
       "tool_calls": 7,
       "tokens": 1150,
-      "latency_s": 4.52,
+      "latency_s": 28.22,
       "status": "success"
     },
     {
@@ -147,13 +147,13 @@
       "trigger_type": "risk_score",
       "card_id": "C12265-K2",
       "verdict": "fraud",
-      "fraud_probability": 0.92,
+      "fraud_probability": 0.95,
       "pattern": "card_not_present_new_device",
       "exposure_usd": 125.08,
       "sar_filed": true,
       "tool_calls": 7,
       "tokens": 1150,
-      "latency_s": 7.94,
+      "latency_s": 59.81,
       "status": "success"
     },
     {
@@ -162,13 +162,13 @@
       "trigger_type": "risk_score",
       "card_id": "C12382-K1",
       "verdict": "legitimate",
-      "fraud_probability": 0.08,
+      "fraud_probability": 0.07,
       "pattern": "none",
-      "exposure_usd": 0.0,
+      "exposure_usd": 77.07,
       "sar_filed": false,
       "tool_calls": 7,
       "tokens": 750,
-      "latency_s": 3.14,
+      "latency_s": 10.27,
       "status": "success"
     },
     {
@@ -179,11 +179,11 @@
       "verdict": "legitimate",
       "fraud_probability": 0.08,
       "pattern": "none",
-      "exposure_usd": 0.0,
+      "exposure_usd": 111.92,
       "sar_filed": false,
       "tool_calls": 7,
       "tokens": 750,
-      "latency_s": 6.49,
+      "latency_s": 36.21,
       "status": "success"
     },
     {
@@ -192,13 +192,13 @@
       "trigger_type": "risk_score",
       "card_id": "C02923-K1",
       "verdict": "fraud",
-      "fraud_probability": 0.92,
+      "fraud_probability": 0.94,
       "pattern": "card_not_present_new_device",
       "exposure_usd": 100.07,
       "sar_filed": true,
       "tool_calls": 7,
       "tokens": 1150,
-      "latency_s": 6.28,
+      "latency_s": 29.18,
       "status": "success"
     },
     {
@@ -207,13 +207,13 @@
       "trigger_type": "risk_score",
       "card_id": "C07671-K2",
       "verdict": "fraud",
-      "fraud_probability": 0.92,
+      "fraud_probability": 0.95,
       "pattern": "card_not_present_new_device",
       "exposure_usd": 35.66,
       "sar_filed": true,
       "tool_calls": 7,
       "tokens": 1150,
-      "latency_s": 3.26,
+      "latency_s": 18.39,
       "status": "success"
     },
     {
@@ -222,13 +222,13 @@
       "trigger_type": "customer_report",
       "card_id": "C08623-K2",
       "verdict": "legitimate",
-      "fraud_probability": 0.08,
+      "fraud_probability": 0.07,
       "pattern": "none",
-      "exposure_usd": 0.0,
+      "exposure_usd": 49.0,
       "sar_filed": false,
       "tool_calls": 7,
       "tokens": 750,
-      "latency_s": 5.53,
+      "latency_s": 20.02,
       "status": "success"
     },
     {
@@ -237,13 +237,13 @@
       "trigger_type": "customer_report",
       "card_id": "C09988-K1",
       "verdict": "fraud",
-      "fraud_probability": 0.92,
+      "fraud_probability": 0.94,
       "pattern": "card_not_present_new_device",
       "exposure_usd": 59.67,
       "sar_filed": true,
       "tool_calls": 7,
       "tokens": 1150,
-      "latency_s": 2.98,
+      "latency_s": 11.76,
       "status": "success"
     },
     {
@@ -252,13 +252,13 @@
       "trigger_type": "risk_score",
       "card_id": "C05876-K2",
       "verdict": "legitimate",
-      "fraud_probability": 0.08,
+      "fraud_probability": 0.07,
       "pattern": "none",
-      "exposure_usd": 0.0,
+      "exposure_usd": 30.91,
       "sar_filed": false,
       "tool_calls": 7,
       "tokens": 750,
-      "latency_s": 3.18,
+      "latency_s": 21.89,
       "status": "success"
     },
     {
@@ -267,13 +267,13 @@
       "trigger_type": "customer_report",
       "card_id": "C13171-K2",
       "verdict": "legitimate",
-      "fraud_probability": 0.08,
+      "fraud_probability": 0.07,
       "pattern": "none",
-      "exposure_usd": 0.0,
+      "exposure_usd": 55.68,
       "sar_filed": false,
       "tool_calls": 7,
       "tokens": 750,
-      "latency_s": 3.11,
+      "latency_s": 13.3,
       "status": "success"
     },
     {
@@ -282,13 +282,13 @@
       "trigger_type": "customer_report",
       "card_id": "C08299-K1",
       "verdict": "fraud",
-      "fraud_probability": 0.92,
+      "fraud_probability": 0.95,
       "pattern": "card_not_present_new_device",
       "exposure_usd": 30.02,
       "sar_filed": true,
       "tool_calls": 7,
       "tokens": 1150,
-      "latency_s": 6.16,
+      "latency_s": 46.76,
       "status": "success"
     },
     {
@@ -299,11 +299,11 @@
       "verdict": "legitimate",
       "fraud_probability": 0.08,
       "pattern": "none",
-      "exposure_usd": 0.0,
+      "exposure_usd": 131.3,
       "sar_filed": false,
       "tool_calls": 7,
       "tokens": 750,
-      "latency_s": 2.76,
+      "latency_s": 14.21,
       "status": "success"
     },
     {
@@ -312,13 +312,13 @@
       "trigger_type": "customer_report",
       "card_id": "C08106-K1",
       "verdict": "fraud",
-      "fraud_probability": 0.88,
+      "fraud_probability": 0.9,
       "pattern": "card_testing",
       "exposure_usd": 55.89,
       "sar_filed": true,
       "tool_calls": 7,
       "tokens": 1150,
-      "latency_s": 2.54,
+      "latency_s": 16.89,
       "status": "success"
     }
   ]

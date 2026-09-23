@@ -3,7 +3,7 @@
   "case": {
     "status": "closed_legitimate",
     "verdict": "legitimate",
-    "fraud_probability": 0.075,
+    "fraud_probability": 0.07,
     "pattern": "none",
     "pattern_description": "",
     "affected_txn_ids": [],
@@ -230,7 +230,149 @@
     ],
     "summary": "Disputed transaction 3558054 matches historical recurring subscription billing pattern on card C13171-K2 with consistent monthly intervals. Customer confirmation indicates an unrecognized legitimate recurring charge rather than fraudulent card compromise.",
     "written_to_graph": true,
-    "graph_case_id": "CASE-HHG-008"
+    "graph_case_id": "CASE-HHG-008",
+    "confidence_evolution": [
+      {
+        "step": "trigger",
+        "probability": 0.5,
+        "reason": "Investigation initiated via customer_report (Customer C13171 message: 'I never made this $55.68 purchase. Please check my card.' Refers to 3558054.). Baseline risk score: 0.50.",
+        "tool_used": null
+      },
+      {
+        "step": "graph_traversal",
+        "probability": 0.72,
+        "reason": "TigerGraph multi-hop traversal revealed shared device D000022 linked to 175 distinct cards (syndicate pattern).",
+        "tool_used": "query_shared_devices"
+      },
+      {
+        "step": "detectors",
+        "probability": 0.88,
+        "reason": "Card testing scan detected rapid sequence of micro-authorizations.",
+        "tool_used": "card_testing_scan"
+      },
+      {
+        "step": "case_memory",
+        "probability": 0.88,
+        "reason": "GraphRAG retrieved 5 precedent cases for contextual grounding.",
+        "tool_used": "retrieve_case_memory"
+      },
+      {
+        "step": "llm_adjudication",
+        "probability": 0.07,
+        "reason": "LLM synthesis evaluated evidence: verdict LEGITIMATE (none).",
+        "tool_used": "llm_adjudicator"
+      },
+      {
+        "step": "evidence_request",
+        "probability": 0.05,
+        "reason": "Customer confirmed transaction validity; cleared fraud suspicion.",
+        "tool_used": "customer_validation"
+      },
+      {
+        "step": "final",
+        "probability": 0.07,
+        "reason": "Final adjudication established: LEGITIMATE (none). Protection actions enforced under Rules R7, R3.",
+        "tool_used": "policy_engine"
+      }
+    ],
+    "investigation_timeline": [
+      {
+        "timestamp": "10:06:25",
+        "event": "Investigation triggered by customer_report",
+        "state": "TRIGGER",
+        "confidence": 0.5,
+        "tool": null,
+        "result_summary": "Alert flagged transaction 3558054 on card C13171-K2 for $55.68"
+      },
+      {
+        "timestamp": "10:06:25",
+        "event": "Customer card portfolio queried from TigerGraph",
+        "state": "INVESTIGATE",
+        "confidence": 0.5,
+        "tool": "query_customer_cards",
+        "result_summary": "Found 2 card(s) owned by customer C13171"
+      },
+      {
+        "timestamp": "10:06:29",
+        "event": "Card transaction history retrieved from TigerGraph",
+        "state": "INVESTIGATE",
+        "confidence": 0.5,
+        "tool": "query_card_history",
+        "result_summary": "Retrieved 100 transactions on C13171-K2"
+      },
+      {
+        "timestamp": "10:06:31",
+        "event": "Prior closed cases queried on card",
+        "state": "INVESTIGATE",
+        "confidence": 0.5,
+        "tool": "query_prior_cases",
+        "result_summary": "Found 19 historical closed investigation(s) for C13171-K2"
+      },
+      {
+        "timestamp": "10:06:31",
+        "event": "Shared device scan found 175 cards on device D000022",
+        "state": "INVESTIGATE",
+        "confidence": 0.72,
+        "tool": "query_shared_devices",
+        "result_summary": "Device D000022 connects to 175 connected card account(s)"
+      },
+      {
+        "timestamp": "10:06:33",
+        "event": "Evaluated 8 deterministic fraud detectors",
+        "state": "GATHER_EVIDENCE",
+        "confidence": 0.88,
+        "tool": "card_testing_scan",
+        "result_summary": "Triggered: recurring_merchant_scan, card_testing_scan, shared_device_scan"
+      },
+      {
+        "timestamp": "10:06:33",
+        "event": "Legitimacy checklist evaluated (6/9)",
+        "state": "GATHER_EVIDENCE",
+        "confidence": 0.88,
+        "tool": "legitimacy_checklist",
+        "result_summary": "Matched baseline indicators: 6 out of 9"
+      },
+      {
+        "timestamp": "10:06:33",
+        "event": "GraphRAG memory retrieved 5 historical cases",
+        "state": "GATHER_EVIDENCE",
+        "confidence": 0.88,
+        "tool": "retrieve_case_memory",
+        "result_summary": "Top precedent: CC-0056 (Outcome: confirmed_fraud)"
+      },
+      {
+        "timestamp": "10:06:33",
+        "event": "Evidence request evaluated (confirmed)",
+        "state": "REASSESS",
+        "confidence": 0.05,
+        "tool": "customer_validation",
+        "result_summary": "Customer contacted regarding recurring subscription. Cardholder acknowledges subscription billing and requests merchant cancellation details rather than fraud claim."
+      },
+      {
+        "timestamp": "10:06:35",
+        "event": "Adjudicator synthesized case verdict: LEGITIMATE",
+        "state": "RECOMMEND_ACTION",
+        "confidence": 0.07,
+        "tool": "llm_adjudicator",
+        "result_summary": "Disputed transaction 3558054 matches historical recurring subscription billing pattern on card C13171-K2 with consistent monthly intervals. ..."
+      },
+      {
+        "timestamp": "10:06:36",
+        "event": "Policy actions enforced: ALLOW_TRANSACTION [auto], CLOSE_NO_FRAUD [auto]",
+        "state": "RECOMMEND_ACTION",
+        "confidence": 0.07,
+        "tool": "policy_engine",
+        "result_summary": "Applied Rules: R7, R3. What changed: Customer validation response received (Customer contacted regarding recurring subscription. Cardhol...), allowing final determination and policy enforcement."
+      },
+      {
+        "timestamp": "10:06:36",
+        "event": "Case written to TigerGraph",
+        "state": "UPDATE_CASE_MEMORY",
+        "confidence": 0.07,
+        "tool": "write_case",
+        "result_summary": "Case record CASE-HHG-008 and associated relationship edges written to graph."
+      }
+    ]
   },
   "evidence_requests": [
     {
@@ -282,7 +424,149 @@
   "stop_reason": "Recurring subscription pattern confirmed with cardholder; no unauthorized card compromise detected. Further steps would not change actions.",
   "tool_calls": 7,
   "tokens": 750,
-  "latency_s": 5.67,
+  "latency_s": 13.29,
+  "confidence_evolution": [
+    {
+      "step": "trigger",
+      "probability": 0.5,
+      "reason": "Investigation initiated via customer_report (Customer C13171 message: 'I never made this $55.68 purchase. Please check my card.' Refers to 3558054.). Baseline risk score: 0.50.",
+      "tool_used": null
+    },
+    {
+      "step": "graph_traversal",
+      "probability": 0.72,
+      "reason": "TigerGraph multi-hop traversal revealed shared device D000022 linked to 175 distinct cards (syndicate pattern).",
+      "tool_used": "query_shared_devices"
+    },
+    {
+      "step": "detectors",
+      "probability": 0.88,
+      "reason": "Card testing scan detected rapid sequence of micro-authorizations.",
+      "tool_used": "card_testing_scan"
+    },
+    {
+      "step": "case_memory",
+      "probability": 0.88,
+      "reason": "GraphRAG retrieved 5 precedent cases for contextual grounding.",
+      "tool_used": "retrieve_case_memory"
+    },
+    {
+      "step": "llm_adjudication",
+      "probability": 0.07,
+      "reason": "LLM synthesis evaluated evidence: verdict LEGITIMATE (none).",
+      "tool_used": "llm_adjudicator"
+    },
+    {
+      "step": "evidence_request",
+      "probability": 0.05,
+      "reason": "Customer confirmed transaction validity; cleared fraud suspicion.",
+      "tool_used": "customer_validation"
+    },
+    {
+      "step": "final",
+      "probability": 0.07,
+      "reason": "Final adjudication established: LEGITIMATE (none). Protection actions enforced under Rules R7, R3.",
+      "tool_used": "policy_engine"
+    }
+  ],
+  "investigation_timeline": [
+    {
+      "timestamp": "10:06:25",
+      "event": "Investigation triggered by customer_report",
+      "state": "TRIGGER",
+      "confidence": 0.5,
+      "tool": null,
+      "result_summary": "Alert flagged transaction 3558054 on card C13171-K2 for $55.68"
+    },
+    {
+      "timestamp": "10:06:25",
+      "event": "Customer card portfolio queried from TigerGraph",
+      "state": "INVESTIGATE",
+      "confidence": 0.5,
+      "tool": "query_customer_cards",
+      "result_summary": "Found 2 card(s) owned by customer C13171"
+    },
+    {
+      "timestamp": "10:06:29",
+      "event": "Card transaction history retrieved from TigerGraph",
+      "state": "INVESTIGATE",
+      "confidence": 0.5,
+      "tool": "query_card_history",
+      "result_summary": "Retrieved 100 transactions on C13171-K2"
+    },
+    {
+      "timestamp": "10:06:31",
+      "event": "Prior closed cases queried on card",
+      "state": "INVESTIGATE",
+      "confidence": 0.5,
+      "tool": "query_prior_cases",
+      "result_summary": "Found 19 historical closed investigation(s) for C13171-K2"
+    },
+    {
+      "timestamp": "10:06:31",
+      "event": "Shared device scan found 175 cards on device D000022",
+      "state": "INVESTIGATE",
+      "confidence": 0.72,
+      "tool": "query_shared_devices",
+      "result_summary": "Device D000022 connects to 175 connected card account(s)"
+    },
+    {
+      "timestamp": "10:06:33",
+      "event": "Evaluated 8 deterministic fraud detectors",
+      "state": "GATHER_EVIDENCE",
+      "confidence": 0.88,
+      "tool": "card_testing_scan",
+      "result_summary": "Triggered: recurring_merchant_scan, card_testing_scan, shared_device_scan"
+    },
+    {
+      "timestamp": "10:06:33",
+      "event": "Legitimacy checklist evaluated (6/9)",
+      "state": "GATHER_EVIDENCE",
+      "confidence": 0.88,
+      "tool": "legitimacy_checklist",
+      "result_summary": "Matched baseline indicators: 6 out of 9"
+    },
+    {
+      "timestamp": "10:06:33",
+      "event": "GraphRAG memory retrieved 5 historical cases",
+      "state": "GATHER_EVIDENCE",
+      "confidence": 0.88,
+      "tool": "retrieve_case_memory",
+      "result_summary": "Top precedent: CC-0056 (Outcome: confirmed_fraud)"
+    },
+    {
+      "timestamp": "10:06:33",
+      "event": "Evidence request evaluated (confirmed)",
+      "state": "REASSESS",
+      "confidence": 0.05,
+      "tool": "customer_validation",
+      "result_summary": "Customer contacted regarding recurring subscription. Cardholder acknowledges subscription billing and requests merchant cancellation details rather than fraud claim."
+    },
+    {
+      "timestamp": "10:06:35",
+      "event": "Adjudicator synthesized case verdict: LEGITIMATE",
+      "state": "RECOMMEND_ACTION",
+      "confidence": 0.07,
+      "tool": "llm_adjudicator",
+      "result_summary": "Disputed transaction 3558054 matches historical recurring subscription billing pattern on card C13171-K2 with consistent monthly intervals. ..."
+    },
+    {
+      "timestamp": "10:06:36",
+      "event": "Policy actions enforced: ALLOW_TRANSACTION [auto], CLOSE_NO_FRAUD [auto]",
+      "state": "RECOMMEND_ACTION",
+      "confidence": 0.07,
+      "tool": "policy_engine",
+      "result_summary": "Applied Rules: R7, R3. What changed: Customer validation response received (Customer contacted regarding recurring subscription. Cardhol...), allowing final determination and policy enforcement."
+    },
+    {
+      "timestamp": "10:06:36",
+      "event": "Case written to TigerGraph",
+      "state": "UPDATE_CASE_MEMORY",
+      "confidence": 0.07,
+      "tool": "write_case",
+      "result_summary": "Case record CASE-HHG-008 and associated relationship edges written to graph."
+    }
+  ],
   "verdict": "legitimate",
   "actions": [
     {
@@ -305,7 +589,7 @@
         "customer_id": "C13171"
       },
       "result_summary": "Found 2 cards",
-      "latency_ms": 15.08,
+      "latency_ms": 39.59,
       "status": "success"
     },
     {
@@ -315,7 +599,7 @@
         "card_id": "C13171-K2"
       },
       "result_summary": "Retrieved 100 transactions",
-      "latency_ms": 1458.0,
+      "latency_ms": 3887.42,
       "status": "success"
     },
     {
@@ -325,7 +609,7 @@
         "txn_id": "3558054"
       },
       "result_summary": "Found 175 connected cards",
-      "latency_ms": 378.81,
+      "latency_ms": 1189.22,
       "status": "success"
     },
     {
@@ -335,7 +619,7 @@
         "card_id": "C13171-K2"
       },
       "result_summary": "Found 19 prior cases",
-      "latency_ms": 37.46,
+      "latency_ms": 109.06,
       "status": "success"
     },
     {
@@ -346,7 +630,7 @@
         "txn_id": "3558054"
       },
       "result_summary": "Evaluated 8 detectors",
-      "latency_ms": 685.91,
+      "latency_ms": 2173.72,
       "status": "success"
     },
     {
@@ -357,7 +641,7 @@
         "txn_id": "3558054"
       },
       "result_summary": "Score 6/6",
-      "latency_ms": 122.37,
+      "latency_ms": 283.81,
       "status": "success"
     },
     {
@@ -368,12 +652,12 @@
         "top_k": 5
       },
       "result_summary": "Retrieved 5 cases",
-      "latency_ms": 241.59,
+      "latency_ms": 406.45,
       "status": "success"
     }
   ],
   "performance": {
-    "latency_ms": 5670.0,
+    "latency_ms": 13290.0,
     "tokens": 750
   }
 }

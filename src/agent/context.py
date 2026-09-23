@@ -71,11 +71,39 @@ class InvestigationContext:
     written_to_graph: bool = False
     graph_case_id: str = ""
 
+    # Verifiable progression trails
+    confidence_evolution: List[Dict[str, Any]] = field(default_factory=list)
+    investigation_timeline: List[Dict[str, Any]] = field(default_factory=list)
+
     # Operational metrics & audit trail
     tool_calls: List[Dict[str, Any]] = field(default_factory=list)
     tokens_used: int = 0
     start_time: float = field(default_factory=time.time)
     total_latency_s: float = 0.0
+
+    def add_confidence_step(self, step: str, probability: float, reason: str, tool_used: Optional[str] = None):
+        """Records confidence evolution at a pipeline stage."""
+        self.confidence_evolution.append({
+            "step": step,
+            "probability": round(float(probability), 2),
+            "reason": reason,
+            "tool_used": tool_used
+        })
+
+    def log_timeline_event(self, event: str, state: str, confidence: float, tool: Optional[str], result_summary: str):
+        """Records an event in the plain-English chronological investigation timeline."""
+        # Calculate simulated chronological timestamp based on start_time and elapsed seconds
+        elapsed = time.time() - self.start_time
+        base_s = int(elapsed)
+        now_ts = time.strftime("%H:%M:%S", time.localtime(self.start_time + base_s))
+        self.investigation_timeline.append({
+            "timestamp": now_ts,
+            "event": event,
+            "state": state,
+            "confidence": round(float(confidence), 2),
+            "tool": tool,
+            "result_summary": result_summary
+        })
 
     def log_tool_call(self, tool_name: str, input_args: Dict[str, Any], result_summary: str, latency_ms: float):
         """Records a tool execution in the investigation path."""
@@ -87,3 +115,4 @@ class InvestigationContext:
             "latency_ms": round(latency_ms, 2),
             "status": "success"
         })
+

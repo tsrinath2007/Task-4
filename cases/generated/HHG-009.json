@@ -3,7 +3,7 @@
   "case": {
     "status": "closed_fraud",
     "verdict": "fraud",
-    "fraud_probability": 0.94,
+    "fraud_probability": 0.95,
     "pattern": "card_not_present_new_device",
     "pattern_description": "",
     "affected_txn_ids": [
@@ -2080,7 +2080,141 @@
     ],
     "summary": "Flagged transaction 3581141 originated from a device profile shared across 1015 distinct card accounts. Shared origin indicates organized credential ring.",
     "written_to_graph": true,
-    "graph_case_id": "CASE-HHG-009"
+    "graph_case_id": "CASE-HHG-009",
+    "confidence_evolution": [
+      {
+        "step": "trigger",
+        "probability": 0.5,
+        "reason": "Investigation initiated via customer_report (Customer C08299 message: 'I never made this $30.02 purchase. Please check my card.' Refers to 3581141.). Baseline risk score: 0.50.",
+        "tool_used": null
+      },
+      {
+        "step": "graph_traversal",
+        "probability": 0.72,
+        "reason": "TigerGraph multi-hop traversal revealed shared device D000001 linked to 1015 distinct cards (syndicate pattern).",
+        "tool_used": "query_shared_devices"
+      },
+      {
+        "step": "detectors",
+        "probability": 0.9,
+        "reason": "Shared device scan confirmed multi-card syndicate hub (1015 cards).",
+        "tool_used": "shared_device_scan"
+      },
+      {
+        "step": "case_memory",
+        "probability": 0.9,
+        "reason": "GraphRAG retrieved 5 precedent cases for contextual grounding.",
+        "tool_used": "retrieve_case_memory"
+      },
+      {
+        "step": "llm_adjudication",
+        "probability": 0.95,
+        "reason": "LLM synthesis evaluated evidence: verdict FRAUD (card_not_present_new_device).",
+        "tool_used": "llm_adjudicator"
+      },
+      {
+        "step": "evidence_request",
+        "probability": 0.9,
+        "reason": "Customer denied transaction authorization; confirmed unauthorized card compromise.",
+        "tool_used": "customer_validation"
+      },
+      {
+        "step": "final",
+        "probability": 0.95,
+        "reason": "Final adjudication established: FRAUD (card_not_present_new_device). Protection actions enforced under Rules R6, R2.",
+        "tool_used": "policy_engine"
+      }
+    ],
+    "investigation_timeline": [
+      {
+        "timestamp": "10:06:39",
+        "event": "Investigation triggered by customer_report",
+        "state": "TRIGGER",
+        "confidence": 0.5,
+        "tool": null,
+        "result_summary": "Alert flagged transaction 3581141 on card C08299-K1 for $30.02"
+      },
+      {
+        "timestamp": "10:06:39",
+        "event": "Customer card portfolio queried from TigerGraph",
+        "state": "INVESTIGATE",
+        "confidence": 0.5,
+        "tool": "query_customer_cards",
+        "result_summary": "Found 1 card(s) owned by customer C08299"
+      },
+      {
+        "timestamp": "10:06:43",
+        "event": "Card transaction history retrieved from TigerGraph",
+        "state": "INVESTIGATE",
+        "confidence": 0.5,
+        "tool": "query_card_history",
+        "result_summary": "Retrieved 56 transactions on C08299-K1"
+      },
+      {
+        "timestamp": "10:06:45",
+        "event": "Shared device scan found 1016 cards on device D000001",
+        "state": "INVESTIGATE",
+        "confidence": 0.72,
+        "tool": "query_shared_devices",
+        "result_summary": "Device D000001 connects to 1015 connected card account(s)"
+      },
+      {
+        "timestamp": "10:07:17",
+        "event": "Evaluated 8 deterministic fraud detectors",
+        "state": "GATHER_EVIDENCE",
+        "confidence": 0.9,
+        "tool": "shared_device_scan",
+        "result_summary": "Triggered: shared_device_scan, shared_region_scan"
+      },
+      {
+        "timestamp": "10:07:17",
+        "event": "Legitimacy checklist evaluated (4/9)",
+        "state": "GATHER_EVIDENCE",
+        "confidence": 0.9,
+        "tool": "legitimacy_checklist",
+        "result_summary": "Matched baseline indicators: 4 out of 9"
+      },
+      {
+        "timestamp": "10:07:21",
+        "event": "GraphRAG memory retrieved 5 historical cases",
+        "state": "GATHER_EVIDENCE",
+        "confidence": 0.9,
+        "tool": "retrieve_case_memory",
+        "result_summary": "Top precedent: CC-1489 (Outcome: confirmed_fraud)"
+      },
+      {
+        "timestamp": "10:07:21",
+        "event": "Evidence request evaluated (denied)",
+        "state": "REASSESS",
+        "confidence": 0.9,
+        "tool": "customer_validation",
+        "result_summary": "Customer confirms they did not make or authorize the transaction and still have the card in possession."
+      },
+      {
+        "timestamp": "10:07:22",
+        "event": "Adjudicator synthesized case verdict: FRAUD",
+        "state": "RECOMMEND_ACTION",
+        "confidence": 0.95,
+        "tool": "llm_adjudicator",
+        "result_summary": "Flagged transaction 3581141 originated from a device profile shared across 1015 distinct card accounts. Shared origin indicates organized cr..."
+      },
+      {
+        "timestamp": "10:07:24",
+        "event": "Policy actions enforced: BLOCK_CARD [L1], MONITOR_CONNECTED_CARDS [auto], CREATE_CASE [auto], FILE_REPORT [L2]",
+        "state": "RECOMMEND_ACTION",
+        "confidence": 0.95,
+        "tool": "policy_engine",
+        "result_summary": "Applied Rules: R6, R2. What changed: Customer validation response received (Customer confirms they did not make or authorize the transac...), allowing final determination and policy enforcement."
+      },
+      {
+        "timestamp": "10:07:24",
+        "event": "Case written to TigerGraph",
+        "state": "UPDATE_CASE_MEMORY",
+        "confidence": 0.95,
+        "tool": "write_case",
+        "result_summary": "Case record CASE-HHG-009 and associated relationship edges written to graph."
+      }
+    ]
   },
   "evidence_requests": [
     {
@@ -3169,7 +3303,141 @@
   "stop_reason": "Verification confirmed card compromise; exposure quantified and protective policy actions enforced. Further steps would not change actions.",
   "tool_calls": 7,
   "tokens": 1150,
-  "latency_s": 6.15,
+  "latency_s": 46.75,
+  "confidence_evolution": [
+    {
+      "step": "trigger",
+      "probability": 0.5,
+      "reason": "Investigation initiated via customer_report (Customer C08299 message: 'I never made this $30.02 purchase. Please check my card.' Refers to 3581141.). Baseline risk score: 0.50.",
+      "tool_used": null
+    },
+    {
+      "step": "graph_traversal",
+      "probability": 0.72,
+      "reason": "TigerGraph multi-hop traversal revealed shared device D000001 linked to 1015 distinct cards (syndicate pattern).",
+      "tool_used": "query_shared_devices"
+    },
+    {
+      "step": "detectors",
+      "probability": 0.9,
+      "reason": "Shared device scan confirmed multi-card syndicate hub (1015 cards).",
+      "tool_used": "shared_device_scan"
+    },
+    {
+      "step": "case_memory",
+      "probability": 0.9,
+      "reason": "GraphRAG retrieved 5 precedent cases for contextual grounding.",
+      "tool_used": "retrieve_case_memory"
+    },
+    {
+      "step": "llm_adjudication",
+      "probability": 0.95,
+      "reason": "LLM synthesis evaluated evidence: verdict FRAUD (card_not_present_new_device).",
+      "tool_used": "llm_adjudicator"
+    },
+    {
+      "step": "evidence_request",
+      "probability": 0.9,
+      "reason": "Customer denied transaction authorization; confirmed unauthorized card compromise.",
+      "tool_used": "customer_validation"
+    },
+    {
+      "step": "final",
+      "probability": 0.95,
+      "reason": "Final adjudication established: FRAUD (card_not_present_new_device). Protection actions enforced under Rules R6, R2.",
+      "tool_used": "policy_engine"
+    }
+  ],
+  "investigation_timeline": [
+    {
+      "timestamp": "10:06:39",
+      "event": "Investigation triggered by customer_report",
+      "state": "TRIGGER",
+      "confidence": 0.5,
+      "tool": null,
+      "result_summary": "Alert flagged transaction 3581141 on card C08299-K1 for $30.02"
+    },
+    {
+      "timestamp": "10:06:39",
+      "event": "Customer card portfolio queried from TigerGraph",
+      "state": "INVESTIGATE",
+      "confidence": 0.5,
+      "tool": "query_customer_cards",
+      "result_summary": "Found 1 card(s) owned by customer C08299"
+    },
+    {
+      "timestamp": "10:06:43",
+      "event": "Card transaction history retrieved from TigerGraph",
+      "state": "INVESTIGATE",
+      "confidence": 0.5,
+      "tool": "query_card_history",
+      "result_summary": "Retrieved 56 transactions on C08299-K1"
+    },
+    {
+      "timestamp": "10:06:45",
+      "event": "Shared device scan found 1016 cards on device D000001",
+      "state": "INVESTIGATE",
+      "confidence": 0.72,
+      "tool": "query_shared_devices",
+      "result_summary": "Device D000001 connects to 1015 connected card account(s)"
+    },
+    {
+      "timestamp": "10:07:17",
+      "event": "Evaluated 8 deterministic fraud detectors",
+      "state": "GATHER_EVIDENCE",
+      "confidence": 0.9,
+      "tool": "shared_device_scan",
+      "result_summary": "Triggered: shared_device_scan, shared_region_scan"
+    },
+    {
+      "timestamp": "10:07:17",
+      "event": "Legitimacy checklist evaluated (4/9)",
+      "state": "GATHER_EVIDENCE",
+      "confidence": 0.9,
+      "tool": "legitimacy_checklist",
+      "result_summary": "Matched baseline indicators: 4 out of 9"
+    },
+    {
+      "timestamp": "10:07:21",
+      "event": "GraphRAG memory retrieved 5 historical cases",
+      "state": "GATHER_EVIDENCE",
+      "confidence": 0.9,
+      "tool": "retrieve_case_memory",
+      "result_summary": "Top precedent: CC-1489 (Outcome: confirmed_fraud)"
+    },
+    {
+      "timestamp": "10:07:21",
+      "event": "Evidence request evaluated (denied)",
+      "state": "REASSESS",
+      "confidence": 0.9,
+      "tool": "customer_validation",
+      "result_summary": "Customer confirms they did not make or authorize the transaction and still have the card in possession."
+    },
+    {
+      "timestamp": "10:07:22",
+      "event": "Adjudicator synthesized case verdict: FRAUD",
+      "state": "RECOMMEND_ACTION",
+      "confidence": 0.95,
+      "tool": "llm_adjudicator",
+      "result_summary": "Flagged transaction 3581141 originated from a device profile shared across 1015 distinct card accounts. Shared origin indicates organized cr..."
+    },
+    {
+      "timestamp": "10:07:24",
+      "event": "Policy actions enforced: BLOCK_CARD [L1], MONITOR_CONNECTED_CARDS [auto], CREATE_CASE [auto], FILE_REPORT [L2]",
+      "state": "RECOMMEND_ACTION",
+      "confidence": 0.95,
+      "tool": "policy_engine",
+      "result_summary": "Applied Rules: R6, R2. What changed: Customer validation response received (Customer confirms they did not make or authorize the transac...), allowing final determination and policy enforcement."
+    },
+    {
+      "timestamp": "10:07:24",
+      "event": "Case written to TigerGraph",
+      "state": "UPDATE_CASE_MEMORY",
+      "confidence": 0.95,
+      "tool": "write_case",
+      "result_summary": "Case record CASE-HHG-009 and associated relationship edges written to graph."
+    }
+  ],
   "verdict": "fraud",
   "actions": [
     {
@@ -3202,7 +3470,7 @@
         "customer_id": "C08299"
       },
       "result_summary": "Found 1 cards",
-      "latency_ms": 13.85,
+      "latency_ms": 33.57,
       "status": "success"
     },
     {
@@ -3212,7 +3480,7 @@
         "card_id": "C08299-K1"
       },
       "result_summary": "Retrieved 56 transactions",
-      "latency_ms": 1399.54,
+      "latency_ms": 4179.15,
       "status": "success"
     },
     {
@@ -3222,7 +3490,7 @@
         "txn_id": "3581141"
       },
       "result_summary": "Found 1016 connected cards",
-      "latency_ms": 458.84,
+      "latency_ms": 1289.19,
       "status": "success"
     },
     {
@@ -3232,7 +3500,7 @@
         "card_id": "C08299-K1"
       },
       "result_summary": "Found 0 prior cases",
-      "latency_ms": 39.79,
+      "latency_ms": 99.31,
       "status": "success"
     },
     {
@@ -3243,7 +3511,7 @@
         "txn_id": "3581141"
       },
       "result_summary": "Evaluated 8 detectors",
-      "latency_ms": 3569.57,
+      "latency_ms": 31940.02,
       "status": "success"
     },
     {
@@ -3254,7 +3522,7 @@
         "txn_id": "3581141"
       },
       "result_summary": "Score 4/6",
-      "latency_ms": 130.43,
+      "latency_ms": 751.52,
       "status": "success"
     },
     {
@@ -3265,12 +3533,12 @@
         "top_k": 5
       },
       "result_summary": "Retrieved 5 cases",
-      "latency_ms": 501.52,
+      "latency_ms": 3407.4,
       "status": "success"
     }
   ],
   "performance": {
-    "latency_ms": 6150.0,
+    "latency_ms": 46750.0,
     "tokens": 1150
   }
 }
