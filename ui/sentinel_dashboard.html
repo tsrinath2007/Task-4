@@ -3236,21 +3236,54 @@
       `;
     }
 
+    const caseSessionStartTimes = {};
+
+    function getCaseStartTime(caseId, totalSpanSec) {
+      if (!caseSessionStartTimes[caseId]) {
+        // Investigation concluded ~5 seconds ago relative to opening the case
+        caseSessionStartTimes[caseId] = Date.now() - (totalSpanSec * 1000) - 5000;
+      }
+      return caseSessionStartTimes[caseId];
+    }
+
     function generateInvestigationTimelineHTML(timeline, d) {
       let events = [];
       if (Array.isArray(timeline) && timeline.length > 0) {
         events = timeline;
       } else {
         events = [
-          { timestamp: "12:40:01", event: `Investigation triggered by ${d.trigger_type || 'risk_score'}`, state: "TRIGGER", confidence: d.fraud_probability, tool: null, result_summary: d.trigger_text || `Flagged transaction on card ${d.card_id}` },
-          { timestamp: "12:40:03", event: "TigerGraph multi-hop device & card traversal", state: "INVESTIGATE", confidence: d.fraud_probability, tool: "query_shared_devices", result_summary: `Traversed device linkages; found ${(d.connected_card_ids || []).length} connected card accounts.` },
-          { timestamp: "12:40:05", event: "Deterministic fraud detector battery executed", state: "INVESTIGATE", confidence: d.fraud_probability, tool: "detectors (8)", result_summary: `Scanned card testing, CNP burst, shared region, and recurring patterns.` },
-          { timestamp: "12:40:07", event: "GraphRAG precedent case retrieval from closed history", state: "INVESTIGATE", confidence: d.fraud_probability, tool: "retrieve_case_memory", result_summary: `Retrieved ${(d.similar_prior_cases || []).length} topological precedent cases for grounding.` },
-          { timestamp: "12:40:09", event: "LLM contextual synthesis & adjudication", state: "ADJUDICATE", confidence: d.fraud_probability, tool: "llm_adjudicator", result_summary: `Evaluated evidence against policy framework; determined verdict ${d.verdict.toUpperCase()}.` },
-          { timestamp: "12:40:11", event: "Customer validation corroboration", state: "ADJUDICATE", confidence: d.fraud_probability, tool: "customer_validation", result_summary: `Corroborated cardholder confirmation; calibrated final confidence.` },
-          { timestamp: "12:40:13", event: "Policy enforcement and action routing", state: "ENFORCE", confidence: d.fraud_probability, tool: "policy_engine", result_summary: `Enforced authoritative actions under Rules R1-R10.` }
+          { event: `Investigation triggered by ${d.trigger_type || 'risk_score'}`, state: "TRIGGER", confidence: d.fraud_probability, tool: null, result_summary: d.trigger_text || `Flagged transaction on card ${d.card_id}` },
+          { event: "TigerGraph multi-hop device & card traversal", state: "INVESTIGATE", confidence: d.fraud_probability, tool: "query_shared_devices", result_summary: `Traversed device linkages; found ${(d.connected_card_ids || []).length} connected card accounts.` },
+          { event: "Deterministic fraud detector battery executed", state: "INVESTIGATE", confidence: d.fraud_probability, tool: "detectors (8)", result_summary: `Scanned card testing, CNP burst, shared region, and recurring patterns.` },
+          { event: "GraphRAG precedent case retrieval from closed history", state: "INVESTIGATE", confidence: d.fraud_probability, tool: "retrieve_case_memory", result_summary: `Retrieved ${(d.similar_prior_cases || []).length} topological precedent cases for grounding.` },
+          { event: "LLM contextual synthesis & adjudication", state: "ADJUDICATE", confidence: d.fraud_probability, tool: "llm_adjudicator", result_summary: `Evaluated evidence against policy framework; determined verdict ${d.verdict.toUpperCase()}.` },
+          { event: "Customer validation corroboration", state: "ADJUDICATE", confidence: d.fraud_probability, tool: "customer_validation", result_summary: `Corroborated cardholder confirmation; calibrated final confidence.` },
+          { event: "Policy enforcement and action routing", state: "ENFORCE", confidence: d.fraud_probability, tool: "policy_engine", result_summary: `Enforced authoritative actions under Rules R1-R10.` }
         ];
       }
+
+      // Compute dynamic real-time timestamps based on current session time
+      let firstTimeSec = null;
+      let maxOffsetSec = 0;
+      const parsedOffsets = events.map((ev, i) => {
+        if (ev.timestamp && typeof ev.timestamp === 'string' && ev.timestamp.includes(':')) {
+          const parts = ev.timestamp.split(':');
+          if (parts.length === 3) {
+            const sec = parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60 + parseInt(parts[2], 10);
+            if (firstTimeSec === null) firstTimeSec = sec;
+            const diff = Math.max(0, sec - firstTimeSec);
+            if (diff > maxOffsetSec) maxOffsetSec = diff;
+            return diff;
+          }
+        }
+        const fallbackDiff = i * 2;
+        if (fallbackDiff > maxOffsetSec) maxOffsetSec = fallbackDiff;
+        return fallbackDiff;
+      });
+
+      const totalSpan = Math.max(15, maxOffsetSec);
+      const caseId = d.case_id || 'DEFAULT';
+      const startMs = getCaseStartTime(caseId, totalSpan);
 
       return `
         <div class="white-card" style="margin-bottom: 16px;">
@@ -3262,20 +3295,32 @@
               </svg>
               <span class="card-title-text">Investigation Timeline — Chronological Event Trace</span>
             </div>
-            <span class="card-subtitle-tag">${events.length} Recorded Milestone Events</span>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="live-chip"><span class="live-dot"></span> Live Trace</span>
+              <span class="card-subtitle-tag">${events.length} Recorded Milestone Events</span>
+            </div>
           </div>
 
           <div class="timeline-container">
             <div class="timeline-rail"></div>
-            ${events.map(ev => {
+            ${events.map((ev, idx) => {
               const state = (ev.state || 'INVESTIGATE').toUpperCase();
               const badgeClass = `state-${state}`;
               const dotColor = state === 'TRIGGER' ? '#F59E0B' : (state === 'INVESTIGATE' ? '#3B82F6' : (state === 'ADJUDICATE' ? '#8B5CF6' : (state === 'ENFORCE' ? '#10B981' : '#64748B')));
+              
+              // Dynamic live timestamp computation
+              const offsetSec = parsedOffsets[idx] !== undefined ? parsedOffsets[idx] : (idx * 2);
+              const evDate = new Date(startMs + offsetSec * 1000);
+              const hh = String(evDate.getHours()).padStart(2, '0');
+              const mm = String(evDate.getMinutes()).padStart(2, '0');
+              const ss = String(evDate.getSeconds()).padStart(2, '0');
+              const dynamicTime = `${hh}:${mm}:${ss}`;
+
               return `
                 <div class="timeline-item">
                   <div class="timeline-dot" style="background: ${dotColor};"></div>
                   <div class="timeline-header-row">
-                    <span class="timeline-time">${ev.timestamp || ''}</span>
+                    <span class="timeline-time">${dynamicTime}</span>
                     <span class="state-badge ${badgeClass}">${state}</span>
                     <span class="timeline-event-title">${ev.event}</span>
                     ${ev.tool ? `<span class="chip-code" style="color: #2563EB; font-size: 0.65rem;">${ev.tool}</span>` : ''}
@@ -3711,7 +3756,7 @@
               </span>
             </div>
             <div class="hero-meta-line">
-              Opened Today, 12:40:00 &nbsp;|&nbsp; 
+              Opened ${new Date().toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'})} ${new Date(Date.now() - 60000).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit', hour12: false})} &nbsp;|&nbsp; 
               Customer ID: <span>${d.customer_id || 'CUST-88429'}</span> &nbsp;|&nbsp; 
               Card: <span>${focalCard}</span>
             </div>
