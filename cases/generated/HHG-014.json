@@ -199,7 +199,7 @@
     ],
     "investigation_timeline": [
       {
-        "timestamp": "10:00:03",
+        "timestamp": "12:43:15",
         "event": "Investigation triggered by analyst_request",
         "state": "TRIGGER",
         "confidence": 0.5,
@@ -207,7 +207,7 @@
         "result_summary": "Alert flagged transaction 3478561 on card C13487-K1 for $74.96"
       },
       {
-        "timestamp": "10:00:03",
+        "timestamp": "12:43:15",
         "event": "Customer card portfolio queried from TigerGraph",
         "state": "INVESTIGATE",
         "confidence": 0.5,
@@ -215,7 +215,7 @@
         "result_summary": "Found 1 card(s) owned by customer C13487"
       },
       {
-        "timestamp": "10:00:17",
+        "timestamp": "12:43:29",
         "event": "Card transaction history retrieved from TigerGraph",
         "state": "INVESTIGATE",
         "confidence": 0.5,
@@ -223,7 +223,7 @@
         "result_summary": "Retrieved 85 transactions on C13487-K1"
       },
       {
-        "timestamp": "10:00:22",
+        "timestamp": "12:43:34",
         "event": "Shared device scan found 52 cards on device D005668",
         "state": "INVESTIGATE",
         "confidence": 0.72,
@@ -231,7 +231,7 @@
         "result_summary": "Device D005668 connects to 51 connected card account(s)"
       },
       {
-        "timestamp": "10:00:35",
+        "timestamp": "12:43:47",
         "event": "Evaluated 8 deterministic fraud detectors",
         "state": "GATHER_EVIDENCE",
         "confidence": 0.9,
@@ -239,7 +239,7 @@
         "result_summary": "Triggered: shared_device_scan, shared_region_scan"
       },
       {
-        "timestamp": "10:00:35",
+        "timestamp": "12:43:47",
         "event": "Legitimacy checklist evaluated (5/9)",
         "state": "GATHER_EVIDENCE",
         "confidence": 0.9,
@@ -247,7 +247,7 @@
         "result_summary": "Matched baseline indicators: 5 out of 9"
       },
       {
-        "timestamp": "10:00:37",
+        "timestamp": "12:43:49",
         "event": "GraphRAG memory retrieved 5 historical cases",
         "state": "GATHER_EVIDENCE",
         "confidence": 0.9,
@@ -255,7 +255,7 @@
         "result_summary": "Top precedent: CC-1719 (Outcome: confirmed_fraud)"
       },
       {
-        "timestamp": "10:00:37",
+        "timestamp": "12:43:49",
         "event": "Evidence request evaluated (denied)",
         "state": "REASSESS",
         "confidence": 0.9,
@@ -263,7 +263,7 @@
         "result_summary": "Customer contacted via SMS; states they do not recognize the transaction and did not authorize it."
       },
       {
-        "timestamp": "10:00:38",
+        "timestamp": "12:43:50",
         "event": "Adjudicator synthesized case verdict: FRAUD",
         "state": "RECOMMEND_ACTION",
         "confidence": 0.92,
@@ -271,7 +271,7 @@
         "result_summary": "Flagged transaction 3478561 originated from a device profile shared across 51 distinct card accounts. Shared origin indicates organized cred..."
       },
       {
-        "timestamp": "10:00:40",
+        "timestamp": "12:43:52",
         "event": "Policy actions enforced: BLOCK_CARD [L1], MONITOR_CONNECTED_CARDS [auto], CREATE_CASE [auto], FILE_REPORT [L2]",
         "state": "RECOMMEND_ACTION",
         "confidence": 0.92,
@@ -279,7 +279,7 @@
         "result_summary": "Applied Rules: R6, R2. What changed: Customer validation response received (Customer contacted via SMS; states they do not recognize the...), allowing final determination and policy enforcement."
       },
       {
-        "timestamp": "10:00:40",
+        "timestamp": "12:43:52",
         "event": "Case written to TigerGraph",
         "state": "UPDATE_CASE_MEMORY",
         "confidence": 0.92,
@@ -458,7 +458,7 @@
   ],
   "investigation_timeline": [
     {
-      "timestamp": "10:00:03",
+      "timestamp": "12:43:15",
       "event": "Investigation triggered by analyst_request",
       "state": "TRIGGER",
       "confidence": 0.5,
@@ -466,7 +466,7 @@
       "result_summary": "Alert flagged transaction 3478561 on card C13487-K1 for $74.96"
     },
     {
-      "timestamp": "10:00:03",
+      "timestamp": "12:43:15",
       "event": "Customer card portfolio queried from TigerGraph",
       "state": "INVESTIGATE",
       "confidence": 0.5,
@@ -474,7 +474,7 @@
       "result_summary": "Found 1 card(s) owned by customer C13487"
     },
     {
-      "timestamp": "10:00:17",
+      "timestamp": "12:43:29",
       "event": "Card transaction history retrieved from TigerGraph",
       "state": "INVESTIGATE",
       "confidence": 0.5,
@@ -482,7 +482,7 @@
       "result_summary": "Retrieved 85 transactions on C13487-K1"
     },
     {
-      "timestamp": "10:00:22",
+      "timestamp": "12:43:34",
       "event": "Shared device scan found 52 cards on device D005668",
       "state": "INVESTIGATE",
       "confidence": 0.72,
@@ -490,7 +490,7 @@
       "result_summary": "Device D005668 connects to 51 connected card account(s)"
     },
     {
-      "timestamp": "10:00:35",
+      "timestamp": "12:43:47",
       "event": "Evaluated 8 deterministic fraud detectors",
       "state": "GATHER_EVIDENCE",
       "confidence": 0.9,
@@ -498,7 +498,7 @@
       "result_summary": "Triggered: shared_device_scan, shared_region_scan"
     },
     {
-      "timestamp": "10:00:35",
+      "timestamp": "12:43:47",
       "event": "Legitimacy checklist evaluated (5/9)",
       "state": "GATHER_EVIDENCE",
       "confidence": 0.9,
@@ -506,7 +506,7 @@
       "result_summary": "Matched baseline indicators: 5 out of 9"
     },
     {
-      "timestamp": "10:00:37",
+      "timestamp": "12:43:49",
       "event": "GraphRAG memory retrieved 5 historical cases",
       "state": "GATHER_EVIDENCE",
       "confidence": 0.9,
@@ -514,7 +514,7 @@
       "result_summary": "Top precedent: CC-1719 (Outcome: confirmed_fraud)"
     },
     {
-      "timestamp": "10:00:37",
+      "timestamp": "12:43:49",
       "event": "Evidence request evaluated (denied)",
       "state": "REASSESS",
       "confidence": 0.9,
@@ -522,7 +522,7 @@
       "result_summary": "Customer contacted via SMS; states they do not recognize the transaction and did not authorize it."
     },
     {
-      "timestamp": "10:00:38",
+      "timestamp": "12:43:50",
       "event": "Adjudicator synthesized case verdict: FRAUD",
       "state": "RECOMMEND_ACTION",
       "confidence": 0.92,
@@ -530,7 +530,7 @@
       "result_summary": "Flagged transaction 3478561 originated from a device profile shared across 51 distinct card accounts. Shared origin indicates organized cred..."
     },
     {
-      "timestamp": "10:00:40",
+      "timestamp": "12:43:52",
       "event": "Policy actions enforced: BLOCK_CARD [L1], MONITOR_CONNECTED_CARDS [auto], CREATE_CASE [auto], FILE_REPORT [L2]",
       "state": "RECOMMEND_ACTION",
       "confidence": 0.92,
@@ -538,7 +538,7 @@
       "result_summary": "Applied Rules: R6, R2. What changed: Customer validation response received (Customer contacted via SMS; states they do not recognize the...), allowing final determination and policy enforcement."
     },
     {
-      "timestamp": "10:00:40",
+      "timestamp": "12:43:52",
       "event": "Case written to TigerGraph",
       "state": "UPDATE_CASE_MEMORY",
       "confidence": 0.92,

@@ -3242,13 +3242,13 @@
         events = timeline;
       } else {
         events = [
-          { timestamp: "14:23:01", event: `Investigation triggered by ${d.trigger_type || 'risk_score'}`, state: "TRIGGER", confidence: d.fraud_probability, tool: null, result_summary: d.trigger_text || `Flagged transaction on card ${d.card_id}` },
-          { timestamp: "14:23:03", event: "TigerGraph multi-hop device & card traversal", state: "INVESTIGATE", confidence: d.fraud_probability, tool: "query_shared_devices", result_summary: `Traversed device linkages; found ${(d.connected_card_ids || []).length} connected card accounts.` },
-          { timestamp: "14:23:05", event: "Deterministic fraud detector battery executed", state: "INVESTIGATE", confidence: d.fraud_probability, tool: "detectors (8)", result_summary: `Scanned card testing, CNP burst, shared region, and recurring patterns.` },
-          { timestamp: "14:23:07", event: "GraphRAG precedent case retrieval from closed history", state: "INVESTIGATE", confidence: d.fraud_probability, tool: "retrieve_case_memory", result_summary: `Retrieved ${(d.similar_prior_cases || []).length} topological precedent cases for grounding.` },
-          { timestamp: "14:23:09", event: "LLM contextual synthesis & adjudication", state: "ADJUDICATE", confidence: d.fraud_probability, tool: "llm_adjudicator", result_summary: `Evaluated evidence against policy framework; determined verdict ${d.verdict.toUpperCase()}.` },
-          { timestamp: "14:23:11", event: "Customer validation corroboration", state: "ADJUDICATE", confidence: d.fraud_probability, tool: "customer_validation", result_summary: `Corroborated cardholder confirmation; calibrated final confidence.` },
-          { timestamp: "14:23:13", event: "Policy enforcement and action routing", state: "ENFORCE", confidence: d.fraud_probability, tool: "policy_engine", result_summary: `Enforced authoritative actions under Rules R1-R10.` }
+          { timestamp: "12:40:01", event: `Investigation triggered by ${d.trigger_type || 'risk_score'}`, state: "TRIGGER", confidence: d.fraud_probability, tool: null, result_summary: d.trigger_text || `Flagged transaction on card ${d.card_id}` },
+          { timestamp: "12:40:03", event: "TigerGraph multi-hop device & card traversal", state: "INVESTIGATE", confidence: d.fraud_probability, tool: "query_shared_devices", result_summary: `Traversed device linkages; found ${(d.connected_card_ids || []).length} connected card accounts.` },
+          { timestamp: "12:40:05", event: "Deterministic fraud detector battery executed", state: "INVESTIGATE", confidence: d.fraud_probability, tool: "detectors (8)", result_summary: `Scanned card testing, CNP burst, shared region, and recurring patterns.` },
+          { timestamp: "12:40:07", event: "GraphRAG precedent case retrieval from closed history", state: "INVESTIGATE", confidence: d.fraud_probability, tool: "retrieve_case_memory", result_summary: `Retrieved ${(d.similar_prior_cases || []).length} topological precedent cases for grounding.` },
+          { timestamp: "12:40:09", event: "LLM contextual synthesis & adjudication", state: "ADJUDICATE", confidence: d.fraud_probability, tool: "llm_adjudicator", result_summary: `Evaluated evidence against policy framework; determined verdict ${d.verdict.toUpperCase()}.` },
+          { timestamp: "12:40:11", event: "Customer validation corroboration", state: "ADJUDICATE", confidence: d.fraud_probability, tool: "customer_validation", result_summary: `Corroborated cardholder confirmation; calibrated final confidence.` },
+          { timestamp: "12:40:13", event: "Policy enforcement and action routing", state: "ENFORCE", confidence: d.fraud_probability, tool: "policy_engine", result_summary: `Enforced authoritative actions under Rules R1-R10.` }
         ];
       }
 
@@ -3711,7 +3711,7 @@
               </span>
             </div>
             <div class="hero-meta-line">
-              Opened Mar 12, 2024 14:23:11 &nbsp;|&nbsp; 
+              Opened Today, 12:40:00 &nbsp;|&nbsp; 
               Customer ID: <span>${d.customer_id || 'CUST-88429'}</span> &nbsp;|&nbsp; 
               Card: <span>${focalCard}</span>
             </div>

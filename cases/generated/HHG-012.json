@@ -101,7 +101,7 @@
     ],
     "investigation_timeline": [
       {
-        "timestamp": "10:06:01",
+        "timestamp": "12:42:45",
         "event": "Investigation triggered by risk_score",
         "state": "TRIGGER",
         "confidence": 0.55,
@@ -109,7 +109,7 @@
         "result_summary": "Alert flagged transaction 3553342 on card C05876-K2 for $30.91"
       },
       {
-        "timestamp": "10:06:01",
+        "timestamp": "12:42:45",
         "event": "Customer card portfolio queried from TigerGraph",
         "state": "INVESTIGATE",
         "confidence": 0.55,
@@ -117,7 +117,7 @@
         "result_summary": "Found 2 card(s) owned by customer C05876"
       },
       {
-        "timestamp": "10:06:07",
+        "timestamp": "12:42:51",
         "event": "Card transaction history retrieved from TigerGraph",
         "state": "INVESTIGATE",
         "confidence": 0.55,
@@ -125,7 +125,7 @@
         "result_summary": "Retrieved 100 transactions on C05876-K2"
       },
       {
-        "timestamp": "10:06:07",
+        "timestamp": "12:42:51",
         "event": "Prior closed cases queried on card",
         "state": "INVESTIGATE",
         "confidence": 0.55,
@@ -133,7 +133,7 @@
         "result_summary": "Found 2 historical closed investigation(s) for C05876-K2"
       },
       {
-        "timestamp": "10:06:07",
+        "timestamp": "12:42:51",
         "event": "Shared device scan found 0 cards on device nan",
         "state": "INVESTIGATE",
         "confidence": 0.55,
@@ -141,7 +141,7 @@
         "result_summary": "Device nan connects to 1 connected card account(s)"
       },
       {
-        "timestamp": "10:06:15",
+        "timestamp": "12:42:59",
         "event": "Evaluated 8 deterministic fraud detectors",
         "state": "GATHER_EVIDENCE",
         "confidence": 0.08,
@@ -149,7 +149,7 @@
         "result_summary": "Triggered: recurring_merchant_scan, shared_region_scan"
       },
       {
-        "timestamp": "10:06:15",
+        "timestamp": "12:42:59",
         "event": "Legitimacy checklist evaluated (7/9)",
         "state": "GATHER_EVIDENCE",
         "confidence": 0.08,
@@ -157,7 +157,7 @@
         "result_summary": "Matched baseline indicators: 7 out of 9"
       },
       {
-        "timestamp": "10:06:18",
+        "timestamp": "12:43:02",
         "event": "GraphRAG memory retrieved 5 historical cases",
         "state": "GATHER_EVIDENCE",
         "confidence": 0.08,
@@ -165,7 +165,7 @@
         "result_summary": "Top precedent: CC-0002 (Outcome: confirmed_fraud)"
       },
       {
-        "timestamp": "10:06:18",
+        "timestamp": "12:43:02",
         "event": "Evidence request evaluated (confirmed)",
         "state": "REASSESS",
         "confidence": 0.05,
@@ -173,7 +173,7 @@
         "result_summary": "Customer contacted regarding recurring subscription. Cardholder acknowledges subscription billing and requests merchant cancellation details rather than fraud claim."
       },
       {
-        "timestamp": "10:06:19",
+        "timestamp": "12:43:03",
         "event": "Adjudicator synthesized case verdict: LEGITIMATE",
         "state": "RECOMMEND_ACTION",
         "confidence": 0.07,
@@ -181,7 +181,7 @@
         "result_summary": "Disputed transaction 3553342 matches historical recurring subscription billing pattern on card C05876-K2 with consistent monthly intervals. ..."
       },
       {
-        "timestamp": "10:06:20",
+        "timestamp": "12:43:04",
         "event": "Policy actions enforced: ALLOW_TRANSACTION [auto], CLOSE_NO_FRAUD [auto]",
         "state": "RECOMMEND_ACTION",
         "confidence": 0.07,
@@ -189,7 +189,7 @@
         "result_summary": "Applied Rules: R7, R3. What changed: Customer validation response received (Customer contacted regarding recurring subscription. Cardhol...), allowing final determination and policy enforcement."
       },
       {
-        "timestamp": "10:06:20",
+        "timestamp": "12:43:04",
         "event": "Case written to TigerGraph",
         "state": "UPDATE_CASE_MEMORY",
         "confidence": 0.07,
@@ -295,7 +295,7 @@
   ],
   "investigation_timeline": [
     {
-      "timestamp": "10:06:01",
+      "timestamp": "12:42:45",
       "event": "Investigation triggered by risk_score",
       "state": "TRIGGER",
       "confidence": 0.55,
@@ -303,7 +303,7 @@
       "result_summary": "Alert flagged transaction 3553342 on card C05876-K2 for $30.91"
     },
     {
-      "timestamp": "10:06:01",
+      "timestamp": "12:42:45",
       "event": "Customer card portfolio queried from TigerGraph",
       "state": "INVESTIGATE",
       "confidence": 0.55,
@@ -311,7 +311,7 @@
       "result_summary": "Found 2 card(s) owned by customer C05876"
     },
     {
-      "timestamp": "10:06:07",
+      "timestamp": "12:42:51",
       "event": "Card transaction history retrieved from TigerGraph",
       "state": "INVESTIGATE",
       "confidence": 0.55,
@@ -319,7 +319,7 @@
       "result_summary": "Retrieved 100 transactions on C05876-K2"
     },
     {
-      "timestamp": "10:06:07",
+      "timestamp": "12:42:51",
       "event": "Prior closed cases queried on card",
       "state": "INVESTIGATE",
       "confidence": 0.55,
@@ -327,7 +327,7 @@
       "result_summary": "Found 2 historical closed investigation(s) for C05876-K2"
     },
     {
-      "timestamp": "10:06:07",
+      "timestamp": "12:42:51",
       "event": "Shared device scan found 0 cards on device nan",
       "state": "INVESTIGATE",
       "confidence": 0.55,
@@ -335,7 +335,7 @@
       "result_summary": "Device nan connects to 1 connected card account(s)"
     },
     {
-      "timestamp": "10:06:15",
+      "timestamp": "12:42:59",
       "event": "Evaluated 8 deterministic fraud detectors",
       "state": "GATHER_EVIDENCE",
       "confidence": 0.08,
@@ -343,7 +343,7 @@
       "result_summary": "Triggered: recurring_merchant_scan, shared_region_scan"
     },
     {
-      "timestamp": "10:06:15",
+      "timestamp": "12:42:59",
       "event": "Legitimacy checklist evaluated (7/9)",
       "state": "GATHER_EVIDENCE",
       "confidence": 0.08,
@@ -351,7 +351,7 @@
       "result_summary": "Matched baseline indicators: 7 out of 9"
     },
     {
-      "timestamp": "10:06:18",
+      "timestamp": "12:43:02",
       "event": "GraphRAG memory retrieved 5 historical cases",
       "state": "GATHER_EVIDENCE",
       "confidence": 0.08,
@@ -359,7 +359,7 @@
       "result_summary": "Top precedent: CC-0002 (Outcome: confirmed_fraud)"
     },
     {
-      "timestamp": "10:06:18",
+      "timestamp": "12:43:02",
       "event": "Evidence request evaluated (confirmed)",
       "state": "REASSESS",
       "confidence": 0.05,
@@ -367,7 +367,7 @@
       "result_summary": "Customer contacted regarding recurring subscription. Cardholder acknowledges subscription billing and requests merchant cancellation details rather than fraud claim."
     },
     {
-      "timestamp": "10:06:19",
+      "timestamp": "12:43:03",
       "event": "Adjudicator synthesized case verdict: LEGITIMATE",
       "state": "RECOMMEND_ACTION",
       "confidence": 0.07,
@@ -375,7 +375,7 @@
       "result_summary": "Disputed transaction 3553342 matches historical recurring subscription billing pattern on card C05876-K2 with consistent monthly intervals. ..."
     },
     {
-      "timestamp": "10:06:20",
+      "timestamp": "12:43:04",
       "event": "Policy actions enforced: ALLOW_TRANSACTION [auto], CLOSE_NO_FRAUD [auto]",
       "state": "RECOMMEND_ACTION",
       "confidence": 0.07,
@@ -383,7 +383,7 @@
       "result_summary": "Applied Rules: R7, R3. What changed: Customer validation response received (Customer contacted regarding recurring subscription. Cardhol...), allowing final determination and policy enforcement."
     },
     {
-      "timestamp": "10:06:20",
+      "timestamp": "12:43:04",
       "event": "Case written to TigerGraph",
       "state": "UPDATE_CASE_MEMORY",
       "confidence": 0.07,
