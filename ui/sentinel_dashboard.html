@@ -2175,13 +2175,6 @@
       </button>
     </div>
 
-    <!-- Official Hackathon & Sponsor Banner in Sidebar -->
-    <div style="margin: 0 14px 12px 14px; padding: 8px 12px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 8px; cursor: pointer;" onclick="openTeamModal()" title="Hacker House Goa 2026 • TigerGraph Fraud Track">
-      <img src="assets/hhgoa_logo.png" alt="Hacker House Goa" style="height: 18px; max-width: 120px; object-fit: contain; border-radius: 3px;" title="Hacker House Goa 2026">
-      <span style="color: rgba(255,255,255,0.25); font-size: 0.75rem;">|</span>
-      <img src="assets/tigergraph_logo.png" alt="TigerGraph" style="height: 15px; object-fit: contain; filter: brightness(1.2);" title="TigerGraph Cloud">
-    </div>
-
     <!-- Navigation Menu -->
     <nav class="sidebar-nav">
       <a id="nav-investigations" class="nav-item active" href="javascript:void(0)" onclick="switchView('investigations')">
@@ -2312,14 +2305,6 @@
           <span class="kbd-hint">⌘ K</span>
         </div>
 
-        <!-- Official Partner Logos in Topbar -->
-        <div style="display: flex; align-items: center; gap: 8px; background: #FFFFFF; border: 1px solid var(--border-card); padding: 4px 10px; border-radius: 8px; box-shadow: var(--shadow-sm); cursor: pointer;" onclick="openTeamModal()" title="Hacker House Goa 2026 • TigerGraph Track">
-          <img src="assets/hhgoa_logo.png" alt="Hacker House Goa" style="height: 20px; object-fit: contain; border-radius: 3px;">
-          <span style="color: #CBD5E1; font-weight: 300;">|</span>
-          <img src="assets/tigergraph_logo.png" alt="TigerGraph" style="height: 18px; object-fit: contain;">
-          <span style="font-size: 0.68rem; font-weight: 700; color: #475569; font-family: var(--font-mono); background: #F1F5F9; padding: 2px 6px; border-radius: 4px; margin-left: 2px;">Task-4</span>
-        </div>
-
         <button class="btn-top-action" onclick="openTeamModal()" title="View Team GOA-T Details" style="font-weight: 700; color: #1E40AF; background: #DBEAFE; border-color: #BFDBFE;">
           🐐 Team GOA-T
         </button>
@@ -2446,15 +2431,6 @@
       modal.innerHTML = `
         <div class="sentinel-modal-box team-modal-box" onclick="event.stopPropagation()" style="max-width: 530px; background: linear-gradient(155deg, #090E1D 0%, #0F172A 100%); border: 1px solid #1E293B; color: #F8FAFC; box-shadow: 0 25px 60px -12px rgba(0,0,0,0.85), 0 0 45px rgba(56, 189, 248, 0.22); border-radius: 14px; overflow: hidden; animation: sentinelModalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);">
           
-          <!-- Hackathon Official Header Banner in Modal -->
-          <div style="padding: 10px 22px; background: #060B16; border-bottom: 1px solid rgba(255,255,255,0.08); display: flex; align-items: center; justify-content: space-between;">
-            <img src="assets/hhgoa_logo.png" alt="Hacker House Goa 2026" style="height: 24px; object-fit: contain; border-radius: 4px;">
-            <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 0.68rem; color: #94A3B8; font-family: var(--font-mono); letter-spacing: 0.05em;">TRACK PARTNER:</span>
-              <img src="assets/tigergraph_logo.png" alt="TigerGraph" style="height: 18px; object-fit: contain;">
-            </div>
-          </div>
-
           <!-- Modal Top Header -->
           <div style="padding: 20px 24px 16px 24px; border-bottom: 1px solid #1E293B; display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.75);">
             <div style="display: flex; align-items: center; gap: 12px;">
