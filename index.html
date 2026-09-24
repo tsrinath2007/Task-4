@@ -3417,7 +3417,7 @@
             <!-- Confidence Before vs After Arrow -->
             <div class="memory-stat-row">
               <div>
-                <div style="font-size: 0.68rem; color: #64748B; font-weight: 600;">CONFIDENCE BEFORE MEMORY</div>
+                <div style="font-size: 0.68rem; color: #64748B; font-weight: 600;">STAGE 3 (PRE-MEMORY)</div>
                 <div style="font-size: 1.05rem; font-weight: 800; font-family: var(--font-mono); color: #334155;">${(confBefore * 100).toFixed(1)}% <span style="font-size: 0.72rem; font-weight: 500; color: #94A3B8;">(p=${confBefore.toFixed(2)})</span></div>
               </div>
               <div class="conf-delta-arrow" style="color: ${changed ? (delta > 0 ? '#EF4444' : '#10B981') : '#64748B'};">
@@ -3426,7 +3426,7 @@
                 <span>──►</span>
               </div>
               <div style="text-align: right;">
-                <div style="font-size: 0.68rem; color: #64748B; font-weight: 600;">CONFIDENCE AFTER MEMORY</div>
+                <div style="font-size: 0.68rem; color: #64748B; font-weight: 600;">STAGE 4 (POST-MEMORY)</div>
                 <div style="font-size: 1.05rem; font-weight: 800; font-family: var(--font-mono); color: ${confAfter > 0.8 ? '#EF4444' : (confAfter < 0.2 ? '#10B981' : '#F59E0B')};">${(confAfter * 100).toFixed(1)}% <span style="font-size: 0.72rem; font-weight: 500; color: #94A3B8;">(p=${confAfter.toFixed(2)})</span></div>
               </div>
             </div>
@@ -3815,7 +3815,7 @@
                 <div class="metric-icon-circle ${v === 'fraud' ? 'icon-red' : (v === 'legitimate' ? 'icon-green' : 'icon-blue')}">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
                 </div>
-                <span class="metric-label-text">Fraud Probability</span>
+                <span class="metric-label-text">Final Adjudicated Risk</span>
               </div>
               <span class="metric-badge-pill ${v === 'fraud' ? 'pill-red' : (v === 'legitimate' ? 'pill-green' : 'pill-blue')}">${probPill}</span>
             </div>
@@ -3824,6 +3824,9 @@
               <div class="prob-track">
                 <div class="prob-fill" style="width: ${probPctNum}%; background-color: ${probColor};"></div>
               </div>
+            </div>
+            <div style="font-size: 0.68rem; color: #64748B; font-weight: 600; margin-top: 5px;">
+              ${(d.confidence_evolution && d.confidence_evolution.length > 0 && d.confidence_evolution[0].probability !== undefined) ? 'Calibrated from ' + Math.round(d.confidence_evolution[0].probability * 100) + '% initial trigger' : ''}
             </div>
           </div>
 
@@ -3892,7 +3895,7 @@
             </div>
             <div class="metric-number-big" style="color: ${d.sar_filed ? '#DC2626' : '#059669'};">${d.sar_filed ? 'YES' : 'NO'}</div>
             <div class="metric-sparkline-wrap" style="font-size: 0.72rem; color: var(--text-muted); font-weight: 500;">
-              ${d.sar_filed ? 'Filed Mar 12, 2024' : 'Not Required (Legitimate)'}
+              ${d.sar_filed ? 'Mandatory SAR Filed (BSA §1020)' : (v === 'fraud' ? 'Below $1,000 Threshold' : 'Not Required (Legitimate)')}
             </div>
           </div>
         </div>
