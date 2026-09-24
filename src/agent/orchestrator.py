@@ -524,7 +524,7 @@ def run_case(
     ctx.pattern = adj_out.pattern
     ctx.pattern_description = adj_out.pattern_description
     ctx.summary = adj_out.summary
-    ctx.evidence_list = [e.dict() for e in adj_out.evidence]
+    ctx.evidence_list = [e.model_dump() if hasattr(e, "model_dump") else e.dict() for e in adj_out.evidence]
 
     if ctx.verdict == "legitimate":
         ctx.affected_txn_ids = []

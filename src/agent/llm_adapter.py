@@ -176,6 +176,13 @@ class LLMAdapter:
 
         try:
             response_dict = self._query_groq_or_mock("adjudicator", prompt, ctx)
+            response_dict.setdefault("pattern_description", "")
+            response_dict.setdefault("affected_txn_ids", [ctx.flagged_txn_id] if response_dict.get("verdict") == "fraud" else [])
+            response_dict.setdefault("first_suspicious_txn_id", ctx.flagged_txn_id if response_dict.get("verdict") == "fraud" else "")
+            response_dict.setdefault("connected_card_ids", ctx.connected_card_ids)
+            response_dict.setdefault("connected_device_profiles", ctx.connected_device_profiles)
+            response_dict.setdefault("exposure_usd", ctx.exposure_usd or 0.0)
+            response_dict.setdefault("evidence", [])
             return AdjudicatorOutput(**response_dict)
         except Exception as e:
             print(f"[llm_adapter] Falling back to deterministic adjudicator: {e}")
@@ -203,6 +210,9 @@ class LLMAdapter:
 
         try:
             response_dict = self._query_groq_or_mock("action_explainer", prompt, ctx)
+            response_dict.setdefault("what_changed", "Policy actions updated following graph traversal and customer verification.")
+            response_dict.setdefault("final", response_dict.get("initial", []))
+            response_dict.setdefault("initial", [])
             return ActionExplainerOutput(**response_dict)
         except Exception as e:
             print(f"[llm_adapter] Falling back to deterministic action_explainer: {e}")
@@ -237,6 +247,11 @@ class LLMAdapter:
 
         try:
             response_dict = self._query_groq_or_mock("sar", prompt, ctx)
+            response_dict.setdefault("file", True)
+            response_dict.setdefault("reason", ctx.sar_reason or "Mandatory SAR filing under FinCEN guidelines and Policy R2/R6.")
+            response_dict.setdefault("subjects", [ctx.customer_id, ctx.card_id])
+            response_dict.setdefault("total_amount_usd", round(float(ctx.exposure_usd or 0.0), 2))
+            response_dict.setdefault("activity_dates", activity_dates)
             return SarOutput(**response_dict)
         except Exception as e:
             print(f"[llm_adapter] Falling back to deterministic sar: {e}")
@@ -256,7 +271,7 @@ class LLMAdapter:
                         ],
                         response_format={"type": "json_object"},
                         temperature=0.1,
-                        max_tokens=400
+                        max_tokens=800
                     )
                     content = response.choices[0].message.content
                     data = json.loads(content)
