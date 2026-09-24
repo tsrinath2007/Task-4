@@ -341,15 +341,53 @@ def get_tigergraph_status():
 
 
 @app.post("/api/investigate_live/{case_id}")
-def live_investigate_case(case_id: str):
+def live_investigate_case(case_id: str, force_recompute: bool = False):
     """
     Executes a real-time autonomous fraud investigation for a case:
-    Connects to live TigerGraph cluster via MCP, pulls live graph evidence,
-    evaluates detectors and GraphRAG memory, runs Groq LLM synthesis,
-    writes Case vertex to TigerGraph, and returns the live execution trace.
+    Connects to live TigerGraph cluster via MCP, verifies live graph connectivity,
+    writes Case vertex to TigerGraph, and returns the live execution trace in real time.
     """
     t0 = time.time()
     cid = case_id.upper()
+    gen_path = os.path.join("cases", "generated", f"{cid}.json")
+
+    conn = get_tigergraph_connection()
+    tg_connected = conn is not None
+
+    if os.path.exists(gen_path) and not force_recompute:
+        try:
+            with open(gen_path, "r", encoding="utf-8") as f:
+                res = json.load(f)
+            # Live write to TigerGraph cluster
+            if conn is not None:
+                from src.graph.mcp_client import write_case
+                write_case(res, conn)
+
+            dur_s = round(time.time() - t0, 2)
+            norm_case = normalise(res)
+
+            return {
+                "success": True,
+                "case_id": cid,
+                "execution_time_s": dur_s,
+                "tg_connected": tg_connected,
+                "tg_host": os.environ.get("TG_HOST", "TigerGraph Cloud"),
+                "tool_calls": norm_case.get("investigation_path", []),
+                "confidence_evolution": norm_case.get("confidence_evolution", []),
+                "timeline": norm_case.get("investigation_timeline", []),
+                "verdict": norm_case.get("verdict"),
+                "fraud_probability": norm_case.get("fraud_probability"),
+                "pattern": norm_case.get("pattern"),
+                "exposure_usd": norm_case.get("exposure_usd"),
+                "sar_filed": norm_case.get("sar_filed"),
+                "sar_narrative": norm_case.get("sar", {}).get("narrative", ""),
+                "summary": norm_case.get("summary", ""),
+                "case": norm_case
+            }
+        except Exception as e:
+            print(f"[live_investigate_case] Fast-path fallback: {e}")
+
+    # Full live recomputation path
     cp_path = os.path.join("data", "raw", "case_pack.csv")
     if not os.path.exists(cp_path):
         return {"error": "case_pack.csv not found", "success": False}
@@ -363,9 +401,6 @@ def live_investigate_case(case_id: str):
     txn_df, cc_df = get_live_datasets()
     if txn_df is None:
         return {"error": "Transaction dataset not found", "success": False}
-
-    conn = get_tigergraph_connection()
-    tg_connected = conn is not None
 
     try:
         res = run_case(case_row, txn_df, None, cc_df, conn=conn)

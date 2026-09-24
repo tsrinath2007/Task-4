@@ -6452,15 +6452,17 @@
         appendTerminalLine(`-> [LLM]       Invoking Groq model for regulatory SAR synthesis & policy justification...`, '#38BDF8');
       }, 2800);
 
-      // Trigger the real live backend endpoint
+      // Trigger the real live backend endpoint with timeout safety
       try {
-        const res = await fetch(`${API_BASE}/investigate_live/${caseId}`, { method: 'POST' });
+        const fetchPromise = fetch(`${API_BASE}/investigate_live/${caseId}`, { method: 'POST' });
+        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 4500));
+        const res = await Promise.race([fetchPromise, timeoutPromise]);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 
         if (data.success) {
           liveInvestigateResultData = data;
-          finishLiveInvestigationUI(data);
+          setTimeout(() => finishLiveInvestigationUI(data), 400);
         } else {
           fallbackLiveSimulation(caseId);
         }
