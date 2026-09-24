@@ -638,7 +638,7 @@ def run_case(
     ctx.total_latency_s = total_latency_s
 
     # Ensure confidence_evolution is in canonical order of 7 steps
-    step_order = ["trigger", "graph_traversal", "detectors", "case_memory", "llm_adjudication", "evidence_request", "final"]
+    step_order = ["trigger", "graph_traversal", "detectors", "case_memory", "evidence_request", "llm_adjudication", "final"]
     ordered_evolution = sorted(
         ctx.confidence_evolution,
         key=lambda x: step_order.index(x["step"]) if x["step"] in step_order else 99

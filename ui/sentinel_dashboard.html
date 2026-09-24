@@ -3136,26 +3136,29 @@
         { step: 'graph_traversal', label: '2. Graph Traversal', tool: 'mcp_client' },
         { step: 'detectors', label: '3. Detectors', tool: 'scans (8)' },
         { step: 'case_memory', label: '4. Case Memory', tool: 'GraphRAG' },
-        { step: 'llm_adjudication', label: '5. LLM Adjudication', tool: 'llama-3.3-70b' },
-        { step: 'evidence_request', label: '6. Evidence Req', tool: 'validation' },
+        { step: 'evidence_request', label: '5. Evidence Req', tool: 'validation' },
+        { step: 'llm_adjudication', label: '6. LLM Adjudication', tool: 'qwen3.8-27b' },
         { step: 'final', label: '7. Final Policy', tool: 'policy_engine' }
       ];
 
       let evoData = [];
-      if (Array.isArray(evolution) && evolution.length === 7) {
-        evoData = evolution.map((item, idx) => ({
-          step: item.step || defaultStages[idx].step,
-          label: defaultStages[idx].label,
-          probability: typeof item.probability === 'number' ? item.probability : finalProb,
-          reason: item.reason || 'Step calibrated by investigation orchestrator',
-          tool: item.tool_used || defaultStages[idx].tool
-        }));
+      if (Array.isArray(evolution) && evolution.length > 0) {
+        evoData = defaultStages.map((stage) => {
+          const match = evolution.find(item => item.step === stage.step) || {};
+          return {
+            step: stage.step,
+            label: stage.label,
+            probability: typeof match.probability === 'number' ? match.probability : finalProb,
+            reason: match.reason || `Step ${stage.label} calibrated by autonomous orchestrator`,
+            tool: match.tool_used || stage.tool
+          };
+        });
       } else {
         const isFraud = verdict === 'fraud';
         const initP = isFraud ? 0.50 : 0.61;
         const stepsP = isFraud 
-          ? [initP, 0.72, 0.88, 0.88, finalProb, 0.88, finalProb]
-          : [initP, initP, 0.08, 0.08, finalProb, 0.05, finalProb];
+          ? [initP, 0.72, 0.88, 0.88, 0.90, finalProb, finalProb]
+          : [initP, initP, 0.08, 0.08, 0.05, finalProb, finalProb];
         evoData = defaultStages.map((s, idx) => ({
           step: s.step,
           label: s.label,
