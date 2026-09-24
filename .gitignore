@@ -34,3 +34,4 @@ venv/
 .venv/
 env/
 scratch/
+hackathon_pdf*.txt

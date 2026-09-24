@@ -23,7 +23,8 @@ from src.graph.mcp_client import (
     query_customer_cards,
     query_shared_devices,
     query_prior_cases,
-    write_case
+    write_case,
+    get_tigergraph_connection
 )
 
 
@@ -55,6 +56,11 @@ def run_case(
     Returns the complete answer dictionary and writes cases/generated/<case_id>.json.
     """
     start_time = time.time()
+    if conn is None:
+        try:
+            conn = get_tigergraph_connection()
+        except Exception:
+            conn = None
     llm = LLMAdapter()
 
     # 1. TRIGGER

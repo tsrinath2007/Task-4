@@ -21,7 +21,7 @@ from src.agent.schemas import (
     CaseMemoryOutput
 )
 
-MODEL_NAME = "llama-3.3-70b-versatile"
+MODEL_NAME = os.environ.get("GROQ_MODEL", "qwen/qwen3.8-27b")
 
 GROQ_SYSTEM = """You are an expert fraud investigator and compliance officer at a major financial institution.
 You evaluate fraud alerts using TigerGraph graph analysis, deterministic detector signals, and historical case memory.
@@ -144,6 +144,19 @@ class LLMAdapter:
 
     def call_adjudicator(self, ctx: InvestigationContext) -> AdjudicatorOutput:
         """Synthesizes case facts into verdict, pattern, summary, and structured evidence."""
+        compact_detectors = [
+            {"detector": d.get("detector"), "triggered": d.get("triggered", False), "reason": d.get("reason", "")[:100]}
+            for d in ctx.detector_results
+        ]
+        compact_priors = [
+            {"case_id": c.get("case_id"), "outcome": c.get("outcome"), "pattern": c.get("pattern")}
+            for c in ctx.retrieved_cases[:3]
+        ]
+        compact_evidence = [
+            {"type": e.get("type"), "response": e.get("assumed_response", "")[:100]}
+            for e in ctx.evidence_requests
+        ]
+
         prompt = GROQ_ADJUDICATOR_PROMPT.format(
             case_id=ctx.case_id,
             card_id=ctx.card_id,
@@ -152,20 +165,29 @@ class LLMAdapter:
             trigger_text=ctx.trigger_text,
             flagged_txn_id=ctx.flagged_txn_id,
             risk_score=ctx.risk_score if ctx.risk_score is not None else "N/A",
-            detectors_json=json.dumps(ctx.detector_results, indent=2),
-            legitimacy_json=json.dumps(ctx.legitimacy_results, indent=2),
-            connected_cards=ctx.connected_card_ids,
-            connected_devices=ctx.connected_device_profiles,
-            prior_cases=ctx.graph_context.get("prior_cases", []),
-            prior_cases_json=json.dumps(ctx.retrieved_cases, indent=2),
-            evidence_requests_json=json.dumps(ctx.evidence_requests, indent=2)
+            detectors_json=json.dumps(compact_detectors),
+            legitimacy_json=json.dumps(ctx.legitimacy_results),
+            connected_cards=ctx.connected_card_ids[:5],
+            connected_devices=ctx.connected_device_profiles[:3],
+            prior_cases=ctx.graph_context.get("prior_cases", [])[:3],
+            prior_cases_json=json.dumps(compact_priors),
+            evidence_requests_json=json.dumps(compact_evidence)
         )
 
-        response_dict = self._query_groq_or_mock("adjudicator", prompt, ctx)
-        return AdjudicatorOutput(**response_dict)
+        try:
+            response_dict = self._query_groq_or_mock("adjudicator", prompt, ctx)
+            return AdjudicatorOutput(**response_dict)
+        except Exception as e:
+            print(f"[llm_adapter] Falling back to deterministic adjudicator: {e}")
+            return AdjudicatorOutput(**self._mock_response("adjudicator", ctx))
 
     def call_action_explainer(self, ctx: InvestigationContext) -> ActionExplainerOutput:
         """Explains initial and final actions with policy rule citations."""
+        compact_evidence = [
+            {"type": e.get("type"), "response": e.get("assumed_response", "")[:100]}
+            for e in ctx.evidence_requests
+        ]
+
         prompt = GROQ_ACTION_EXPLAINER_PROMPT.format(
             case_id=ctx.case_id,
             verdict=ctx.verdict,
@@ -173,14 +195,18 @@ class LLMAdapter:
             pattern=ctx.pattern,
             exposure_usd=ctx.exposure_usd,
             ring_exposure=ctx.ring_exposure,
-            evidence_requests_json=json.dumps(ctx.evidence_requests, indent=2),
-            initial_actions_json=json.dumps(ctx.initial_actions, indent=2),
-            final_actions_json=json.dumps(ctx.final_actions, indent=2),
+            evidence_requests_json=json.dumps(compact_evidence),
+            initial_actions_json=json.dumps(ctx.initial_actions),
+            final_actions_json=json.dumps(ctx.final_actions),
             rules_applied=", ".join(ctx.rules_applied)
         )
 
-        response_dict = self._query_groq_or_mock("action_explainer", prompt, ctx)
-        return ActionExplainerOutput(**response_dict)
+        try:
+            response_dict = self._query_groq_or_mock("action_explainer", prompt, ctx)
+            return ActionExplainerOutput(**response_dict)
+        except Exception as e:
+            print(f"[llm_adapter] Falling back to deterministic action_explainer: {e}")
+            return ActionExplainerOutput(**self._mock_response("action_explainer", ctx))
 
     def call_sar(self, ctx: InvestigationContext, activity_dates: list) -> SarOutput:
         """Generates FinCEN SAR filing narrative if required, or returns file=False."""
@@ -198,19 +224,23 @@ class LLMAdapter:
             case_id=ctx.case_id,
             customer_id=ctx.customer_id,
             card_id=ctx.card_id,
-            connected_cards=ctx.connected_card_ids,
-            connected_devices=ctx.connected_device_profiles,
+            connected_cards=ctx.connected_card_ids[:5],
+            connected_devices=ctx.connected_device_profiles[:3],
             exposure_usd=ctx.exposure_usd,
             pattern=ctx.pattern,
-            summary=ctx.summary,
+            summary=ctx.summary[:150],
             first_suspicious_txn_id=ctx.first_suspicious_txn_id,
-            affected_txn_ids=ctx.affected_txn_ids,
+            affected_txn_ids=ctx.affected_txn_ids[:5],
             activity_dates=activity_dates,
             sar_reason=ctx.sar_reason
         )
 
-        response_dict = self._query_groq_or_mock("sar", prompt, ctx)
-        return SarOutput(**response_dict)
+        try:
+            response_dict = self._query_groq_or_mock("sar", prompt, ctx)
+            return SarOutput(**response_dict)
+        except Exception as e:
+            print(f"[llm_adapter] Falling back to deterministic sar: {e}")
+            return SarOutput(**self._mock_response("sar", ctx))
 
     def _query_groq_or_mock(self, prompt_type: str, prompt: str, ctx: InvestigationContext) -> Dict[str, Any]:
         """Calls Groq API with retries; falls back deterministically to _mock_response on failure or missing key."""
@@ -226,7 +256,7 @@ class LLMAdapter:
                         ],
                         response_format={"type": "json_object"},
                         temperature=0.1,
-                        max_tokens=2048
+                        max_tokens=400
                     )
                     content = response.choices[0].message.content
                     data = json.loads(content)
