@@ -4225,24 +4225,24 @@
             </div>
 
             <div style="font-size: 0.74rem; color: #334155; line-height: 1.4;">
-              ${sar.narrative ? sar.narrative.substring(0, 180) + '...' : 'Multiple structured transactions below reporting threshold, linked to known money mule network. High probability of illicit activity.'}
+              ${d.sar_filed ? (sar.narrative ? sar.narrative.substring(0, 180) + '...' : 'Mandatory Suspicious Activity Report prepared under BSA 31 CFR §1020.320.') : (v === 'legitimate' ? 'No regulatory filing required. Autonomous investigation verified all transactions as legitimate cardholder activity matching baseline subscription profiles.' : 'Suspicious activity confirmed but falls below the $1,000 FinCEN mandatory filing threshold under BSA 31 CFR §1020.320. Internal case record persisted.')}
             </div>
 
             <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 4px; font-size: 0.72rem;">
-              <div style="display: flex; align-items: center; gap: 6px;">
+              <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                 <span style="color: var(--text-muted); font-weight: 600;">Subjects:</span>
-                <span class="chip-code" style="color: #DC2626;">${d.customer_id || 'CUST-88429'}</span>
+                <span class="chip-code" style="color: ${v === 'fraud' ? '#DC2626' : '#059669'};">${d.customer_id || 'CUST-88429'}</span>
                 <span class="chip-code">${focalCard}</span>
-                <span class="chip-code">ACC-4482</span>
+                ${connectedCards.length > 0 ? `<span class="chip-code">${connectedCards[0]}</span>` : ''}
               </div>
               <div style="display: flex; justify-content: space-between; margin-top: 4px; color: var(--text-muted);">
                 <span>Total Amount: <b style="color: #059669; font-family: var(--font-mono);">${expStr}</b></span>
-                <span>Date Range: <b style="color: var(--text-main); font-family: var(--font-mono);">Mar 01, 2024 - Mar 12, 2024</b></span>
+                <span>Reporting Status: <b style="color: ${d.sar_filed ? '#DC2626' : '#059669'}; font-family: var(--font-mono);">${d.sar_filed ? 'Mandatory FinCEN Filing' : (v === 'legitimate' ? 'Exempt (Cleared Legitimate)' : 'Internal Log (< $1,000)')}</b></span>
               </div>
             </div>
 
             <div class="sar-box-light" id="sar-narrative-text">
-              ${sar.narrative || 'SUSPICIOUS ACTIVITY REPORT (SAR) NARRATIVE\n\nSUBJECT IDENTIFICATION:\nPrimary Entity: ' + (d.customer_id || 'CUST-88429') + '\nAssociated Card ID: ' + focalCard + '\nDevice ID: ' + focalDevice + '\n\nSUMMARY OF SUSPICIOUS ACTIVITY:\nBetween Mar 01, 2024 and Mar 12, 2024, the subject executed structured transactions designed to circumvent regulatory reporting thresholds. Graph expansion revealed multiple linked accounts operating on shared hardware profiles.\n\nRECOMMENDATION:\nImmediate account freeze, submission of FinCEN Form 111, and 90-day entity monitoring.'}
+              ${d.sar_filed ? (sar.narrative || 'SUSPICIOUS ACTIVITY REPORT (SAR) NARRATIVE\n\nSUBJECT IDENTIFICATION:\nPrimary Entity: ' + (d.customer_id || 'CUST-88429') + '\nAssociated Card ID: ' + focalCard + '\nDevice ID: ' + focalDevice + '\n\nSUMMARY OF SUSPICIOUS ACTIVITY:\nSuspicious transactions detected and confirmed via TigerGraph topology and customer validation.\n\nRECOMMENDATION:\nBlock card, submission of FinCEN Form 111, and continuous monitoring.') : (v === 'legitimate' ? 'NO REGULATORY FILING REQUIRED (LEGITIMATE CARDHOLDER ACTIVITY)\n\nDISPOSITION SUMMARY:\nCase ID: ' + d.case_id + '\nPrimary Customer: ' + (d.customer_id || 'N/A') + '\nCard ID: ' + focalCard + '\nAdjudicated Status: LEGITIMATE (Risk Probability: ' + probPct + '%)\n\nINVESTIGATION FINDINGS:\n1. Multi-hop graph traversal and legitimacy checks confirmed transaction metrics match established historical cardholder baseline.\n2. Disputed activity clarified as legitimate recurring subscription / authorized merchant charge.\n3. Case closed under Policy Rules R3 and R7 without card restrictions.\n4. Regulatory Suspicious Activity Report (FinCEN Form 111) is NOT required under BSA 31 CFR §1020.320.' : 'INTERNAL FRAUD CASE RECORD (BELOW FINCEN $1,000 THRESHOLD)\n\nINCIDENT DETAILS:\nCase ID: ' + d.case_id + '\nPrimary Entity: ' + (d.customer_id || 'N/A') + '\nCard ID: ' + focalCard + '\nTotal Exposure: ' + expStr + ' (Under $1,000 Mandatory Threshold)\nPattern: ' + d.pattern + '\n\nSUMMARY:\nUnauthorized activity confirmed via customer verification. Payment instrument blocked under Policy Rule R2. Because total case exposure is under the $1,000 federal reporting threshold and no multi-card syndicate was detected, formal FinCEN SAR filing is not required. Incident recorded in TigerGraph internal case memory for continuous monitoring.')}
             </div>
           </div>
 
