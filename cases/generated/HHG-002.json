@@ -1,11 +1,11 @@
 {
   "case_id": "HHG-002",
   "case": {
-    "status": "open",
-    "verdict": "uncertain",
-    "fraud_probability": 0.56,
+    "status": "closed_fraud",
+    "verdict": "fraud",
+    "fraud_probability": 0.95,
     "pattern": "card_not_present_fraud",
-    "pattern_description": "",
+    "pattern_description": "Unrecognized online transaction by a customer with a prior history of card-not-present fraud on the same card, lacking device or regional consistency signals.",
     "affected_txn_ids": [
       "3478782"
     ],
@@ -15,27 +15,35 @@
     "exposure_usd": 292.36,
     "evidence": [
       {
-        "claim": "Real-time detection model risk score 0.79",
+        "claim": "Customer does not recognize the transaction.",
+        "source": "customer",
+        "ref": "SMS validation response",
+        "entity_ids": [
+          "C11891"
+        ]
+      },
+      {
+        "claim": "Prior confirmed fraud case CC-4160 on the same card involving card-not-present fraud.",
+        "source": "document",
+        "ref": "Case CC-4160",
+        "entity_ids": [
+          "C11891-K1"
+        ]
+      },
+      {
+        "claim": "Transaction risk score is 0.79, indicating high likelihood of fraud.",
         "source": "external",
-        "ref": "risk_score",
+        "ref": "Real-time risk model",
         "entity_ids": [
           "3478782"
         ]
       },
       {
-        "claim": "Historical closed case CC-4160 (confirmed_fraud) shares structural similarity",
+        "claim": "Legitimacy score is low (2/5) with no known device or home region match.",
         "source": "document",
-        "ref": "retriever:CC-4160",
+        "ref": "Legitimacy Checklist",
         "entity_ids": [
-          "CC-4160"
-        ]
-      },
-      {
-        "claim": "Historical closed case CC-0657 (cleared) shares structural similarity",
-        "source": "document",
-        "ref": "retriever:CC-0657",
-        "entity_ids": [
-          "CC-0657"
+          "3478782"
         ]
       }
     ],
@@ -46,7 +54,7 @@
       "CC-3761",
       "CC-2091"
     ],
-    "summary": "Ambiguous transaction scored high by detection model; requires customer verification before definitive disposition.",
+    "summary": "Transaction 3478782 for $292.36 was flagged with a high risk score of 0.79. The customer explicitly denied authorization via SMS validation. The card has a prior confirmed fraud case (CC-4160) involving similar online activity, and the current transaction lacks legitimacy indicators such as known device or home region consistency.",
     "written_to_graph": true,
     "graph_case_id": "CASE-HHG-002",
     "confidence_evolution": [
@@ -76,8 +84,8 @@
       },
       {
         "step": "llm_adjudication",
-        "probability": 0.56,
-        "reason": "LLM synthesis evaluated evidence: verdict UNCERTAIN (card_not_present_fraud).",
+        "probability": 0.95,
+        "reason": "LLM synthesis evaluated evidence: verdict FRAUD (card_not_present_fraud).",
         "tool_used": "llm_adjudicator"
       },
       {
@@ -88,14 +96,14 @@
       },
       {
         "step": "final",
-        "probability": 0.56,
-        "reason": "Final adjudication established: UNCERTAIN (card_not_present_fraud). Protection actions enforced under Rules R2.",
+        "probability": 0.95,
+        "reason": "Final adjudication established: FRAUD (card_not_present_fraud). Protection actions enforced under Rules R2.",
         "tool_used": "policy_engine"
       }
     ],
     "investigation_timeline": [
       {
-        "timestamp": "12:40:15",
+        "timestamp": "02:21:13",
         "event": "Investigation triggered by risk_score",
         "state": "TRIGGER",
         "confidence": 0.79,
@@ -103,7 +111,7 @@
         "result_summary": "Alert flagged transaction 3478782 on card C11891-K1 for $292.36"
       },
       {
-        "timestamp": "12:40:15",
+        "timestamp": "02:21:13",
         "event": "Customer card portfolio queried from TigerGraph",
         "state": "INVESTIGATE",
         "confidence": 0.79,
@@ -111,7 +119,7 @@
         "result_summary": "Found 1 card(s) owned by customer C11891"
       },
       {
-        "timestamp": "12:40:23",
+        "timestamp": "02:21:17",
         "event": "Card transaction history retrieved from TigerGraph",
         "state": "INVESTIGATE",
         "confidence": 0.79,
@@ -119,7 +127,7 @@
         "result_summary": "Retrieved 44 transactions on C11891-K1"
       },
       {
-        "timestamp": "12:40:24",
+        "timestamp": "02:21:18",
         "event": "Prior closed cases queried on card",
         "state": "INVESTIGATE",
         "confidence": 0.79,
@@ -127,7 +135,7 @@
         "result_summary": "Found 1 historical closed investigation(s) for C11891-K1"
       },
       {
-        "timestamp": "12:40:24",
+        "timestamp": "02:21:18",
         "event": "Shared device scan found 0 cards on device nan",
         "state": "INVESTIGATE",
         "confidence": 0.79,
@@ -135,7 +143,7 @@
         "result_summary": "Device nan connects to 0 connected card account(s)"
       },
       {
-        "timestamp": "12:40:33",
+        "timestamp": "02:21:19",
         "event": "Evaluated 8 deterministic fraud detectors",
         "state": "GATHER_EVIDENCE",
         "confidence": 0.79,
@@ -143,7 +151,7 @@
         "result_summary": "Triggered: None"
       },
       {
-        "timestamp": "12:40:33",
+        "timestamp": "02:21:19",
         "event": "Legitimacy checklist evaluated (2/9)",
         "state": "GATHER_EVIDENCE",
         "confidence": 0.79,
@@ -151,7 +159,7 @@
         "result_summary": "Matched baseline indicators: 2 out of 9"
       },
       {
-        "timestamp": "12:40:35",
+        "timestamp": "02:21:19",
         "event": "GraphRAG memory retrieved 5 historical cases",
         "state": "GATHER_EVIDENCE",
         "confidence": 0.79,
@@ -159,7 +167,7 @@
         "result_summary": "Top precedent: CC-4160 (Outcome: confirmed_fraud)"
       },
       {
-        "timestamp": "12:40:35",
+        "timestamp": "02:21:19",
         "event": "Evidence request evaluated (denied)",
         "state": "REASSESS",
         "confidence": 0.86,
@@ -167,26 +175,26 @@
         "result_summary": "Customer contacted via SMS; states they do not recognize the transaction."
       },
       {
-        "timestamp": "12:40:36",
-        "event": "Adjudicator synthesized case verdict: UNCERTAIN",
+        "timestamp": "02:21:59",
+        "event": "Adjudicator synthesized case verdict: FRAUD",
         "state": "RECOMMEND_ACTION",
-        "confidence": 0.56,
+        "confidence": 0.95,
         "tool": "llm_adjudicator",
-        "result_summary": "Ambiguous transaction scored high by detection model; requires customer verification before definitive disposition."
+        "result_summary": "Transaction 3478782 for $292.36 was flagged with a high risk score of 0.79. The customer explicitly denied authorization via SMS validation...."
       },
       {
-        "timestamp": "12:40:37",
+        "timestamp": "02:22:56",
         "event": "Policy actions enforced: BLOCK_CARD [L1], CREATE_CASE [auto]",
         "state": "RECOMMEND_ACTION",
-        "confidence": 0.56,
+        "confidence": 0.95,
         "tool": "policy_engine",
-        "result_summary": "Applied Rules: R2. What changed: Customer validation response received (Customer contacted via SMS; states they do not recognize the...), allowing final determination and policy enforcement."
+        "result_summary": "Applied Rules: R2. What changed: The initial action of DECLINE_TRANSACTION was escalated to BLOCK_CARD after customer validation confirmed the transaction was unrecognized. The VERIFY_WITH_CUSTOMER action was removed as it had been completed, and the case creation action was retained for compliance."
       },
       {
-        "timestamp": "12:40:37",
+        "timestamp": "02:22:56",
         "event": "Case written to TigerGraph",
         "state": "UPDATE_CASE_MEMORY",
-        "confidence": 0.56,
+        "confidence": 0.95,
         "tool": "write_case",
         "result_summary": "Case record CASE-HHG-002 and associated relationship edges written to graph."
       }
@@ -204,32 +212,32 @@
       {
         "action": "DECLINE_TRANSACTION",
         "route": "L1",
-        "reason": "R5: Intercept suspected card testing or unauthorized authorization."
+        "reason": "Rule R2 mandates immediate transaction decline upon detection of high-probability (0.95) card_not_present_fraud patterns to prevent unauthorized exposure."
       },
       {
         "action": "VERIFY_WITH_CUSTOMER",
         "route": "auto",
-        "reason": "R1/R7: Verify charge with cardholder prior to taking restrictive actions."
+        "reason": "Rule R2 requires customer validation to confirm the transaction is unrecognized before proceeding with further account restrictions."
       },
       {
         "action": "CREATE_CASE",
         "route": "auto",
-        "reason": "Mandatory internal investigation record opened upon alert trigger."
+        "reason": "Rule R2 dictates the creation of a formal case record for any confirmed or highly probable fraud incident to ensure auditability and compliance."
       }
     ],
     "final": [
       {
         "action": "BLOCK_CARD",
         "route": "L1",
-        "reason": "R2: Customer denied transaction; card compromised, exposure $292.36."
+        "reason": "Rule R2 requires escalation to a full card block when customer validation confirms the transaction is unrecognized, ensuring complete protection against further unauthorized use."
       },
       {
         "action": "CREATE_CASE",
         "route": "auto",
-        "reason": "Internal case recorded and stored in TigerGraph case memory."
+        "reason": "Rule R2 mandates the creation of a formal case record to document the fraud incident, customer validation, and subsequent actions for regulatory compliance."
       }
     ],
-    "what_changed": "Customer validation response received (Customer contacted via SMS; states they do not recognize the...), allowing final determination and policy enforcement."
+    "what_changed": "The initial action of DECLINE_TRANSACTION was escalated to BLOCK_CARD after customer validation confirmed the transaction was unrecognized. The VERIFY_WITH_CUSTOMER action was removed as it had been completed, and the case creation action was retained for compliance."
   },
   "sar": {
     "file": false,
@@ -239,10 +247,10 @@
     "total_amount_usd": 0.0,
     "activity_dates": []
   },
-  "stop_reason": "Assessment concluded with balanced evidence baseline and escalated appropriately. Further steps would not change actions.",
+  "stop_reason": "Verification confirmed card compromise; exposure quantified and protective policy actions enforced. Further steps would not change actions.",
   "tool_calls": 7,
-  "tokens": 750,
-  "latency_s": 25.75,
+  "tokens": 2417,
+  "latency_s": 104.92,
   "confidence_evolution": [
     {
       "step": "trigger",
@@ -270,8 +278,8 @@
     },
     {
       "step": "llm_adjudication",
-      "probability": 0.56,
-      "reason": "LLM synthesis evaluated evidence: verdict UNCERTAIN (card_not_present_fraud).",
+      "probability": 0.95,
+      "reason": "LLM synthesis evaluated evidence: verdict FRAUD (card_not_present_fraud).",
       "tool_used": "llm_adjudicator"
     },
     {
@@ -282,14 +290,14 @@
     },
     {
       "step": "final",
-      "probability": 0.56,
-      "reason": "Final adjudication established: UNCERTAIN (card_not_present_fraud). Protection actions enforced under Rules R2.",
+      "probability": 0.95,
+      "reason": "Final adjudication established: FRAUD (card_not_present_fraud). Protection actions enforced under Rules R2.",
       "tool_used": "policy_engine"
     }
   ],
   "investigation_timeline": [
     {
-      "timestamp": "12:40:15",
+      "timestamp": "02:21:13",
       "event": "Investigation triggered by risk_score",
       "state": "TRIGGER",
       "confidence": 0.79,
@@ -297,7 +305,7 @@
       "result_summary": "Alert flagged transaction 3478782 on card C11891-K1 for $292.36"
     },
     {
-      "timestamp": "12:40:15",
+      "timestamp": "02:21:13",
       "event": "Customer card portfolio queried from TigerGraph",
       "state": "INVESTIGATE",
       "confidence": 0.79,
@@ -305,7 +313,7 @@
       "result_summary": "Found 1 card(s) owned by customer C11891"
     },
     {
-      "timestamp": "12:40:23",
+      "timestamp": "02:21:17",
       "event": "Card transaction history retrieved from TigerGraph",
       "state": "INVESTIGATE",
       "confidence": 0.79,
@@ -313,7 +321,7 @@
       "result_summary": "Retrieved 44 transactions on C11891-K1"
     },
     {
-      "timestamp": "12:40:24",
+      "timestamp": "02:21:18",
       "event": "Prior closed cases queried on card",
       "state": "INVESTIGATE",
       "confidence": 0.79,
@@ -321,7 +329,7 @@
       "result_summary": "Found 1 historical closed investigation(s) for C11891-K1"
     },
     {
-      "timestamp": "12:40:24",
+      "timestamp": "02:21:18",
       "event": "Shared device scan found 0 cards on device nan",
       "state": "INVESTIGATE",
       "confidence": 0.79,
@@ -329,7 +337,7 @@
       "result_summary": "Device nan connects to 0 connected card account(s)"
     },
     {
-      "timestamp": "12:40:33",
+      "timestamp": "02:21:19",
       "event": "Evaluated 8 deterministic fraud detectors",
       "state": "GATHER_EVIDENCE",
       "confidence": 0.79,
@@ -337,7 +345,7 @@
       "result_summary": "Triggered: None"
     },
     {
-      "timestamp": "12:40:33",
+      "timestamp": "02:21:19",
       "event": "Legitimacy checklist evaluated (2/9)",
       "state": "GATHER_EVIDENCE",
       "confidence": 0.79,
@@ -345,7 +353,7 @@
       "result_summary": "Matched baseline indicators: 2 out of 9"
     },
     {
-      "timestamp": "12:40:35",
+      "timestamp": "02:21:19",
       "event": "GraphRAG memory retrieved 5 historical cases",
       "state": "GATHER_EVIDENCE",
       "confidence": 0.79,
@@ -353,7 +361,7 @@
       "result_summary": "Top precedent: CC-4160 (Outcome: confirmed_fraud)"
     },
     {
-      "timestamp": "12:40:35",
+      "timestamp": "02:21:19",
       "event": "Evidence request evaluated (denied)",
       "state": "REASSESS",
       "confidence": 0.86,
@@ -361,41 +369,41 @@
       "result_summary": "Customer contacted via SMS; states they do not recognize the transaction."
     },
     {
-      "timestamp": "12:40:36",
-      "event": "Adjudicator synthesized case verdict: UNCERTAIN",
+      "timestamp": "02:21:59",
+      "event": "Adjudicator synthesized case verdict: FRAUD",
       "state": "RECOMMEND_ACTION",
-      "confidence": 0.56,
+      "confidence": 0.95,
       "tool": "llm_adjudicator",
-      "result_summary": "Ambiguous transaction scored high by detection model; requires customer verification before definitive disposition."
+      "result_summary": "Transaction 3478782 for $292.36 was flagged with a high risk score of 0.79. The customer explicitly denied authorization via SMS validation...."
     },
     {
-      "timestamp": "12:40:37",
+      "timestamp": "02:22:56",
       "event": "Policy actions enforced: BLOCK_CARD [L1], CREATE_CASE [auto]",
       "state": "RECOMMEND_ACTION",
-      "confidence": 0.56,
+      "confidence": 0.95,
       "tool": "policy_engine",
-      "result_summary": "Applied Rules: R2. What changed: Customer validation response received (Customer contacted via SMS; states they do not recognize the...), allowing final determination and policy enforcement."
+      "result_summary": "Applied Rules: R2. What changed: The initial action of DECLINE_TRANSACTION was escalated to BLOCK_CARD after customer validation confirmed the transaction was unrecognized. The VERIFY_WITH_CUSTOMER action was removed as it had been completed, and the case creation action was retained for compliance."
     },
     {
-      "timestamp": "12:40:37",
+      "timestamp": "02:22:56",
       "event": "Case written to TigerGraph",
       "state": "UPDATE_CASE_MEMORY",
-      "confidence": 0.56,
+      "confidence": 0.95,
       "tool": "write_case",
       "result_summary": "Case record CASE-HHG-002 and associated relationship edges written to graph."
     }
   ],
-  "verdict": "uncertain",
+  "verdict": "fraud",
   "actions": [
     {
       "action": "BLOCK_CARD",
       "route": "L1",
-      "reason": "R2: Customer denied transaction; card compromised, exposure $292.36."
+      "reason": "Rule R2 requires escalation to a full card block when customer validation confirms the transaction is unrecognized, ensuring complete protection against further unauthorized use."
     },
     {
       "action": "CREATE_CASE",
       "route": "auto",
-      "reason": "Internal case recorded and stored in TigerGraph case memory."
+      "reason": "Rule R2 mandates the creation of a formal case record to document the fraud incident, customer validation, and subsequent actions for regulatory compliance."
     }
   ],
   "sar_filed": false,
@@ -407,7 +415,7 @@
         "customer_id": "C11891"
       },
       "result_summary": "Found 1 cards",
-      "latency_ms": 30.72,
+      "latency_ms": 574.34,
       "status": "success"
     },
     {
@@ -417,7 +425,7 @@
         "card_id": "C11891-K1"
       },
       "result_summary": "Retrieved 44 transactions",
-      "latency_ms": 8232.74,
+      "latency_ms": 4198.75,
       "status": "success"
     },
     {
@@ -427,7 +435,7 @@
         "txn_id": "3478782"
       },
       "result_summary": "Found 0 connected cards",
-      "latency_ms": 244.16,
+      "latency_ms": 683.38,
       "status": "success"
     },
     {
@@ -437,7 +445,7 @@
         "card_id": "C11891-K1"
       },
       "result_summary": "Found 1 prior cases",
-      "latency_ms": 290.8,
+      "latency_ms": 354.39,
       "status": "success"
     },
     {
@@ -448,7 +456,7 @@
         "txn_id": "3478782"
       },
       "result_summary": "Evaluated 8 detectors",
-      "latency_ms": 2596.03,
+      "latency_ms": 567.22,
       "status": "success"
     },
     {
@@ -459,7 +467,7 @@
         "txn_id": "3478782"
       },
       "result_summary": "Score 2/5",
-      "latency_ms": 6912.82,
+      "latency_ms": 245.65,
       "status": "success"
     },
     {
@@ -470,12 +478,12 @@
         "top_k": 5
       },
       "result_summary": "Retrieved 5 cases",
-      "latency_ms": 1295.74,
+      "latency_ms": 145.45,
       "status": "success"
     }
   ],
   "performance": {
-    "latency_ms": 25750.0,
-    "tokens": 750
+    "latency_ms": 104920.0,
+    "tokens": 2417
   }
 }
