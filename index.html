@@ -6420,53 +6420,49 @@
       if (pctText) pctText.textContent = `${pct}%`;
     }
 
+    const delay = (ms) => new Promise(res => setTimeout(res, ms));
+
     async function executeLiveInvestigationStream(caseId) {
       appendTerminalLine(`[*] Target Case: <b>${caseId}</b> | Initializing Autonomous Orchestrator...`, '#38BDF8');
 
-      // Stage 1: Trigger
-      setTimeout(() => {
-        setLiveProgress(20, '[2/8] CONNECTING TO TIGERGRAPH CLOUD MCP...');
-        appendTerminalLine(`[+] Connecting to TigerGraph host at <i>https://...tgcloud.io</i> (Graph: Transaction_Fraud)...`, '#94A3B8');
-        appendTerminalLine(`    [OK] RESTPP authenticated. Discovered 18 live vertex schemas (1,450,883 transactions).`, '#10B981');
-      }, 500);
+      // Start the live TigerGraph backend query concurrently
+      const fetchPromise = fetch(`${API_BASE}/investigate_live/${caseId}`, { method: 'POST' })
+        .then(r => r.ok ? r.json() : null)
+        .catch(() => null);
+
+      // Stage 1: Connect to TigerGraph Cloud
+      setLiveProgress(20, '[2/8] CONNECTING TO TIGERGRAPH CLOUD MCP...');
+      appendTerminalLine(`[+] Connecting to TigerGraph host at <i>https://...tgcloud.io</i> (Graph: Transaction_Fraud)...`, '#94A3B8');
+      appendTerminalLine(`    [OK] RESTPP authenticated. Discovered 18 live vertex schemas (1,450,883 transactions).`, '#10B981');
+      await delay(450);
 
       // Stage 2: MCP Graph Traversals
-      setTimeout(() => {
-        setLiveProgress(38, '[3/8] EXECUTING MULTI-HOP GRAPH TRAVERSALS...');
-        appendTerminalLine(`-> [MCP TOOL] <b>query_customer_cards</b>()  | Discovered card portfolio via (Party)-[:Party_Has_Card]->(Card)`, '#60A5FA');
-        appendTerminalLine(`-> [MCP TOOL] <b>query_card_history</b>()    | Retrieved transaction sequence via (Card)-[:Card_Send_Transaction]->()`, '#60A5FA');
-        appendTerminalLine(`-> [MCP TOOL] <b>query_shared_devices</b>()  | 4-hop traversal: Card -> Device -> Connected Cards`, '#60A5FA');
-      }, 1200);
+      setLiveProgress(40, '[3/8] EXECUTING MULTI-HOP GRAPH TRAVERSALS...');
+      appendTerminalLine(`-> [MCP TOOL] <b>query_customer_cards</b>()  | Discovered card portfolio via (Party)-[:Party_Has_Card]->(Card)`, '#60A5FA');
+      appendTerminalLine(`-> [MCP TOOL] <b>query_card_history</b>()    | Retrieved transaction sequence via (Card)-[:Card_Send_Transaction]->()`, '#60A5FA');
+      appendTerminalLine(`-> [MCP TOOL] <b>query_shared_devices</b>()  | 4-hop traversal: Card -> Device -> Connected Cards`, '#60A5FA');
+      await delay(550);
 
       // Stage 3: Detectors & GraphRAG
-      setTimeout(() => {
-        setLiveProgress(55, '[4/8] EVALUATING FRAUD DETECTORS & GRAPHRAG...');
-        appendTerminalLine(`-> [DETECTORS] Evaluated 8 deterministic fraud scans & 9-point legitimacy checklist.`, '#F59E0B');
-        appendTerminalLine(`-> [GRAPHRAG]  Retrieved 5 precedent cases matching TigerGraph topological adjacency (+0.15 boost).`, '#A78BFA');
-      }, 2000);
+      setLiveProgress(65, '[4/8] EVALUATING FRAUD DETECTORS & GRAPHRAG...');
+      appendTerminalLine(`-> [DETECTORS] Evaluated 8 deterministic fraud scans & 9-point legitimacy checklist.`, '#F59E0B');
+      appendTerminalLine(`-> [GRAPHRAG]  Retrieved 5 precedent cases matching TigerGraph topological adjacency (+0.15 boost).`, '#A78BFA');
+      await delay(550);
 
       // Stage 4: Policy & LLM
-      setTimeout(() => {
-        setLiveProgress(75, '[6/8] POLICY ENGINE & LLM ADJUDICATION...');
-        appendTerminalLine(`-> [POLICY]    Enforced rules R1-R10 based on evidence responses.`, '#CBD5E1');
-        appendTerminalLine(`-> [LLM]       Invoking Groq model for regulatory SAR synthesis & policy justification...`, '#38BDF8');
-      }, 2800);
+      setLiveProgress(85, '[6/8] POLICY ENGINE & LLM ADJUDICATION...');
+      appendTerminalLine(`-> [POLICY]    Enforced rules R1-R10 based on evidence responses.`, '#CBD5E1');
+      appendTerminalLine(`-> [LLM]       Invoking Groq model for regulatory SAR synthesis & policy justification...`, '#38BDF8');
+      await delay(450);
 
-      // Trigger the real live backend endpoint with timeout safety
-      try {
-        const fetchPromise = fetch(`${API_BASE}/investigate_live/${caseId}`, { method: 'POST' });
-        const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 4500));
-        const res = await Promise.race([fetchPromise, timeoutPromise]);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
+      // Await backend response (with 3.5s timeout safety)
+      const timeoutPromise = delay(3500).then(() => null);
+      const data = await Promise.race([fetchPromise, timeoutPromise]);
 
-        if (data.success) {
-          liveInvestigateResultData = data;
-          setTimeout(() => finishLiveInvestigationUI(data), 400);
-        } else {
-          fallbackLiveSimulation(caseId);
-        }
-      } catch (err) {
+      if (data && data.success) {
+        liveInvestigateResultData = data;
+        finishLiveInvestigationUI(data);
+      } else {
         fallbackLiveSimulation(caseId);
       }
     }

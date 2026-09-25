@@ -79,16 +79,16 @@
         "tool_used": "retrieve_case_memory"
       },
       {
-        "step": "llm_adjudication",
-        "probability": 0.07,
-        "reason": "LLM synthesis evaluated evidence: verdict LEGITIMATE (none).",
-        "tool_used": "llm_adjudicator"
-      },
-      {
         "step": "evidence_request",
         "probability": 0.05,
         "reason": "Customer confirmed transaction validity; cleared fraud suspicion.",
         "tool_used": "customer_validation"
+      },
+      {
+        "step": "llm_adjudication",
+        "probability": 0.07,
+        "reason": "LLM synthesis evaluated evidence: verdict LEGITIMATE (none).",
+        "tool_used": "llm_adjudicator"
       },
       {
         "step": "final",
@@ -99,7 +99,7 @@
     ],
     "investigation_timeline": [
       {
-        "timestamp": "02:10:59",
+        "timestamp": "02:40:04",
         "event": "Investigation triggered by risk_score",
         "state": "TRIGGER",
         "confidence": 0.61,
@@ -107,7 +107,7 @@
         "result_summary": "Alert flagged transaction 3514030 on card C12382-K1 for $77.07"
       },
       {
-        "timestamp": "02:11:04",
+        "timestamp": "02:40:05",
         "event": "Customer card portfolio queried from TigerGraph",
         "state": "INVESTIGATE",
         "confidence": 0.61,
@@ -115,7 +115,7 @@
         "result_summary": "Found 1 card(s) owned by customer C12382"
       },
       {
-        "timestamp": "02:11:06",
+        "timestamp": "02:40:07",
         "event": "Card transaction history retrieved from TigerGraph",
         "state": "INVESTIGATE",
         "confidence": 0.61,
@@ -123,7 +123,7 @@
         "result_summary": "Retrieved 100 transactions on C12382-K1"
       },
       {
-        "timestamp": "02:11:07",
+        "timestamp": "02:40:07",
         "event": "Prior closed cases queried on card",
         "state": "INVESTIGATE",
         "confidence": 0.61,
@@ -131,7 +131,7 @@
         "result_summary": "Found 4 historical closed investigation(s) for C12382-K1"
       },
       {
-        "timestamp": "02:11:07",
+        "timestamp": "02:40:07",
         "event": "Shared device scan found 0 cards on device nan",
         "state": "INVESTIGATE",
         "confidence": 0.61,
@@ -139,7 +139,7 @@
         "result_summary": "Device nan connects to 0 connected card account(s)"
       },
       {
-        "timestamp": "02:11:08",
+        "timestamp": "02:40:09",
         "event": "Evaluated 8 deterministic fraud detectors",
         "state": "GATHER_EVIDENCE",
         "confidence": 0.08,
@@ -147,7 +147,7 @@
         "result_summary": "Triggered: recurring_merchant_scan, shared_region_scan"
       },
       {
-        "timestamp": "02:11:08",
+        "timestamp": "02:40:09",
         "event": "Legitimacy checklist evaluated (8/9)",
         "state": "GATHER_EVIDENCE",
         "confidence": 0.08,
@@ -155,7 +155,7 @@
         "result_summary": "Matched baseline indicators: 8 out of 9"
       },
       {
-        "timestamp": "02:11:26",
+        "timestamp": "02:40:26",
         "event": "GraphRAG memory retrieved 5 historical cases",
         "state": "GATHER_EVIDENCE",
         "confidence": 0.08,
@@ -163,7 +163,7 @@
         "result_summary": "Top precedent: CC-0004 (Outcome: confirmed_fraud)"
       },
       {
-        "timestamp": "02:11:26",
+        "timestamp": "02:40:26",
         "event": "Evidence request evaluated (confirmed)",
         "state": "REASSESS",
         "confidence": 0.05,
@@ -171,7 +171,7 @@
         "result_summary": "Customer contacted regarding recurring subscription. Cardholder acknowledges subscription billing and requests merchant cancellation details rather than fraud claim."
       },
       {
-        "timestamp": "02:11:27",
+        "timestamp": "02:40:27",
         "event": "Adjudicator synthesized case verdict: LEGITIMATE",
         "state": "RECOMMEND_ACTION",
         "confidence": 0.07,
@@ -179,15 +179,15 @@
         "result_summary": "Disputed transaction 3514030 matches historical recurring subscription billing pattern on card C12382-K1 with consistent monthly intervals. ..."
       },
       {
-        "timestamp": "02:11:36",
+        "timestamp": "02:40:28",
         "event": "Policy actions enforced: ALLOW_TRANSACTION [auto], CLOSE_NO_FRAUD [auto]",
         "state": "RECOMMEND_ACTION",
         "confidence": 0.07,
         "tool": "policy_engine",
-        "result_summary": "Applied Rules: R3, R7. What changed: The initial actions focused on verification and case creation due to the recurring subscription alert. After customer validation confirmed the transaction's legitimacy, the final actions shifted to allowing the transaction and closing the case with no fraud."
+        "result_summary": "Applied Rules: R3, R7. What changed: The initial actions were precautionary, requiring customer verification and case creation. After customer validation confirmed the transaction as a legitimate recurring subscription, the final actions allowed the transaction and closed the case with no fraud."
       },
       {
-        "timestamp": "02:11:36",
+        "timestamp": "02:40:28",
         "event": "Case written to TigerGraph",
         "state": "UPDATE_CASE_MEMORY",
         "confidence": 0.07,
@@ -208,32 +208,32 @@
       {
         "action": "VERIFY_WITH_CUSTOMER",
         "route": "auto",
-        "reason": "R3: Initial verification required to confirm customer intent for the recurring subscription transaction."
+        "reason": "R3: Initial verification required to confirm customer intent for the transaction."
       },
       {
         "action": "WARN_CUSTOMER",
         "route": "auto",
-        "reason": "R7: Precautionary warning issued to alert the customer of the transaction pending verification."
+        "reason": "R7: Standard warning issued to alert the customer of the transaction pending verification."
       },
       {
         "action": "CREATE_CASE",
         "route": "auto",
-        "reason": "R3: Case creation initiated to document the verification process and track the transaction status."
+        "reason": "R3: Case creation initiated to log the transaction for review and potential fraud investigation."
       }
     ],
     "final": [
       {
         "action": "ALLOW_TRANSACTION",
         "route": "auto",
-        "reason": "R3: Customer validation confirmed the transaction as a legitimate recurring subscription, clearing the fraud alert."
+        "reason": "R3: Customer validation confirmed the transaction as a legitimate recurring subscription, clearing the fraud suspicion."
       },
       {
         "action": "CLOSE_NO_FRAUD",
         "route": "auto",
-        "reason": "R7: With customer confirmation and low fraud probability (0.073), the case is closed with no fraud indicated."
+        "reason": "R7: Case closed as no fraud was detected, and the transaction was verified as legitimate."
       }
     ],
-    "what_changed": "The initial actions focused on verification and case creation due to the recurring subscription alert. After customer validation confirmed the transaction's legitimacy, the final actions shifted to allowing the transaction and closing the case with no fraud."
+    "what_changed": "The initial actions were precautionary, requiring customer verification and case creation. After customer validation confirmed the transaction as a legitimate recurring subscription, the final actions allowed the transaction and closed the case with no fraud."
   },
   "sar": {
     "file": false,
@@ -245,8 +245,8 @@
   },
   "stop_reason": "Recurring subscription pattern confirmed with cardholder; no unauthorized card compromise detected. Further steps would not change actions.",
   "tool_calls": 7,
-  "tokens": 3397,
-  "latency_s": 37.58,
+  "tokens": 3275,
+  "latency_s": 24.7,
   "confidence_evolution": [
     {
       "step": "trigger",
@@ -273,16 +273,16 @@
       "tool_used": "retrieve_case_memory"
     },
     {
-      "step": "llm_adjudication",
-      "probability": 0.07,
-      "reason": "LLM synthesis evaluated evidence: verdict LEGITIMATE (none).",
-      "tool_used": "llm_adjudicator"
-    },
-    {
       "step": "evidence_request",
       "probability": 0.05,
       "reason": "Customer confirmed transaction validity; cleared fraud suspicion.",
       "tool_used": "customer_validation"
+    },
+    {
+      "step": "llm_adjudication",
+      "probability": 0.07,
+      "reason": "LLM synthesis evaluated evidence: verdict LEGITIMATE (none).",
+      "tool_used": "llm_adjudicator"
     },
     {
       "step": "final",
@@ -293,7 +293,7 @@
   ],
   "investigation_timeline": [
     {
-      "timestamp": "02:10:59",
+      "timestamp": "02:40:04",
       "event": "Investigation triggered by risk_score",
       "state": "TRIGGER",
       "confidence": 0.61,
@@ -301,7 +301,7 @@
       "result_summary": "Alert flagged transaction 3514030 on card C12382-K1 for $77.07"
     },
     {
-      "timestamp": "02:11:04",
+      "timestamp": "02:40:05",
       "event": "Customer card portfolio queried from TigerGraph",
       "state": "INVESTIGATE",
       "confidence": 0.61,
@@ -309,7 +309,7 @@
       "result_summary": "Found 1 card(s) owned by customer C12382"
     },
     {
-      "timestamp": "02:11:06",
+      "timestamp": "02:40:07",
       "event": "Card transaction history retrieved from TigerGraph",
       "state": "INVESTIGATE",
       "confidence": 0.61,
@@ -317,7 +317,7 @@
       "result_summary": "Retrieved 100 transactions on C12382-K1"
     },
     {
-      "timestamp": "02:11:07",
+      "timestamp": "02:40:07",
       "event": "Prior closed cases queried on card",
       "state": "INVESTIGATE",
       "confidence": 0.61,
@@ -325,7 +325,7 @@
       "result_summary": "Found 4 historical closed investigation(s) for C12382-K1"
     },
     {
-      "timestamp": "02:11:07",
+      "timestamp": "02:40:07",
       "event": "Shared device scan found 0 cards on device nan",
       "state": "INVESTIGATE",
       "confidence": 0.61,
@@ -333,7 +333,7 @@
       "result_summary": "Device nan connects to 0 connected card account(s)"
     },
     {
-      "timestamp": "02:11:08",
+      "timestamp": "02:40:09",
       "event": "Evaluated 8 deterministic fraud detectors",
       "state": "GATHER_EVIDENCE",
       "confidence": 0.08,
@@ -341,7 +341,7 @@
       "result_summary": "Triggered: recurring_merchant_scan, shared_region_scan"
     },
     {
-      "timestamp": "02:11:08",
+      "timestamp": "02:40:09",
       "event": "Legitimacy checklist evaluated (8/9)",
       "state": "GATHER_EVIDENCE",
       "confidence": 0.08,
@@ -349,7 +349,7 @@
       "result_summary": "Matched baseline indicators: 8 out of 9"
     },
     {
-      "timestamp": "02:11:26",
+      "timestamp": "02:40:26",
       "event": "GraphRAG memory retrieved 5 historical cases",
       "state": "GATHER_EVIDENCE",
       "confidence": 0.08,
@@ -357,7 +357,7 @@
       "result_summary": "Top precedent: CC-0004 (Outcome: confirmed_fraud)"
     },
     {
-      "timestamp": "02:11:26",
+      "timestamp": "02:40:26",
       "event": "Evidence request evaluated (confirmed)",
       "state": "REASSESS",
       "confidence": 0.05,
@@ -365,7 +365,7 @@
       "result_summary": "Customer contacted regarding recurring subscription. Cardholder acknowledges subscription billing and requests merchant cancellation details rather than fraud claim."
     },
     {
-      "timestamp": "02:11:27",
+      "timestamp": "02:40:27",
       "event": "Adjudicator synthesized case verdict: LEGITIMATE",
       "state": "RECOMMEND_ACTION",
       "confidence": 0.07,
@@ -373,15 +373,15 @@
       "result_summary": "Disputed transaction 3514030 matches historical recurring subscription billing pattern on card C12382-K1 with consistent monthly intervals. ..."
     },
     {
-      "timestamp": "02:11:36",
+      "timestamp": "02:40:28",
       "event": "Policy actions enforced: ALLOW_TRANSACTION [auto], CLOSE_NO_FRAUD [auto]",
       "state": "RECOMMEND_ACTION",
       "confidence": 0.07,
       "tool": "policy_engine",
-      "result_summary": "Applied Rules: R3, R7. What changed: The initial actions focused on verification and case creation due to the recurring subscription alert. After customer validation confirmed the transaction's legitimacy, the final actions shifted to allowing the transaction and closing the case with no fraud."
+      "result_summary": "Applied Rules: R3, R7. What changed: The initial actions were precautionary, requiring customer verification and case creation. After customer validation confirmed the transaction as a legitimate recurring subscription, the final actions allowed the transaction and closed the case with no fraud."
     },
     {
-      "timestamp": "02:11:36",
+      "timestamp": "02:40:28",
       "event": "Case written to TigerGraph",
       "state": "UPDATE_CASE_MEMORY",
       "confidence": 0.07,
@@ -394,12 +394,12 @@
     {
       "action": "ALLOW_TRANSACTION",
       "route": "auto",
-      "reason": "R3: Customer validation confirmed the transaction as a legitimate recurring subscription, clearing the fraud alert."
+      "reason": "R3: Customer validation confirmed the transaction as a legitimate recurring subscription, clearing the fraud suspicion."
     },
     {
       "action": "CLOSE_NO_FRAUD",
       "route": "auto",
-      "reason": "R7: With customer confirmation and low fraud probability (0.073), the case is closed with no fraud indicated."
+      "reason": "R7: Case closed as no fraud was detected, and the transaction was verified as legitimate."
     }
   ],
   "sar_filed": false,
@@ -411,7 +411,7 @@
         "customer_id": "C12382"
       },
       "result_summary": "Found 1 cards",
-      "latency_ms": 5313.37,
+      "latency_ms": 534.68,
       "status": "success"
     },
     {
@@ -421,7 +421,7 @@
         "card_id": "C12382-K1"
       },
       "result_summary": "Retrieved 100 transactions",
-      "latency_ms": 2108.2,
+      "latency_ms": 1997.05,
       "status": "success"
     },
     {
@@ -431,7 +431,7 @@
         "txn_id": "3514030"
       },
       "result_summary": "Found 0 connected cards",
-      "latency_ms": 588.16,
+      "latency_ms": 603.18,
       "status": "success"
     },
     {
@@ -441,7 +441,7 @@
         "card_id": "C12382-K1"
       },
       "result_summary": "Found 4 prior cases",
-      "latency_ms": 308.61,
+      "latency_ms": 299.43,
       "status": "success"
     },
     {
@@ -452,7 +452,7 @@
         "txn_id": "3514030"
       },
       "result_summary": "Evaluated 8 detectors",
-      "latency_ms": 1046.37,
+      "latency_ms": 1014.0,
       "status": "success"
     },
     {
@@ -463,7 +463,7 @@
         "txn_id": "3514030"
       },
       "result_summary": "Score 8/9",
-      "latency_ms": 142.07,
+      "latency_ms": 134.31,
       "status": "success"
     },
     {
@@ -474,12 +474,12 @@
         "top_k": 5
       },
       "result_summary": "Retrieved 5 cases",
-      "latency_ms": 17221.61,
+      "latency_ms": 17512.29,
       "status": "success"
     }
   ],
   "performance": {
-    "latency_ms": 37580.0,
-    "tokens": 3397
+    "latency_ms": 24700.0,
+    "tokens": 3275
   }
 }
