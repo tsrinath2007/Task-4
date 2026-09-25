@@ -29,10 +29,12 @@
 Evaluated on **590,742 IEEE-CIS / Vesta transactions**, **5,565 historical closed cases**, and validated across **20 end-to-end benchmark exam cases (`HHG-001` to `HHG-020`)** with zero human intervention.
 
 - 🌐 **Live Web Cockpit:** [https://task-4-nvan.onrender.com/](https://task-4-nvan.onrender.com/)
+- 🎬 **YouTube Demo Video:** [https://youtu.be/AC_xRYlQJq8?si=f060H50EcGp2EQSc](https://youtu.be/AC_xRYlQJq8?si=f060H50EcGp2EQSc)
+- 📝 **Technical Blog (Dev.to):** [https://dev.to/tsrinath/tigergraph-agentic-fraud-investigation-hackathon-2026team-goa-t-4chl](https://dev.to/tsrinath/tigergraph-agentic-fraud-investigation-hackathon-2026team-goa-t-4chl)
+- 🐦 **Official Announcement on X (Twitter):** [https://x.com/_tsrinath_/status/2103362303173550123?s=20](https://x.com/_tsrinath_/status/2103362303173550123?s=20)
 - 📊 **Comprehensive 20-Case Benchmark Report:** [docs/BENCHMARK_REPORT.md](docs/BENCHMARK_REPORT.md)
-- 📖 **Comprehensive Technical Blog:** [docs/TECHNICAL_BLOG.md](docs/TECHNICAL_BLOG.md)
-- 🎬 **Demo Video Script & Screenplay:** [docs/DEMO_VIDEO_SCRIPT.md](docs/DEMO_VIDEO_SCRIPT.md)
-- 📱 **Official Social Media Announcement:** [docs/SOCIAL_POST.md](docs/SOCIAL_POST.md)
+- 📖 **Local Technical Blog Markdown:** [docs/TECHNICAL_BLOG.md](docs/TECHNICAL_BLOG.md)
+- 🎬 **Demo Video Screenplay:** [docs/DEMO_VIDEO_SCRIPT.md](docs/DEMO_VIDEO_SCRIPT.md)
 - 📁 **20 Ground-Truth Answer JSON Files:** [cases/generated/](cases/generated/)
 
 ---

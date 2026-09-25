@@ -8,10 +8,12 @@
 - **Bondugula Pranav Teja** (Policy Engine & GraphRAG Implementation)
 
 **Live Cockpit:** [https://task-4-nvan.onrender.com/](https://task-4-nvan.onrender.com/)  
+**YouTube Demo Video:** [https://youtu.be/AC_xRYlQJq8?si=f060H50EcGp2EQSc](https://youtu.be/AC_xRYlQJq8?si=f060H50EcGp2EQSc)  
+**Dev.to Technical Blog:** [https://dev.to/tsrinath/tigergraph-agentic-fraud-investigation-hackathon-2026team-goa-t-4chl](https://dev.to/tsrinath/tigergraph-agentic-fraud-investigation-hackathon-2026team-goa-t-4chl)  
 **GitHub Repository:** [https://github.com/tsrinath2007/Task-4](https://github.com/tsrinath2007/Task-4)  
+**Official X (Twitter) Post:** [https://x.com/_tsrinath_/status/2103362303173550123?s=20](https://x.com/_tsrinath_/status/2103362303173550123?s=20)  
 **20-Case Benchmark Report:** [docs/BENCHMARK_REPORT.md](BENCHMARK_REPORT.md)  
-**Demo Video Script:** [docs/DEMO_VIDEO_SCRIPT.md](DEMO_VIDEO_SCRIPT.md)  
-**Social Media Post:** [docs/SOCIAL_POST.md](SOCIAL_POST.md)  
+**Demo Video Screenplay:** [docs/DEMO_VIDEO_SCRIPT.md](DEMO_VIDEO_SCRIPT.md)  
 
 ---
 
